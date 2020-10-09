@@ -1,0 +1,6 @@
+# Output files
+media
+
+# Virtual environment and pycache
+venv
+__pycache__
