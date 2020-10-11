@@ -1,0 +1,18 @@
+before_script:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+
+stages:
+  - Lint
+  - Test
+
+pylint:
+  stage: Lint
+  allow_failure: true
+  script:
+    - pylint algomanim tests
+
+unit test:
+  stage: Test
+  script:
+    - pytest -v --cov=algomanim

@@ -1,6 +1,10 @@
-# Output files
+# Generated files
 media
+.coverage
 
 # Virtual environment and pycache
 venv
 __pycache__
+
+# Editors
+.vscode
