@@ -1,6 +1,6 @@
 from manimlib.imports import *
 
-class ListNode:
+class AlgoListNode:
     def __init__(self, scene, val):
         self.scene = scene
         self.sq = Square(
@@ -51,11 +51,11 @@ class ListNode:
             self.scene.play(CyclicReplace(self.grp, node.grp), CyclicReplace(node.grp, self.grp))
         # TODO: Figure out how to replace them statically (w/o animation)
 
-class List:
+class AlgoList:
     def __init__(self, scene, arr):
         # make nodes
         self.scene = scene
-        self.nodes = [ListNode(scene, val) for val in arr]
+        self.nodes = [AlgoListNode(scene, val) for val in arr]
 
         # arrange nodes in order
         for i in range(1, len(self.nodes)):
@@ -63,6 +63,7 @@ class List:
 
         # group nodes together
         self.group_and_center(animated=False)
+        self.show(animated=False)
     
     def swap(self, i, j, animated=True):
         temp = self.nodes[i]
@@ -86,7 +87,7 @@ class List:
             node.hide(animated)
 
     def append(self, val, animated=True):
-        node = ListNode(self.scene, val)
+        node = AlgoListNode(self.scene, val)
         if len(self.nodes) > 0:
             node.set_right_of(self.nodes[-1])
         self.nodes.append(node)
@@ -112,18 +113,10 @@ class List:
         
         self.group_and_center(animated)
         self.nodes[0].swap_with(self.nodes[-1], animated=False) 
-        
-class ListScene(Scene):
-    def construct(self):
-        xs = List(self, [25, 10, 43, 5, 18])
-        xs.show(animated=False)
-        xs.append(30)
-        xs.remove_index(1)
 
 class BubbleSortScene(Scene):
     def construct(self):
-        xs = List(self, [25, 43, 5, 18, 30])
-        xs.show(animated=False)
+        xs = AlgoList(self, [25, 43, 5, 18, 30])
         swaps_made = True
         while swaps_made:
             swaps_made = False        
