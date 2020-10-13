@@ -1,6 +1,7 @@
 # Generated files
 media
 .coverage
+.DS_STORE
 
 # Virtual environment and pycache
 venv
