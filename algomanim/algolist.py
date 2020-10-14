@@ -16,44 +16,46 @@ class AlgoListNode:
     def set_right_of(self, node):
         self.grp.next_to(node.grp, RIGHT)
 
-    def show(self, animated=True, together_with_prev=False):
+    def show(self, animated=True, w_prev=False):
         if animated:
-            self.scene.add_anim_grp(FadeIn(self.grp),
-                                    together_with_prev=together_with_prev)
+            self.scene.add_action(self.scene.play, *[FadeIn(self.grp)], w_prev=w_prev)
         else:
-            self.scene.add(self.grp)
+            self.scene.add_action(self.scene.add, *[self.grp], w_prev=w_prev)
     
-    def hide(self, animated=True, together_with_prev=False):
+    def hide(self, animated=True, w_prev=False):
         if animated:
-            self.scene.add_anim_grp(FadeOut(self.grp), together_with_prev=False)
+            self.scene.add_action(self.scene.play, *[FadeOut(self.grp)], w_prev=w_prev)
         else:
-            self.scene.remove(self.grp)
+            self.scene.add_action(self.remove, *[self.grp], w_prev=w_prev)
     
-    def highlight(self, animated=True, together_with_prev=False):
+    def highlight(self, animated=True, w_prev=False):
         if not self.highlighted:
             if animated:
-                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, RED),
-                                        together_with_prev=together_with_prev)
+                self.scene.add_action(self.scene.play,
+                                      *[ApplyMethod(self.sq.set_fill, RED)],
+                                      w_prev=w_prev)
             else:
                 self.sq.set_fill(RED, opacity=1.0)
-        
+                
         self.highlighted = True
     
-    def dehighlight(self, animated=True, together_with_prev=False):
+    def dehighlight(self, animated=True, w_prev=False):
         if self.highlighted:
             if animated:
-                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, WHITE, opacity=1.0),
-                                        together_with_prev=together_with_prev)
+                self.scene.add_action(self.scene.play,
+                                      *[ApplyMethod(self.sq.set_fill, WHITE)],
+                                      w_prev=w_prev)
             else:
                 self.sq.set_fill(WHITE, opacity=1.0)
         
         self.highlighted = False
     
-    def swap_with(self, node, animated=True, together_with_prev=False):
+    def swap_with(self, node, animated=True, w_prev=False):
         if animated:
-            self.scene.add_anim_grp(CyclicReplace(self.grp, node.grp),
-                                    CyclicReplace(node.grp, self.grp),
-                                    together_with_prev=False)
+            self.scene.add_action(self.scene.play,
+                                  *[CyclicReplace(self.grp, node.grp),
+                                    CyclicReplace(node.grp, self.grp)],
+                                  w_prev=w_prev)
         # TODO: Figure out how to replace them statically (w/o animation)
 
 class AlgoList:
@@ -79,7 +81,7 @@ class AlgoList:
     def group_and_center(self, animated=True):
         self.grp = VGroup(*[n.grp for n in self.nodes])
         if animated:
-            self.scene.add_anim_grp(ApplyMethod(self.grp.center))
+            self.scene.add_action(self.scene.play, *[ApplyMethod(self.grp.center)])
         else:
             self.grp.center()
     
@@ -98,7 +100,7 @@ class AlgoList:
                 self.nodes[index].highlight(animated)
                 first = False
             else:
-                self.nodes[index].highlight(animated, together_with_prev=True)
+                self.nodes[index].highlight(animated, w_prev=True)
     
     def dehighlight(self, *indexes, animated=True):
         first = True
@@ -107,7 +109,7 @@ class AlgoList:
                 self.nodes[index].dehighlight(animated)
                 first = False
             else:
-                self.nodes[index].dehighlight(animated, together_with_prev=True)
+                self.nodes[index].dehighlight(animated, w_prev=True)
 
     def get_val(self, index, animated=False):
         if animated:
@@ -140,7 +142,8 @@ class AlgoList:
             # if not, simply centering the remaining list would be enough
             rightGrp = VGroup(*[node.grp for node in rightNodes])
             if animated:
-                self.scene.add_anim_grp(ApplyMethod(rightGrp.next_to, leftNode.grp, RIGHT))
+                self.scene.add_action(self.scene.play,
+                                      *[ApplyMethod(rightGrp.next_to, leftNode.grp, RIGHT)])
             else:
                 rightGrp.set_right_of(leftNode)
         
@@ -153,8 +156,9 @@ class AlgoList:
         
         sublist.grp.align_to(self.nodes[start].grp, LEFT)
         if animated:
-            self.scene.add_anim_grp(ApplyMethod(sublist.grp.shift,
-                                                DOWN * 1.1 * self.nodes[0].sq.side_length))
+            self.scene.add_action(self.scene.play,
+                                  *[ApplyMethod(sublist.grp.shift,
+                                                DOWN * 1.1 * self.nodes[0].sq.side_length)])
         else:
             sublist.grp.shift(DOWN * 1.1 * self.nodes[0].sq.side_length)
         return sublist
@@ -162,7 +166,8 @@ class AlgoList:
     def concat(self, ys, animated=True):
         self.nodes += ys.nodes
         if animated:
-            self.scene.add_anim_grp(ApplyMethod(ys.grp.next_to, self.grp, RIGHT))
+            self.scene.add_action(self.scene.play,
+                                  *[ApplyMethod(ys.grp.next_to, self.grp, RIGHT)])
         else:
             ys.grp.next_to(self.grp, RIGHT)
         self.group_and_center(animated)

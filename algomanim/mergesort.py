@@ -7,8 +7,8 @@ class MergeSortScene(AlgoScene):
         self.mergeSort(xs)
 
     def mergeSort(self, xs):
-        self.add_anim_grp('clear')
-        xs.show(animated=True)
+        self.add_action(self.clear)
+        xs.show()
         if xs.len() > 1:
             m = xs.len() // 2
             left = xs.slice(0, m)
@@ -16,7 +16,7 @@ class MergeSortScene(AlgoScene):
             right = xs.slice(m, xs.len())
             right = self.mergeSort(right)
 
-            xs.hide(animated=True)
+            xs.hide()
             xs = AlgoList(self, [])
 
             while left.len() > 0 and right.len() > 0:
