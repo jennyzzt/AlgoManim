@@ -69,7 +69,8 @@ class AlgoList:
             self.nodes[i].set_right_of(self.nodes[i - 1])
 
         # group nodes together
-        self.group_and_center(animated=False)
+        self.group()
+        self.center(animated=False)
         self.show(animated=False)
     
     def swap(self, i, j, animated=True):
@@ -77,9 +78,11 @@ class AlgoList:
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
         self.nodes[i].swap_with(self.nodes[j], animated)
-    
-    def group_and_center(self, animated=True):
+
+    def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
+        
+    def center(self, animated=True):
         if animated:
             self.scene.add_action(self.scene.play, *[ApplyMethod(self.grp.center)])
         else:
@@ -126,7 +129,8 @@ class AlgoList:
         self.nodes.append(node)
 
         node.show(animated)
-        self.group_and_center(animated)
+        self.group()
+        self.center(animated=False)
 
     def pop(self, i=None, animated=True):
         if i is None:
@@ -136,6 +140,7 @@ class AlgoList:
 
         self.nodes[i].hide(animated)
         self.nodes.remove(self.nodes[i])
+        self.group()
 
         if rightNodes is not None and leftNode is not None:
             # gap only needs to be closed if there are nodes on the left and right
@@ -146,10 +151,7 @@ class AlgoList:
                                       *[ApplyMethod(rightGrp.next_to, leftNode.grp, RIGHT)])
             else:
                 self.scene.add_action(rightGrp.set_right_of, *[leftNode])
-        
-        self.group_and_center(animated)
-        #self.nodes[0].swap_with(self.nodes[-1], animated=False)
-
+                
     def slice(self, start, stop, step=1, animated=True):
         self.highlight(*range(start, stop, step), animated=animated)
 
@@ -173,5 +175,5 @@ class AlgoList:
                                   *[ApplyMethod(ys.grp.next_to, self.grp, RIGHT)])
         else:
             self.scene.add_action(ys.grp.next_to, *[self.grp, RIGHT])
-        self.group_and_center(animated)
-        
+        self.group()
+        self.center(animated=False)
