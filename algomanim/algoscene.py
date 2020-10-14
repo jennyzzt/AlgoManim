@@ -14,4 +14,8 @@ class AlgoScene(Scene):
         self.anim_grps = []
         self.algoconstruct()
         for anim_grp in self.anim_grps:
-            self.play(*anim_grp)
+            print(anim_grp)
+            if anim_grp[0] == 'clear':
+                self.clear()
+            else:
+                self.play(*anim_grp)

@@ -109,7 +109,9 @@ class AlgoList:
             else:
                 self.nodes[index].dehighlight(animated, together_with_prev=True)
 
-    def get_val(self, index):
+    def get_val(self, index, animated=False):
+        if animated:
+            self.highlight(index)
         return self.nodes[index].val
 
     def len(self):
@@ -117,7 +119,7 @@ class AlgoList:
 
     def append(self, val, animated=True):
         node = AlgoListNode(self.scene, val)
-        if len(self.nodes) > 0:
+        if self.len() > 0:
             node.set_right_of(self.nodes[-1])
         self.nodes.append(node)
 
@@ -145,6 +147,23 @@ class AlgoList:
         self.group_and_center(animated)
         #self.nodes[0].swap_with(self.nodes[-1], animated=False)
 
-    def slice(self, start, stop, step=1):
+    def slice(self, start, stop, step=1, animated=True):
         subvals = [n.val for n in self.nodes][start:stop:step]
-        return AlgoList(self.scene, subvals)
+        sublist = AlgoList(self.scene, subvals)
+        
+        sublist.grp.align_to(self.nodes[start].grp, LEFT)
+        if animated:
+            self.scene.add_anim_grp(ApplyMethod(sublist.grp.shift,
+                                                DOWN * 1.1 * self.nodes[0].sq.side_length))
+        else:
+            sublist.grp.shift(DOWN * 1.1 * self.nodes[0].sq.side_length)
+        return sublist
+
+    def concat(self, ys, animated=True):
+        self.nodes += ys.nodes
+        if animated:
+            self.scene.add_anim_grp(ApplyMethod(ys.grp.next_to, self.grp, RIGHT))
+        else:
+            ys.grp.next_to(self.grp, RIGHT)
+        self.group_and_center(animated)
+        
