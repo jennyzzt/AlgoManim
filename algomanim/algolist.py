@@ -18,7 +18,8 @@ class AlgoListNode:
 
     def show(self, animated=True, together_with_prev=False):
         if animated:
-            self.scene.add_anim_grp(FadeIn(self.grp), together_with_prev=together_with_prev)
+            self.scene.add_anim_grp(FadeIn(self.grp),
+                                    together_with_prev=together_with_prev)
         else:
             self.scene.add(self.grp)
     
@@ -31,7 +32,8 @@ class AlgoListNode:
     def highlight(self, animated=True, together_with_prev=False):
         if not self.highlighted:
             if animated:
-                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, RED), together_with_prev=together_with_prev)
+                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, RED),
+                                        together_with_prev=together_with_prev)
             else:
                 self.sq.set_fill(RED, opacity=1.0)
         
@@ -40,7 +42,8 @@ class AlgoListNode:
     def dehighlight(self, animated=True, together_with_prev=False):
         if self.highlighted:
             if animated:
-                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, WHITE, opacity=1.0), together_with_prev=together_with_prev)
+                self.scene.add_anim_grp(ApplyMethod(self.sq.set_fill, WHITE, opacity=1.0),
+                                        together_with_prev=together_with_prev)
             else:
                 self.sq.set_fill(WHITE, opacity=1.0)
         
@@ -48,7 +51,9 @@ class AlgoListNode:
     
     def swap_with(self, node, animated=True, together_with_prev=False):
         if animated:
-            self.scene.add_anim_grp(CyclicReplace(self.grp, node.grp), CyclicReplace(node.grp, self.grp), together_with_prev=False)
+            self.scene.add_anim_grp(CyclicReplace(self.grp, node.grp),
+                                    CyclicReplace(node.grp, self.grp),
+                                    together_with_prev=False)
         # TODO: Figure out how to replace them statically (w/o animation)
 
 class AlgoList:
@@ -107,6 +112,9 @@ class AlgoList:
     def get_val(self, index):
         return self.nodes[index].val
 
+    def len(self):
+        return len(self.nodes)
+
     def append(self, val, animated=True):
         node = AlgoListNode(self.scene, val)
         if len(self.nodes) > 0:
@@ -116,7 +124,9 @@ class AlgoList:
         node.show(animated)
         self.group_and_center(animated)
 
-    def remove_index(self, i, animated=True):
+    def pop(self, i=None, animated=True):
+        if i is None:
+            i = self.len()-1
         leftNode = self.nodes[i - 1] if i != 0 else None
         rightNodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
@@ -133,4 +143,8 @@ class AlgoList:
                 rightGrp.set_right_of(leftNode)
         
         self.group_and_center(animated)
-        self.nodes[0].swap_with(self.nodes[-1], animated=False)
+        #self.nodes[0].swap_with(self.nodes[-1], animated=False)
+
+    def slice(self, start, stop, step=1):
+        subvals = [n.val for n in self.nodes][start:stop:step]
+        return AlgoList(self.scene, subvals)
