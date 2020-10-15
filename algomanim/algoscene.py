@@ -1,3 +1,4 @@
+# pylint: disable=R0903
 from manimlib.imports import Scene
 
 class AlgoSceneAction:
@@ -20,5 +21,5 @@ class AlgoScene(Scene):
         self.actions = []
         self.anim_grps = []
         self.algoconstruct()
-        for a in self.actions:
-            a.act(*a.args)
+        for action in self.actions:
+            action.act(*action.args)

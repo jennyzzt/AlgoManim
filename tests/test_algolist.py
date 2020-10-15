@@ -18,39 +18,42 @@ class TestAlgoList:
     @patch("algomanim.algolist.CyclicReplace")
     def test_swap_adds_two_cyclicreplaces(self, cyclicreplace, algoscene):
         algolist = AlgoList(algoscene, test_list)
+        algoscene.reset_mock()
+
         algolist.swap(0, 1)
-        algoscene.add_action.assert_called()
-        # algoscene.add_action.assert_called_once_with(
-        #     algoscene.play,
-        #     *[cyclicreplace(), cyclicreplace()],
-        #     w_prev=False
-        # )
+        algoscene.add_action.assert_called_once_with(
+            algoscene.play,
+            cyclicreplace(), cyclicreplace(),
+            w_prev=False
+        )
 
 
     @patch("algomanim.algolist.ApplyMethod")
     def test_highlight_adds_applymethod_when_not_highlighted(self, applymethod, algoscene):
         algolist = AlgoList(algoscene, test_list)
+        algoscene.reset_mock()
 
         algolist.highlight(0)
-        #algoscene.add_action.assert_called_once_with(
-        #     algoscene.play, *[applymethod()], w_prev=False
-        # )
-        # algoscene.reset_mock()
+        algoscene.add_action.assert_called_once_with(
+            algoscene.play, applymethod(), w_prev=False
+        )
+        algoscene.reset_mock()
 
         algolist.highlight(0)
-        algoscene.add_action.assert_called()
-        #algoscene.add_action.assert_not_called()
+        algoscene.add_action.assert_not_called()
 
 
     @patch("algomanim.algolist.ApplyMethod")
     def test_dehighlight_adds_applymethod_when_highlighted(self, applymethod, algoscene):
         algolist = AlgoList(algoscene, test_list)
+        algoscene.reset_mock()
 
         algolist.dehighlight(0)
-        #algoscene.add_action.assert_not_called()
+        algoscene.add_action.assert_not_called()
 
         algolist.highlight(0)
         algoscene.reset_mock()
         algolist.dehighlight(0)
-        #algoscene.add_action.assert_called_once_with(applymethod(), w_prev=False)
-        algoscene.add_action.assert_called()
+        algoscene.add_action.assert_called_once_with(
+            algoscene.play, applymethod(), w_prev=False
+        )

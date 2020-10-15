@@ -1,5 +1,7 @@
 [MASTER]
 disable=
+    W0401, # wildcard-import
+    W0614, # unused-wildcard-import
     C0114, # missing-module-docstring
     C0115, # missing-class-docstring
     C0116, # missing-function-docstring
