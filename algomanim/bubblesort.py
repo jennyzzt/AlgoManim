@@ -7,7 +7,7 @@ class BubbleSortScene(AlgoScene):
         swaps_made = True
         while swaps_made:
             swaps_made = False        
-            for i in range(len(xs.nodes) - 1):
+            for i in range(xs.len() - 1):
                 j = i + 1
                 xs.highlight(i, j)
                 if xs.get_val(i) < xs.get_val(j):
