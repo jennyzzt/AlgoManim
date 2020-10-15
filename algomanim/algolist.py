@@ -136,6 +136,8 @@ class AlgoList:
     def pop(self, i=None, animated=True):
         if i is None:
             i = self.len()-1
+        elif i < 0 or i >= self.len():
+            return
         left_node = self.nodes[i - 1] if i != 0 else None
         right_nodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
@@ -154,6 +156,10 @@ class AlgoList:
                 self.scene.add_action(right_grp.set_right_of, *[left_node])
 
     def slice(self, start, stop, step=1, animated=True):
+        if start < 0:
+            start = 0
+        if stop > self.len():
+            stop = self.len()
         self.highlight(*range(start, stop, step), animated=animated)
 
         subvals = [n.val for n in self.nodes][start:stop:step]
@@ -177,4 +183,3 @@ class AlgoList:
         else:
             self.scene.add_action(other_list.grp.next_to, *[self.grp, RIGHT])
         self.group()
-        self.center(animated=False)

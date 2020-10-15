@@ -43,6 +43,7 @@ class MergeSortScene(AlgoScene):
 
             algolist.concat(left)
             algolist.concat(right)
+            algolist.center()
 
         sorted_text = TextMobject("Sorted")
         sorted_text.shift(UP)
