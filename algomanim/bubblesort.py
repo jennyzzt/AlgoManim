@@ -9,9 +9,6 @@ class BubbleSortScene(AlgoScene):
             swaps_made = False
             for i in range(algolist.len() - 1):
                 j = i + 1
-                algolist.highlight(i, j)
-                if algolist.get_val(i) < algolist.get_val(j):
+                if algolist.compare(i, j):
                     swaps_made = True
                     algolist.swap(i, j)
-                algolist.dehighlight(i, j)
-            algolist.nodes[j].dehighlight()
