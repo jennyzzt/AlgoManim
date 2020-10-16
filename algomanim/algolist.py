@@ -10,7 +10,6 @@ class AlgoListNode:
         self.val = val
         self.txt = TextMobject(str(val))
         self.txt.set_color(BLACK)
-        self.highlighted = False
 
         self.grp = VGroup(self.square, self.txt)
 
@@ -30,26 +29,20 @@ class AlgoListNode:
             self.scene.add_action(self.scene.remove, *[self.grp], w_prev=w_prev)
 
     def highlight(self, animated=True, w_prev=False):
-        if not self.highlighted:
-            if animated:
-                self.scene.add_action(self.scene.play,
-                                      *[ApplyMethod(self.square.set_fill, RED)],
-                                      w_prev=w_prev)
-            else:
-                self.scene.add_action(self.square.set_fill, *[RED])
-
-        self.highlighted = True
+        if animated:
+            self.scene.add_action(self.scene.play,
+                                    *[ApplyMethod(self.square.set_fill, RED)],
+                                    w_prev=w_prev)
+        else:
+            self.scene.add_action(self.square.set_fill, *[RED])
 
     def dehighlight(self, animated=True, w_prev=False):
-        if self.highlighted:
-            if animated:
-                self.scene.add_action(self.scene.play,
-                                      *[ApplyMethod(self.square.set_fill, WHITE)],
-                                      w_prev=w_prev)
-            else:
-                self.scene.add_action(self.square.set_fill, *[WHITE])
-
-        self.highlighted = False
+        if animated:
+            self.scene.add_action(self.scene.play,
+                                    *[ApplyMethod(self.square.set_fill, WHITE)],
+                                    w_prev=w_prev)
+        else:
+            self.scene.add_action(self.square.set_fill, *[WHITE])
 
     def swap_with(self, node, animated=True, w_prev=False):
         if animated:
@@ -79,6 +72,11 @@ class AlgoList:
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
         self.nodes[i].swap_with(self.nodes[j], animated)
+
+    def compare(self, i, j, animated=True):
+        self.dehighlight(0, 1, 2, 3, 4, animated=animated)
+        self.highlight(i, j, animated=animated)
+        return self.get_val(i) < self.get_val(j)
 
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])

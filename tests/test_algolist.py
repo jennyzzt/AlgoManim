@@ -27,38 +27,6 @@ class TestAlgoList:
             w_prev=False
         )
 
-
-    @patch("algomanim.algolist.ApplyMethod")
-    def test_highlight_adds_applymethod_when_not_highlighted(self, applymethod, algoscene):
-        algolist = AlgoList(algoscene, test_list)
-        algoscene.reset_mock()
-
-        algolist.highlight(0)
-        algoscene.add_action.assert_called_once_with(
-            algoscene.play, applymethod(), w_prev=False
-        )
-        algoscene.reset_mock()
-
-        algolist.highlight(0)
-        algoscene.add_action.assert_not_called()
-
-
-    @patch("algomanim.algolist.ApplyMethod")
-    def test_dehighlight_adds_applymethod_when_highlighted(self, applymethod, algoscene):
-        algolist = AlgoList(algoscene, test_list)
-        algoscene.reset_mock()
-
-        algolist.dehighlight(0)
-        algoscene.add_action.assert_not_called()
-
-        algolist.highlight(0)
-        algoscene.reset_mock()
-        algolist.dehighlight(0)
-        algoscene.add_action.assert_called_once_with(
-            algoscene.play, applymethod(), w_prev=False
-        )
-
-        
     @patch("algomanim.algolist.AlgoListNode.show")
     @patch("algomanim.algolist.AlgoListNode.set_right_of")
     def test_append_to_right_of_list(self, show, set_right_of, algoscene):
@@ -73,7 +41,6 @@ class TestAlgoList:
 
         show.assert_called_once()
         set_right_of.assert_called_once()
-
         
     @patch("algomanim.algolist.AlgoListNode.hide")
     def test_pop_last_element_when_no_given_index(self, hide, algoscene):
@@ -101,7 +68,6 @@ class TestAlgoList:
         sublist = algolist.slice(-1, 3)
         assert sublist.len() == algolist.len()
         highlight.assert_called_once()
-
         
     @patch("algomanim.algolist.ApplyMethod")
     def test_concat_two_lists_together(self, applymethod, algoscene):
@@ -115,4 +81,3 @@ class TestAlgoList:
         algoscene.add_action.assert_called_once_with(
             algoscene.play, applymethod()
         )
-        
