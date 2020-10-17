@@ -14,15 +14,15 @@ class TestAlgoList:
         AlgoList(algoscene, test_list)
         show.assert_called_once()
 
-    @patch("algomanim.algolist.CyclicReplace")
-    def test_swap_adds_two_cyclicreplaces(self, cyclicreplace, algoscene):
+    @patch("algomanim.algolist.AlgoTransform")
+    def test_swap_adds_two_transforms(self, algotransform, algoscene):
         algolist = AlgoList(algoscene, test_list)
         algoscene.reset_mock()
 
         algolist.swap(0, 1)
         algoscene.add_action.assert_called_once_with(
             algoscene.play,
-            cyclicreplace(), cyclicreplace(),
+            algotransform(), algotransform(),
             w_prev=False
         )
 
@@ -58,17 +58,16 @@ class TestAlgoList:
         hide.assert_not_called()
 
     #pylint: disable=unused-argument
-    @patch("algomanim.algolist.ApplyMethod")
     @patch("algomanim.algolist.AlgoList.highlight")
-    def test_slice_outofbounds_index_get_truncated(self, applymethod,
+    def test_slice_outofbounds_index_get_truncated(self,
                                                    highlight, algoscene):
         algolist = AlgoList(algoscene, test_list)
         sublist = algolist.slice(-1, 3)
         assert sublist.len() == algolist.len()
         highlight.assert_called_once()
 
-    @patch("algomanim.algolist.ApplyMethod")
-    def test_concat_two_lists_together(self, applymethod, algoscene):
+    @patch("algomanim.algolist.AlgoTransform")
+    def test_concat_two_lists_together(self, algotransform, algoscene):
         algolist1 = AlgoList(algoscene, test_list)
         algolist1_prevlen = algolist1.len()
         algolist2 = AlgoList(algoscene, test_list)
@@ -76,5 +75,5 @@ class TestAlgoList:
         algolist1.concat(algolist2)
         assert algolist1.len() == algolist2.len() + algolist1_prevlen
         algoscene.add_action.assert_called_once_with(
-            algoscene.play, applymethod()
+            algoscene.play, algotransform()
         )

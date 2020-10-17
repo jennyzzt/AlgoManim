@@ -1,6 +1,6 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algoscene import AlgoScene
+from algomanim.algoscene import AlgoScene, AlgoTransform
 
 
 mock_animation = Mock()
@@ -24,16 +24,16 @@ class TestAlgoScene:
 # AlgoScene instantiations with specific algoconstructs for test cases
 class AlgoSceneTestSingle(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, mock_animation)
+        self.add_action(self.play, AlgoTransform([mock_animation]))
 
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, mock_animation)
-        self.add_action(self.play, mock_animation, w_prev=True)
+        self.add_action(self.play, AlgoTransform([mock_animation]))
+        self.add_action(self.play, AlgoTransform([mock_animation]), w_prev=True)
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, mock_animation)
-        self.add_action(self.play, mock_animation, w_prev=False)
+        self.add_action(self.play, AlgoTransform([mock_animation]))
+        self.add_action(self.play, AlgoTransform([mock_animation]), w_prev=False)

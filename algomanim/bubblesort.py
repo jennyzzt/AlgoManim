@@ -1,3 +1,4 @@
+from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
@@ -12,3 +13,9 @@ class BubbleSortScene(AlgoScene):
                 if algolist.compare(i, j):
                     swaps_made = True
                     algolist.swap(i, j)
+
+        highlight1 = self.actions[15]
+        highlight2 = self.actions[16]
+
+        highlight1.change_color(PINK)
+        highlight2.change_color(PINK)
