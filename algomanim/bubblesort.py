@@ -14,8 +14,24 @@ class BubbleSortScene(AlgoScene):
                     swaps_made = True
                     algolist.swap(i, j)
 
-        highlight1 = self.actions[15]
-        highlight2 = self.actions[16]
+        # demonstrating the allowed edits that can be made for animations
+        # TODO: add CSS style selector so that action_pairs list is more easily
+        # searchable. Hardcoding indexes is very tedious.
 
-        highlight1.change_color(PINK)
-        highlight2.change_color(PINK)
+        # 1) color of highlight is changed for first iteration of algorithm
+        highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
+        for index in highlight_indices:
+            self.action_pairs[index].change_color(PURPLE)
+
+        # 2) animations are fast forwarded (2x speed) for second iteration
+        self.fast_forward(45, 75)
+
+        # 3) insert a wait in between animations
+        self.add_wait(75)
+
+        # TODO: insert FadeOut animation => so that skipping is not so abrupt
+
+        # TODO: insert FadeIn animation => so that skipping is not so abrupt
+
+        # 4) skip remaining animations from third iteration till the end
+        self.skip_actions(76)

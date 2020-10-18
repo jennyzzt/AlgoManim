@@ -1,6 +1,6 @@
 # pylint: disable=E0602,E1101
 from manimlib.imports import *
-from algomanim.algoscene import AlgoTransform
+from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 
 class AlgoListNode:
     def __init__(self, scene, val):
@@ -15,49 +15,60 @@ class AlgoListNode:
         self.grp = VGroup(self.square, self.txt)
 
     def set_right_of(self, node):
-        self.scene.add_action(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
+        action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
+        anim_action = action
+        self.scene.add_action_pair(anim_action, action)
 
     def show(self, animated=True, w_prev=False):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev)
-        else:
-            self.scene.add_action(self.scene.add,
-                AlgoTransform([self.grp]), w_prev=w_prev)
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev, can_change_runtime=True)
+        action = AlgoSceneAction(self.scene.add, AlgoTransform([self.grp]), w_prev=w_prev)
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
 
     def hide(self, animated=True, w_prev=False):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                AlgoTransform([self.grp], transform=FadeOut), w_prev=w_prev)
-        else:
-            self.scene.add_action(self.scene.remove,
-                AlgoTransform([self.grp]), w_prev=w_prev)
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.grp], transform=FadeOut), w_prev=w_prev, can_change_runtime=True)
+        action = AlgoSceneAction(self.scene.remove,
+            AlgoTransform([self.grp]), w_prev=w_prev)
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
 
     def highlight(self, animated=True, w_prev=False):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                                    AlgoTransform([self.square.set_fill, RED],
-                                        transform=ApplyMethod, color_index=1),
-                                    w_prev=w_prev)
-        else:
-            self.scene.add_action(self.square.set_fill, AlgoTransform([RED]))
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.square.set_fill, RED], transform=ApplyMethod, color_index=1),
+            w_prev=w_prev, can_change_runtime=True)
+        action = AlgoSceneAction(self.square.set_fill, AlgoTransform([RED], color_index=0))
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
 
     def dehighlight(self, animated=True, w_prev=False):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                                    AlgoTransform([self.square.set_fill, WHITE],
-                                        transform=ApplyMethod, color_index=1),
-                                    w_prev=w_prev)
-        else:
-            self.scene.add_action(self.square.set_fill, AlgoTransform([WHITE]))
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.square.set_fill, WHITE], transform=ApplyMethod, color_index=1),
+            w_prev=w_prev, can_change_runtime=True)
+        action = AlgoSceneAction(self.square.set_fill, AlgoTransform([WHITE], color_index=0))
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
+
+    def static_swap(self, node):
+        self_center = self.grp.get_center()
+        node_center = node.grp.get_center()
+        self.grp.move_to(node_center)
+        node.grp.move_to(self_center)
 
     def swap_with(self, node, animated=True, w_prev=False):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                                  AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
-                                  AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
-                                  w_prev=w_prev)
-        # Figure out how to replace them statically (w/o animation)
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
+            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
+            w_prev=w_prev, can_change_runtime=True)
+        action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
 
 class AlgoList:
     def __init__(self, scene, arr):
@@ -89,11 +100,12 @@ class AlgoList:
         self.grp = VGroup(*[n.grp for n in self.nodes])
 
     def center(self, animated=True):
-        if animated:
-            self.scene.add_action(self.scene.play,
-                AlgoTransform([self.grp.center], transform=ApplyMethod))
-        else:
-            self.scene.add_action(self.grp.center)
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([self.grp.center], transform=ApplyMethod), can_change_runtime=True)
+        action = AlgoSceneAction(self.grp.center)
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
 
     def show(self, animated=True):
         for node in self.nodes:
@@ -155,12 +167,13 @@ class AlgoList:
             # gap only needs to be closed if there are nodes on the left and right
             # if not, simply centering the remaining list would be enough
             right_grp = VGroup(*[node.grp for node in right_nodes])
-            if animated:
-                self.scene.add_action(self.scene.play,
-                                        AlgoTransform([right_grp.next_to, left_node.grp, RIGHT],
-                                            transform=ApplyMethod))
-            else:
-                self.scene.add_action(right_grp.set_right_of, AlgoTransform([left_node]))
+
+            anim_action = AlgoSceneAction(self.scene.play,
+                AlgoTransform([right_grp.next_to, left_node.grp, RIGHT], transform=ApplyMethod), can_change_runtime=True)
+            action = AlgoSceneAction(right_grp.set_right_of, AlgoTransform([left_node]))
+            run_time = None if animated else 0
+
+            self.scene.add_action_pair(anim_action, action, run_time)
 
     def slice(self, start, stop, step=1, animated=True):
         if start < 0:
@@ -172,23 +185,29 @@ class AlgoList:
         subvals = [n.val for n in self.nodes][start:stop:step]
         sublist = AlgoList(self.scene, subvals)
 
-        self.scene.add_action(sublist.grp.align_to, *[self.nodes[start].grp, LEFT])
-        if animated:
-            self.scene.add_action(self.scene.play,
-                                  AlgoTransform([sublist.grp.shift,
-                                                DOWN * 1.1 * self.nodes[0].square.side_length],
-                                                transform=ApplyMethod))
-        else:
-            self.scene.add_action(sublist.grp.shift,
-                                  AlgoTransform([DOWN * 1.1 * self.nodes[0].square.side_length]))
+        action = AlgoSceneAction(sublist.grp.align_to, *[self.nodes[start].grp, LEFT])
+        anim_action = action
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
+
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([sublist.grp.shift, DOWN * 1.1 * self.nodes[0].square.side_length],
+                transform=ApplyMethod), can_change_runtime=True)
+        action = AlgoSceneAction(sublist.grp.shift,
+            AlgoTransform([DOWN * 1.1 * self.nodes[0].square.side_length]))
+
+        self.scene.add_action_pair(anim_action, action, run_time)
         return sublist
 
     def concat(self, other_list, animated=True):
         self.nodes += other_list.nodes
-        if animated:
-            self.scene.add_action(self.scene.play,
-                                  AlgoTransform([other_list.grp.next_to, self.grp, RIGHT],
-                                    transform=ApplyMethod))
-        else:
-            self.scene.add_action(other_list.grp.next_to, AlgoTransform([self.grp, RIGHT]))
+
+        anim_action = AlgoSceneAction(self.scene.play,
+            AlgoTransform([other_list.grp.next_to, self.grp, RIGHT],
+                transform=ApplyMethod), can_change_runtime=True)
+        action = AlgoSceneAction(other_list.grp.next_to, AlgoTransform([self.grp, RIGHT]))
+        run_time = None if animated else 0
+
+        self.scene.add_action_pair(anim_action, action, run_time)
         self.group()
