@@ -1,6 +1,5 @@
 # pylint: disable=R0903
 from manimlib.imports import *
-import inspect
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
@@ -100,7 +99,7 @@ class AlgoScene(Scene):
     def add_action_pair(self, anim_action, action, run_time=None):
         self.action_pairs.append(AlgoSceneActionPair(anim_action, action, run_time))
 
-    def skip_actions(self, start, end=None):
+    def skip(self, start, end=None):
         if end is None:
             end = len(self.action_pairs)
 
@@ -136,7 +135,9 @@ class AlgoScene(Scene):
             action_pair.run()
 
         if len(self.action_pairs) > 0:
-            if action.act != self.play or action.act != self.wait or action_pair.run_time is None:
-                # wait action is required at the end if last animation is not 
+            last_action_pair = self.action_pairs[-1]
+            last_act = last_action_pair.act()
+            if last_act != self.play or last_act != self.wait or last_action_pair.run_time is None: # pylint: disable=W0143
+                # wait action is required at the end if last animation is not
                 # a play/wait or has been skipped, else the last animation will not be rendered
                 self.wait()

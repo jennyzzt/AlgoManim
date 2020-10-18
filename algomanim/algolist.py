@@ -169,7 +169,8 @@ class AlgoList:
             right_grp = VGroup(*[node.grp for node in right_nodes])
 
             anim_action = AlgoSceneAction(self.scene.play,
-                AlgoTransform([right_grp.next_to, left_node.grp, RIGHT], transform=ApplyMethod), can_change_runtime=True)
+                AlgoTransform([right_grp.next_to, left_node.grp, RIGHT], transform=ApplyMethod),
+                can_change_runtime=True)
             action = AlgoSceneAction(right_grp.set_right_of, AlgoTransform([left_node]))
             run_time = None if animated else 0
 

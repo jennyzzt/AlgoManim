@@ -1,6 +1,6 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algoscene import AlgoScene, AlgoTransform
+from algomanim.algoscene import AlgoScene, AlgoTransform, AlgoSceneAction
 
 
 mock_animation = Mock()
@@ -9,12 +9,12 @@ mock_animation = Mock()
 class TestAlgoScene:
     def test_constructor_plays_queued_animations(self, play):
         AlgoSceneTestSingle()
-        play.assert_called_once_with(mock_animation)
+        play.assert_called_once_with(mock_animation())
 
 
     def test_w_prev_combines_animations(self, play):
         AlgoSceneTestDoubleTogether()
-        play.assert_called_once_with(mock_animation, mock_animation)
+        play.assert_called_once_with(mock_animation(), mock_animation())
         play.reset_mock()
 
         AlgoSceneTestDoubleNotTogether()
@@ -24,16 +24,28 @@ class TestAlgoScene:
 # AlgoScene instantiations with specific algoconstructs for test cases
 class AlgoSceneTestSingle(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, AlgoTransform([mock_animation]))
-
+        action = AlgoSceneAction(self.play, AlgoTransform([], transform=mock_animation))
+        anim_action = action
+        self.add_action_pair(anim_action, action)
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, AlgoTransform([mock_animation]))
-        self.add_action(self.play, AlgoTransform([mock_animation]), w_prev=True)
+        anim_action = AlgoSceneAction(self.play, AlgoTransform([], transform=mock_animation))
+        action = anim_action
+        self.add_action_pair(anim_action, action)
+
+        anim_action = AlgoSceneAction(self.play, AlgoTransform([], transform=mock_animation),
+            w_prev=True)
+        action = anim_action
+        self.add_action_pair(anim_action, action)
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(self.play, AlgoTransform([mock_animation]))
-        self.add_action(self.play, AlgoTransform([mock_animation]), w_prev=False)
+        anim_action = AlgoSceneAction(self.play, AlgoTransform([], transform=mock_animation))
+        action = anim_action
+        self.add_action_pair(anim_action, action)
+
+        anim_action = AlgoSceneAction(self.play, AlgoTransform([], transform=mock_animation))
+        action = anim_action
+        self.add_action_pair(anim_action, action)

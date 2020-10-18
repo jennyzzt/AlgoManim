@@ -21,7 +21,7 @@ class BubbleSortScene(AlgoScene):
         # 1) color of highlight is changed for first iteration of algorithm
         highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
         for index in highlight_indices:
-            self.action_pairs[index].change_color(PURPLE)
+            self.action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
@@ -34,4 +34,4 @@ class BubbleSortScene(AlgoScene):
         # TODO: insert FadeIn animation => so that skipping is not so abrupt
 
         # 4) skip remaining animations from third iteration till the end
-        self.skip_actions(76)
+        self.skip(76)
