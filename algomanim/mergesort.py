@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
