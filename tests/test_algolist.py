@@ -15,14 +15,16 @@ class TestAlgoList:
         show.assert_called_once()
 
     @patch("algomanim.algolist.AlgoSceneAction")
-    def test_swap_adds_two_actions(self, algosceneaction, algoscene):
+    def test_swap_adds_two_actions(self, algoscene_action, algoscene):
         algolist = AlgoList(algoscene, test_list)
         algoscene.reset_mock()
 
         algolist.swap(0, 1)
         algoscene.add_action_pair.assert_called_once_with(
-            algosceneaction(), algosceneaction(),
-            None)
+            algoscene.create_play_action(),
+            algoscene_action(),
+            animated=True
+        )
 
     @patch("algomanim.algolist.AlgoListNode.show")
     @patch("algomanim.algolist.AlgoListNode.set_right_of")
@@ -65,7 +67,7 @@ class TestAlgoList:
         highlight.assert_called_once()
 
     @patch("algomanim.algolist.AlgoSceneAction")
-    def test_concat_two_lists_together(self, algosceneaction, algoscene):
+    def test_concat_two_lists_together(self, algoscene_action, algoscene):
         algolist1 = AlgoList(algoscene, test_list)
         algolist1_prevlen = algolist1.len()
         algolist2 = AlgoList(algoscene, test_list)
@@ -73,6 +75,7 @@ class TestAlgoList:
         algolist1.concat(algolist2)
         assert algolist1.len() == algolist2.len() + algolist1_prevlen
         algoscene.add_action_pair.assert_called_once_with(
-            algosceneaction(), algosceneaction(),
-            None
+            algoscene.create_play_action(),
+            algoscene_action(),
+            animated=True
         )

@@ -51,30 +51,32 @@ default_transform = AlgoTransform([], transform=mock_animation)
 # AlgoScene instantiations with specific algoconstructs for test cases
 class AlgoSceneTestSingle(AlgoScene):
     def algoconstruct(self):
-        self.add_action(AlgoSceneAction(self.play, default_transform))
+        action = self.create_play_action(default_transform)
+        self.add_action_pair(action, action)
 
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(AlgoSceneAction(self.play, default_transform))
-        self.add_action(AlgoSceneAction(self.play, default_transform, w_prev=True))
+        action = self.create_play_action(default_transform)
+        self.add_action_pair(action, action)
+        action = self.create_play_action(default_transform, w_prev=True)
+        self.add_action_pair(action, action)
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
     def algoconstruct(self):
-        self.add_action(AlgoSceneAction(self.play, default_transform))
-        self.add_action(AlgoSceneAction(self.play, default_transform))
+        action = self.create_play_action(default_transform)
+        self.add_action_pair(action, action)
+        self.add_action_pair(action, action)
 
 
 class AlgoSceneCustomColor(AlgoScene):
     def algoconstruct(self):
         original_color = Mock()
-        self.add_action(
-            AlgoSceneAction(
-                self.play,
-                AlgoTransform([original_color], transform=mock_animation, color_index=0)
-            )
+        action = self.create_play_action(
+            AlgoTransform([original_color], transform=mock_animation, color_index=0)
         )
+        self.add_action_pair(action, action)
 
     def customize(self, action_pairs):
         action_pairs[0].change_color(mock_color)
@@ -82,9 +84,8 @@ class AlgoSceneCustomColor(AlgoScene):
 
 class AlgoSceneFastForward(AlgoScene):
     def algoconstruct(self):
-        self.add_action(
-            AlgoSceneAction(self.play, default_transform, can_change_runtime=True)
-        )
+        action = self.create_play_action(default_transform)
+        self.add_action_pair(action, action)
 
     def customize(self, action_pairs):
         self.fast_forward(0)

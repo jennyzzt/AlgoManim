@@ -56,15 +56,15 @@ class AlgoSceneAction:
             self.act(*args, run_time=run_time)
 
 class AlgoSceneActionPair:
-    def __init__(self, anim_action, action, run_time=None):
+    def __init__(self, anim_action, static_action, run_time=None):
         '''
         encodes a pair of AlgoSceneActions
         if run_time is None, anim_action is run
-        else if run_time == 0, action is run
+        else if run_time == 0, static_action is run
         else if run_time > 0, anim_action is run with a run_time parameter
         '''
         self.anim_action = anim_action
-        self.action = action
+        self.static_action = static_action
         self.run_time = run_time
 
     def skip(self):
@@ -80,7 +80,7 @@ class AlgoSceneActionPair:
         if self.run_time is None or self.run_time > 0:
             return self.anim_action
 
-        return self.action
+        return self.static_action
 
     def act(self):
         return self.curr_action().act
@@ -90,7 +90,7 @@ class AlgoSceneActionPair:
 
     def change_color(self, new_color):
         self.anim_action.change_color(new_color)
-        self.action.change_color(new_color)
+        self.static_action.change_color(new_color)
 
 class AlgoScene(Scene):
     def algoconstruct(self):
@@ -99,11 +99,16 @@ class AlgoScene(Scene):
     def customize(self, action_pairs):
         pass
 
-    def add_action(self, action, run_time=None):
-        self.action_pairs.append(AlgoSceneActionPair(action, action, run_time))
+    def create_play_action(self, *transforms, w_prev=False):
+        return AlgoSceneAction(
+            self.play, *transforms,
+            w_prev=w_prev, can_change_runtime=True
+        )
 
-    def add_action_pair(self, anim_action, action, run_time=None):
-        self.action_pairs.append(AlgoSceneActionPair(anim_action, action, run_time))
+    def add_action_pair(self, anim_action, static_action, animated=True):
+        self.action_pairs.append(
+            AlgoSceneActionPair(anim_action, static_action, run_time=None if animated else 0)
+        )
 
     def skip(self, start, end=None):
         if end is None:
@@ -114,8 +119,9 @@ class AlgoScene(Scene):
 
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
-        action = AlgoSceneAction(lambda x: x, AlgoTransform([1])) # dummy function to skip wait
-        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, action))
+        # Using a dummy function to skip wait
+        static_action = AlgoSceneAction(lambda x: x, AlgoTransform([1]))
+        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
 
     def fast_forward(self, start, end=None, speed_up=2):
         if end is None:
