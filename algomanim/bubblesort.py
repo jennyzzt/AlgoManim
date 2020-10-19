@@ -14,6 +14,7 @@ class BubbleSortScene(AlgoScene):
                     swaps_made = True
                     algolist.swap(i, j)
 
+    def customize(self, action_pairs):
         # demonstrating the allowed edits that can be made for animations
         # TODO: add CSS style selector so that action_pairs list is more easily
         # searchable. Hardcoding indexes is very tedious.
@@ -21,7 +22,7 @@ class BubbleSortScene(AlgoScene):
         # 1) color of highlight is changed for first iteration of algorithm
         highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
         for index in highlight_indices:
-            self.action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
+            action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)

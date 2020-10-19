@@ -96,6 +96,12 @@ class AlgoScene(Scene):
     def algoconstruct(self):
         pass
 
+    def customize(self, action_pairs):
+        pass
+
+    def add_action(self, action, run_time=None):
+        self.action_pairs.append(AlgoSceneActionPair(action, action, run_time))
+
     def add_action_pair(self, anim_action, action, run_time=None):
         self.action_pairs.append(AlgoSceneActionPair(anim_action, action, run_time))
 
@@ -120,8 +126,8 @@ class AlgoScene(Scene):
 
     def construct(self):
         self.action_pairs = []
-        self.anim_grps = []
         self.algoconstruct()
+        self.customize(self.action_pairs)
         for (i, action_pair) in enumerate(self.action_pairs):
             action = action_pair.curr_action()
             for action_pair2 in self.action_pairs[i+1:]:
