@@ -14,10 +14,17 @@ class BubbleSortScene(AlgoScene):
                     swaps_made = True
                     algolist.swap(i, j)
 
+    def custom_fade_out_transform(self):
+        self.save_mobjects = self.mobjects
+        return list(map(FadeOut, self.save_mobjects))
+
+    def custom_fade_in_transform(self):
+        result = list(map(FadeIn, self.save_mobjects))
+        self.save_mobjects = []
+        return result
+
     def customize(self, action_pairs):
         # demonstrating the allowed edits that can be made for animations
-        # TODO: add CSS style selector so that action_pairs list is more easily
-        # searchable. Hardcoding indexes is very tedious.
 
         # 1) color of highlight is changed for first iteration of algorithm
         highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
@@ -30,9 +37,10 @@ class BubbleSortScene(AlgoScene):
         # 3) insert a wait in between animations
         self.add_wait(75)
 
-        # TODO: insert FadeOut animation => so that skipping is not so abrupt
+        # 4) Add Custom Transforms into the list to be executed in runtime
+        self.add_transform(76, self.custom_fade_out_transform)
 
-        # TODO: insert FadeIn animation => so that skipping is not so abrupt
+        # 5) skip remaining animations from third iteration till the end
+        self.skip(77)
 
-        # 4) skip remaining animations from third iteration till the end
-        self.skip(76)
+        self.add_transform(len(action_pairs), self.custom_fade_in_transform)

@@ -117,6 +117,12 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.skip()
 
+    def add_transform(self, index, transform):
+        anim_action = self.create_play_action(AlgoTransform([], transform=transform))
+        # Using a dummy function to skip wait
+        static_action = AlgoSceneAction(lambda x: x, AlgoTransform([1]))
+        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
+
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
         # Using a dummy function to skip wait
