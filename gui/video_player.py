@@ -1,30 +1,34 @@
 
-from PyQt5.QtCore import QDir, Qt, QUrl
+from PyQt5.QtCore import QDir, Qt, QUrl, QSizeF
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 from PyQt5.QtWidgets import *
-import sys
 
-from pathlib import Path
+# 16:9 ratio
+VIDEO_WIDTH = 480
+VIDEO_HEIGHT = 270
 
-VIDEO_NAME = Path().absolute() / "media/videos/bubblesort/480p15/BubbleSortScene.mp4"
 
+class VideoPlayerWidget(QWidget):
+    def __init__(self, video_fp, parent=None):
+        super(VideoPlayerWidget, self).__init__(parent)
 
-class VideoWindow(QMainWindow):
-
-    def __init__(self, parent=None):
-        super(VideoWindow, self).__init__(parent)
-        self.setWindowTitle("AlgoManimHelper")
+        self.video_fp = video_fp
 
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
-        video_widget = QVideoWidget()
+        video_item = QGraphicsVideoItem()
+        video_item.setSize(QSizeF(VIDEO_WIDTH, VIDEO_HEIGHT))
+        scene = QGraphicsScene(self)
+        graphics_view = QGraphicsView(scene)
+        scene.addItem(video_item)
 
         # Play button
         self.playButton = QPushButton()
         self.playButton.setEnabled(False)
         self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.playButton.clicked.connect(self.play)
+        # self.playButton.setFocusPolicy(Qt.NoFocus)
 
         # Video scrubber
         self.positionSlider = QSlider(Qt.Horizontal)
@@ -34,9 +38,11 @@ class VideoWindow(QMainWindow):
         self.errorLabel = QLabel()
         self.errorLabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
-        # Widget for window contents
-        wid = QWidget(self)
-        self.setCentralWidget(wid)
+        self.mediaPlayer.setVideoOutput(video_item)
+        self.mediaPlayer.stateChanged.connect(self.media_state_changed)
+        self.mediaPlayer.positionChanged.connect(self.position_changed)
+        self.mediaPlayer.durationChanged.connect(self.duration_changed)
+        self.mediaPlayer.error.connect(self.handle_error)
 
         # Layouts to place inside widget
         control_layout = QHBoxLayout()
@@ -44,28 +50,19 @@ class VideoWindow(QMainWindow):
         control_layout.addWidget(self.playButton)
         control_layout.addWidget(self.positionSlider)
 
-        layout = QVBoxLayout()
-        layout.addWidget(video_widget)
-        layout.addLayout(control_layout)
-        layout.addWidget(self.errorLabel)
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(graphics_view)
+        main_layout.addLayout(control_layout)
+        main_layout.addWidget(self.errorLabel)
 
         # Set widget to contain window contents
-        wid.setLayout(layout)
+        self.setLayout(main_layout)
 
-        self.mediaPlayer.setVideoOutput(video_widget)
-        self.mediaPlayer.stateChanged.connect(self.media_state_changed)
-        self.mediaPlayer.positionChanged.connect(self.position_changed)
-        self.mediaPlayer.durationChanged.connect(self.duration_changed)
-        self.mediaPlayer.error.connect(self.handle_error)
-
-        # open file
-        file = QDir.current().filePath(str(VIDEO_NAME))
+    def open_video(self):
+        file = QDir.current().filePath(str(self.video_fp))
         self.mediaPlayer.setMedia(
             QMediaContent(QUrl.fromLocalFile(file)))
         self.playButton.setEnabled(True)
-
-    def exit_call(self):
-        sys.exit(app.exec_())
 
     def play(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
@@ -76,10 +73,10 @@ class VideoWindow(QMainWindow):
     def media_state_changed(self, state):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
             self.playButton.setIcon(
-                    self.style().standardIcon(QStyle.SP_MediaPause))
+                self.style().standardIcon(QStyle.SP_MediaPause))
         else:
             self.playButton.setIcon(
-                    self.style().standardIcon(QStyle.SP_MediaPlay))
+                self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def position_changed(self, position):
         self.positionSlider.setValue(position)
@@ -93,11 +90,3 @@ class VideoWindow(QMainWindow):
     def handle_error(self):
         self.playButton.setEnabled(False)
         self.errorLabel.setText("Error: " + self.mediaPlayer.errorString())
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    player = VideoWindow()
-    player.resize(640, 480)
-    player.show()
-    sys.exit(app.exec_())

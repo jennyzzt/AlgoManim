@@ -2,12 +2,21 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from enum import Enum
+from gui.video_player import VideoPlayerWidget
 import sys
 import subprocess
+
+from pathlib import Path
 
 # Initial window size hint values
 WIDTH = 650
 HEIGHT = 130
+
+# Testing parameter
+TEST_VIDEO = False
+
+
+# ======== Helpers ========
 
 
 # Value tied to index in radio_buttons
@@ -33,6 +42,9 @@ class VideoQuality(Enum):
             if quality.index == index:
                 return quality
         return None
+
+
+# ======== Main GUI ========
 
 
 class GuiWindow(QDialog):
@@ -86,15 +98,23 @@ class GuiWindow(QDialog):
         quality_layout.addStretch(1)
         quality_layout.addWidget(render_button)
 
-        # Organise main window
-        main_layout = QGridLayout()
-        main_layout.addLayout(text_layout, 0, 0, 1, -1)  # layout extends to right edge
-        main_layout.addLayout(quality_layout, 1, 0, 1, -1)
+        # Video player
+        self.video_player = VideoPlayerWidget(video_fp=None, parent=self)
 
-        self.setLayout(main_layout)
+        # Organise main window
+        self.main_layout = QGridLayout()
+        self.main_layout.addLayout(text_layout, 0, 0, 1, -1)  # layout extends to right edge
+        self.main_layout.addLayout(quality_layout, 1, 0, 1, -1)
+        self.main_layout.addWidget(self.video_player, 2, 0, 1, -1)
+
+        self.setLayout(self.main_layout)
 
     @pyqtSlot()
     def render_video(self):
+        if TEST_VIDEO:
+            self.show_video_on_render_success(Path().absolute() / "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
+            return
+
         pyfile_relpath = self.pyfile_lineedit.text()
         scene_name = self.scene_lineedit.text()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
@@ -118,7 +138,7 @@ class GuiWindow(QDialog):
         else:
             # failed to output video
             # TODO: handle fnf and scene-not-in-script errors visibly
-            pass
+            print(errmsg)
 
     @staticmethod
     def get_video_fp_from_stdout(stdout):
@@ -130,12 +150,16 @@ class GuiWindow(QDialog):
         return fp
 
     def show_video_on_render_success(self, video_fp):
-        pass
+        # Set video filepath in the player
+        self.video_player.video_fp = video_fp
+
+        # Open the video
+        self.video_player.open_video()
 
 
 if __name__ == '__main__':
     app = QApplication([])  # no cmd line params
     gui = GuiWindow()
-    gui.resize(WIDTH, HEIGHT)  # window size hint
+    # gui.resize(WIDTH, HEIGHT)  # window size hint
     gui.show()
     sys.exit(app.exec_())
