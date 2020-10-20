@@ -93,6 +93,9 @@ class AlgoSceneActionPair:
         self.static_action.change_color(new_color)
 
 class AlgoScene(Scene):
+    # Used to reobtain objects that are removed by certain animations
+    save_mobjects = None
+
     def algoconstruct(self):
         pass
 
