@@ -57,7 +57,6 @@ class TestAlgoList:
         assert old_length == new_length
         hide.assert_not_called()
 
-    #pylint: disable=unused-argument
     @patch("algomanim.algolist.AlgoList.highlight")
     def test_slice_outofbounds_index_get_truncated(self,
                                                    highlight, algoscene):
