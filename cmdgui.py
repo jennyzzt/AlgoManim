@@ -8,10 +8,6 @@ import subprocess
 
 from pathlib import Path
 
-# Initial window size hint values
-WIDTH = 650
-HEIGHT = 130
-
 # Testing parameter
 TEST_VIDEO = False
 
@@ -160,6 +156,5 @@ class GuiWindow(QDialog):
 if __name__ == '__main__':
     app = QApplication([])  # no cmd line params
     gui = GuiWindow()
-    # gui.resize(WIDTH, HEIGHT)  # window size hint
     gui.show()
     sys.exit(app.exec_())

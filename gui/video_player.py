@@ -17,18 +17,18 @@ class VideoPlayerWidget(QWidget):
 
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
+        # Supporting infrastructure to display media player
         video_item = QGraphicsVideoItem()
         video_item.setSize(QSizeF(VIDEO_WIDTH, VIDEO_HEIGHT))
         scene = QGraphicsScene(self)
-        graphics_view = QGraphicsView(scene)
         scene.addItem(video_item)
+        graphics_view = QGraphicsView(scene)
 
         # Play button
         self.playButton = QPushButton()
         self.playButton.setEnabled(False)
         self.playButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.playButton.clicked.connect(self.play)
-        # self.playButton.setFocusPolicy(Qt.NoFocus)
 
         # Video scrubber
         self.positionSlider = QSlider(Qt.Horizontal)
@@ -38,24 +38,25 @@ class VideoPlayerWidget(QWidget):
         self.errorLabel = QLabel()
         self.errorLabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
+        # Wire up media player
         self.mediaPlayer.setVideoOutput(video_item)
         self.mediaPlayer.stateChanged.connect(self.media_state_changed)
         self.mediaPlayer.positionChanged.connect(self.position_changed)
         self.mediaPlayer.durationChanged.connect(self.duration_changed)
         self.mediaPlayer.error.connect(self.handle_error)
 
-        # Layouts to place inside widget
+        # Arrange video controls
         control_layout = QHBoxLayout()
         control_layout.setContentsMargins(0, 0, 0, 0)
         control_layout.addWidget(self.playButton)
         control_layout.addWidget(self.positionSlider)
 
+        # Arrange widget contents
         main_layout = QVBoxLayout()
         main_layout.addWidget(graphics_view)
         main_layout.addLayout(control_layout)
         main_layout.addWidget(self.errorLabel)
 
-        # Set widget to contain window contents
         self.setLayout(main_layout)
 
     def open_video(self):
