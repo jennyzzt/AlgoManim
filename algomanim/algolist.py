@@ -16,7 +16,7 @@ class AlgoListNode:
 
     def set_right_of(self, node):
         action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
-        self.scene.add_action_pair(action, action)
+        self.scene.add_action_pair(action, action, animated=False)
 
     def show(self, animated=True, w_prev=False):
         anim_action = self.scene.create_play_action(

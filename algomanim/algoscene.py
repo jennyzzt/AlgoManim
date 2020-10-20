@@ -1,5 +1,10 @@
 # pylint: disable=R0903
+from argparse import Namespace
+import manimlib.config
+import manimlib.constants
+import manimlib.extract_scene
 from manimlib.imports import *
+import pathlib
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
@@ -143,6 +148,18 @@ class AlgoScene(Scene):
         self.action_pairs = []
         self.algoconstruct()
         self.customize(self.action_pairs)
+        if len(self.action_pairs) > 0:
+            last_action_pair = self.action_pairs[-1]
+            last_act = last_action_pair.act()
+            if last_act != self.play or last_act != self.wait or last_action_pair.run_time == 0: # pylint: disable=W0143
+                # wait action is required at the end if last animation is not
+                # a play/wait or has been skipped, else the last animation will not be rendered
+                self.add_wait(len(self.action_pairs))
+
+        # save a copy of action_pairs
+        action_pairs_copy = self.action_pairs.copy()
+
+        # start executing actions
         for (i, action_pair) in enumerate(self.action_pairs):
             action = action_pair.curr_action()
             for action_pair2 in self.action_pairs[i+1:]:
@@ -155,10 +172,5 @@ class AlgoScene(Scene):
                     break
             action_pair.run()
 
-        if len(self.action_pairs) > 0:
-            last_action_pair = self.action_pairs[-1]
-            last_act = last_action_pair.act()
-            if last_act != self.play or last_act != self.wait or last_action_pair.run_time is None: # pylint: disable=W0143
-                # wait action is required at the end if last animation is not
-                # a play/wait or has been skipped, else the last animation will not be rendered
-                self.wait()
+        # restore copy of action_pairs so that this information can be used post rendering
+        self.action_pairs = action_pairs_copy
