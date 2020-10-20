@@ -11,11 +11,29 @@ HEIGHT = 130
 
 # Value tied to index in radio_buttons
 class VideoQuality(Enum):
-    low = 0
-    med = 1
-    high = 2
-    prod = 3
-    four_k = 4
+
+    def __new__(cls, *args, **kwargs):
+        value = len(cls.__members__)
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+
+    def __init__(self, index, cmdflag):
+        self.index = index
+        self.cmdflag = cmdflag
+
+    low = 0, "-ql"
+    med = 1, "-qm"
+    high = 2, "-qh"
+    prod = 3, "-qp"
+    four_k = 4, "-qk"
+
+    @staticmethod
+    def retrieve_by_index(index):
+        for quality in VideoQuality:
+            if quality.index == index:
+                return quality
+        return None
 
 
 class GuiWindow(QDialog):
@@ -80,9 +98,9 @@ class GuiWindow(QDialog):
 
     @pyqtSlot()
     def render_video(self):
-        pyfile = self.pyfile_lineedit.text()
+        pyfile_relpath = self.pyfile_lineedit.text()
         scene_name = self.scene_lineedit.text()
-        video_quality = VideoQuality(self.radio_btn_grp.checkedId())
+        video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
 
 if __name__ == '__main__':
