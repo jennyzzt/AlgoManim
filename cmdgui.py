@@ -1,10 +1,21 @@
 
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import pyqtSlot
+from enum import Enum
 import sys
 
 # Initial window size hint values
 WIDTH = 650
 HEIGHT = 130
+
+
+# Value tied to index in radio_buttons
+class VideoQuality(Enum):
+    low = 0
+    med = 1
+    high = 2
+    prod = 3
+    four_k = 4
 
 
 class GuiWindow(QDialog):
@@ -15,43 +26,48 @@ class GuiWindow(QDialog):
         self.setWindowTitle("AlgoManimHelper")
 
         # Python file path field
-        pyfile_lineedit = QLineEdit("")
         pyfile_label = QLabel("Python File Relative Path:")
-        pyfile_label.setBuddy(pyfile_lineedit)
+        self.pyfile_lineedit = QLineEdit("")
+        pyfile_label.setBuddy(self.pyfile_lineedit)
 
         # Scene name field
-        scene_lineedit = QLineEdit("")
         scene_label = QLabel("Scene Name:")
-        scene_label.setBuddy(scene_lineedit)
+        self.scene_lineedit = QLineEdit("")
+        scene_label.setBuddy(self.scene_lineedit)
 
         # Arrange text fields
         text_layout = QHBoxLayout()
         text_layout.addWidget(pyfile_label)
-        text_layout.addWidget(pyfile_lineedit, stretch=1)
+        text_layout.addWidget(self.pyfile_lineedit, stretch=1)
         text_layout.addWidget(scene_label)
-        text_layout.addWidget(scene_lineedit, stretch=1)
+        text_layout.addWidget(self.scene_lineedit, stretch=1)
 
         # Quality radio buttons
         quality_label = QLabel("Video Quality:")
-        radio_low = QRadioButton("Low")
-        radio_med = QRadioButton("Medium")
-        radio_high = QRadioButton("High")
-        radio_prod = QRadioButton("Production")
-        radio_4k = QRadioButton("4K")
-        radio_low.setChecked(True)
+
+        # Array order is tied to VideoQuality enum values
+        radio_buttons = [QRadioButton("Low"),
+                         QRadioButton("Medium"),
+                         QRadioButton("High"),
+                         QRadioButton("Production"),
+                         QRadioButton("4K")]
+        # Set default quality to Low
+        radio_buttons[VideoQuality.low.value].setChecked(True)
+
+        # Create button group for easy access
+        self.radio_btn_grp = QButtonGroup()
+        for i in range(len(radio_buttons)):
+            self.radio_btn_grp.addButton(radio_buttons[i], id=i)
 
         # Render button
         render_button = QPushButton("Render")
-        render_button.setDefault(True)  # Can be triggered with Enter key (?)
+        render_button.clicked.connect(self.render_video)
 
         # Arrange radio buttons
         quality_layout = QHBoxLayout()
         quality_layout.addWidget(quality_label)
-        quality_layout.addWidget(radio_low)
-        quality_layout.addWidget(radio_med)
-        quality_layout.addWidget(radio_high)
-        quality_layout.addWidget(radio_prod)
-        quality_layout.addWidget(radio_4k)
+        for btn in radio_buttons:
+            quality_layout.addWidget(btn)
         quality_layout.addStretch(1)
         quality_layout.addWidget(render_button)
 
@@ -61,6 +77,12 @@ class GuiWindow(QDialog):
         main_layout.addLayout(quality_layout, 1, 0, 1, -1)
 
         self.setLayout(main_layout)
+
+    @pyqtSlot()
+    def render_video(self):
+        pyfile = self.pyfile_lineedit.text()
+        scene_name = self.scene_lineedit.text()
+        video_quality = VideoQuality(self.radio_btn_grp.checkedId())
 
 
 if __name__ == '__main__':
