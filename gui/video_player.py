@@ -63,7 +63,14 @@ class VideoPlayerWidget(QWidget):
         file = QDir.current().filePath(str(self.video_fp))
         self.mediaPlayer.setMedia(
             QMediaContent(QUrl.fromLocalFile(file)))
+
+        # Enable play button and un-grey it
         self.playButton.setEnabled(True)
+        self.playButton.setStyleSheet("QPushButton::enabled")
+
+        # Show first scene of video
+        self.mediaPlayer.play()
+        self.mediaPlayer.pause()
 
     def play(self):
         if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
