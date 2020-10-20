@@ -43,7 +43,9 @@ def custom_renderer(file_path, scene_name):
         action = action_pair.curr_action()
         run_time = 1 if action_pair.run_time is None else action_pair.run_time
         anim = {'start_index': start_index, 'end_index': start_index, 'action_pairs': [action_pair],
-            'run_time': run_time, 'start_time': start_time}
+            'run_time': run_time, 'start_time': start_time,
+            'can_change_runtime': action_pair.can_change_runtime(),
+            'can_change_color': action_pair.can_change_color()}
         start_time += run_time
         for action_pair2 in action_pairs[i+1:]:
             action2 = action_pair2.curr_action()
@@ -51,11 +53,15 @@ def custom_renderer(file_path, scene_name):
                 if action2.act == action.act:
                     anim['end_index'] += 1
                     anim['action_pairs'].append(action_pair2)
+                    if action_pair2.can_change_color():
+                        anim['can_change_color'] = True
                     action_pairs.remove(action_pair2)
             elif (action2.act != scene.play and action2.act != scene.wait) and \
                 (action.act != scene.play and action.act != scene.wait):
                 anim['end_index'] += 1
                 anim['action_pairs'].append(action_pair2)
+                if action_pair2.can_change_color():
+                    anim['can_change_color'] = True
                 action_pairs.remove(action_pair2)
             else:
                 break

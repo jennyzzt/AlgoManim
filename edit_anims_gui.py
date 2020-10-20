@@ -16,7 +16,8 @@ class VideoWindow(QMainWindow):
         # render scene programmatically first
         self.anims = custom_renderer('algomanim/bubblesort.py', 'BubbleSortScene')
         # self.anims = [{'start_index': x, 'end_index': x + 3 if x == 1 else x, 'action_pairs': [],
-        #    'run_time': 1 if x % 2 == 0 else 0.5, 'start_time': x} for x in range(10)]
+        #    'run_time': 1 if x % 2 == 0 else 0.5, 'start_time': x,
+        #    'can_change_runtime': x % 3 == 0, 'can_change_color': x % 2 == 0} for x in range(10)]
 
         super(VideoWindow, self).__init__(parent)
         self.setWindowTitle("AlgoManimHelper")
@@ -41,10 +42,13 @@ class VideoWindow(QMainWindow):
 
         # Animation Scrubber
         animListLayout = QHBoxLayout()
+        animListLayout.setContentsMargins(0, 0, 0, 0)
         self.animLbls = []
         for anim in self.anims:
             desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
                 else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
+            animBox = QVBoxLayout()
+            animBox.setContentsMargins(0, 0, 0, 0)
             animLbl = QLabel(desc)
             animLbl.setStyleSheet("background-color: white; color: black")
             animLbl.setAlignment(Qt.AlignCenter)
@@ -53,12 +57,38 @@ class VideoWindow(QMainWindow):
             width = max(int(150 * anim['run_time']), 80)
             animLbl.setFixedWidth(width)
             self.animLbls.append(animLbl)
-            animListLayout.addWidget(animLbl)
+
+            buttonLayout = QHBoxLayout()
+            runtimeButton = QPushButton()
+            runtimeButtonSizePolicy = runtimeButton.sizePolicy()
+            runtimeButtonSizePolicy.setRetainSizeWhenHidden(True)
+            runtimeButton.setSizePolicy(runtimeButtonSizePolicy)
+            runtimeButton.setFixedHeight(40)
+            runtimeButton.setFixedWidth(40)
+            runtimeButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
+            colorButton = QPushButton()
+            colorButtonSizePolicy = colorButton.sizePolicy()
+            colorButtonSizePolicy.setRetainSizeWhenHidden(True)
+            colorButton.setSizePolicy(colorButtonSizePolicy)
+            colorButton.setFixedHeight(40)
+            colorButton.setFixedWidth(40)
+            colorButton.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
+
+            if not anim['can_change_runtime']:
+                runtimeButton.hide()
+            if not anim['can_change_color']:
+                colorButton.hide()
+            buttonLayout.addWidget(runtimeButton)
+            buttonLayout.addWidget(colorButton)
+
+            animBox.addLayout(buttonLayout)
+            animBox.addWidget(animLbl)
+            animListLayout.addLayout(animBox)
         animListBox = QGroupBox()
         animListBox.setLayout(animListLayout)
         self.animListScroll = QScrollArea()
         self.animListScroll.setWidget(animListBox)
-        self.animListScroll.setFixedHeight(100)
+        self.animListScroll.setFixedHeight(130)
 
         # Widget for window contents
         wid = QWidget(self)
