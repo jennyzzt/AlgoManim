@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from enum import Enum
 import sys
+import subprocess
 
 # Initial window size hint values
 WIDTH = 650
@@ -22,11 +23,9 @@ class VideoQuality(Enum):
         self.index = index
         self.cmdflag = cmdflag
 
-    low = 0, "-ql"
-    med = 1, "-qm"
-    high = 2, "-qh"
-    prod = 3, "-qp"
-    four_k = 4, "-qk"
+    low = 0, "-l"
+    med = 1, "-m"
+    high = 2, "--high_quality"
 
     @staticmethod
     def retrieve_by_index(index):
@@ -66,9 +65,7 @@ class GuiWindow(QDialog):
         # Array order is tied to VideoQuality enum values
         radio_buttons = [QRadioButton("Low"),
                          QRadioButton("Medium"),
-                         QRadioButton("High"),
-                         QRadioButton("Production"),
-                         QRadioButton("4K")]
+                         QRadioButton("High")]
         # Set default quality to Low
         radio_buttons[VideoQuality.low.value].setChecked(True)
 
@@ -101,6 +98,39 @@ class GuiWindow(QDialog):
         pyfile_relpath = self.pyfile_lineedit.text()
         scene_name = self.scene_lineedit.text()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
+
+        # Render video
+        process = subprocess.Popen(['python3', '-m', 'manim',
+                                    pyfile_relpath, scene_name, video_quality.cmdflag],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        # TODO: show progress
+        stdout, stderr = process.communicate()
+
+        # Retrieves file not found error
+        # scene-not-in-script error would be at index 1
+        errmsg = stderr.decode("utf-8").splitlines()[-1]
+
+        if errmsg.isspace():
+            # success
+            video_fp = self.get_video_fp_from_stdout(stdout=stdout.decode("utf-8"))
+            self.show_video_on_render_success(video_fp)
+        else:
+            # failed to output video
+            # TODO: handle fnf and scene-not-in-script errors visibly
+            pass
+
+    @staticmethod
+    def get_video_fp_from_stdout(stdout):
+        fp = ""
+        # target line format is "File ready at <video_path>"
+        for line in stdout.splitlines():
+            if line.startswith("File ready at"):
+                fp = line.split()[-1]
+        return fp
+
+    def show_video_on_render_success(self, video_fp):
+        pass
 
 
 if __name__ == '__main__':
