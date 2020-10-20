@@ -33,15 +33,18 @@ def extract_scene(file_path, scene_name):
 
     return scene_class(**scene_kwargs)
 
-def main():
-    scene = extract_scene('algomanim/bubblesort.py', 'BubbleSortScene')
+def custom_renderer(file_path, scene_name):
+    scene = extract_scene(file_path, scene_name)
     action_pairs = scene.action_pairs.copy()
     anims = []
+    start_time = 0
+    start_index = 0
     for (i, action_pair) in enumerate(action_pairs):
         action = action_pair.curr_action()
         run_time = 1 if action_pair.run_time is None else action_pair.run_time
-        anim = {'start_index': i, 'end_index': i, 'action_pairs': [action_pair],
-            'run_time': run_time}
+        anim = {'start_index': start_index, 'end_index': start_index, 'action_pairs': [action_pair],
+            'run_time': run_time, 'start_time': start_time}
+        start_time += run_time
         for action_pair2 in action_pairs[i+1:]:
             action2 = action_pair2.curr_action()
             if action2.w_prev:
@@ -49,16 +52,14 @@ def main():
                     anim['end_index'] += 1
                     anim['action_pairs'].append(action_pair2)
                     action_pairs.remove(action_pair2)
+            elif (action2.act != scene.play and action2.act != scene.wait) and \
+                (action.act != scene.play and action.act != scene.wait):
+                anim['end_index'] += 1
+                anim['action_pairs'].append(action_pair2)
+                action_pairs.remove(action_pair2)
             else:
                 break
+        start_index = anim['end_index'] + 1
         anims.append(anim)
 
-    total_run_time = sum([anim['run_time'] for anim in anims])
-    print(f'Total runtime: {total_run_time}s')
-    for (i, anim) in enumerate(anims):
-        add_desc = '' if anim['end_index'] == anim['start_index'] else \
-            f' - {anim["end_index"]}'
-        print(f'[{anim["run_time"]}] Animation {anim["start_index"]}{add_desc}')
-
-if __name__ == "__main__":
-    main()
+    return anims

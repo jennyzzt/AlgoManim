@@ -6,47 +6,17 @@ from PyQt5.QtWidgets import *
 import sys
 
 from pathlib import Path
-from argparse import Namespace
-import manimlib.config
-import manimlib.constants
-from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
+from custom_renderer import custom_renderer
 
 VIDEO_NAME = Path().absolute() / "media/videos/bubblesort/480p15/BubbleSortScene.mp4"
-
-def extract_scene(file_path, scene_name):
-    args = Namespace(color=None, file=file_path, file_name=None,
-        high_quality=False, leave_progress_bars=False, low_quality=True, media_dir=None,
-        medium_quality=False, preview=True, quiet=False, resolution=None, save_as_gif=False,
-        save_last_frame=False, save_pngs=False, scene_names=[scene_name],
-        show_file_in_finder=False, sound=False, start_at_animation_number=None,
-        tex_dir=None, transparent=False, video_dir=None, video_output_dir=None,
-        write_all=False, write_to_movie=False)
-    config = manimlib.config.get_configuration(args)
-    manimlib.constants.initialize_directories(config)
-
-    module = config["module"]
-    all_scene_classes = get_scene_classes_from_module(module)
-    scene_class = get_scenes_to_render(all_scene_classes, config)[0]
-
-    scene_kwargs = dict([
-        (key, config[key])
-        for key in [
-            "camera_config",
-            "file_writer_config",
-            "skip_animations",
-            "start_at_animation_number",
-            "end_at_animation_number",
-            "leave_progress_bars",
-        ]
-    ])
-
-    return scene_class(**scene_kwargs)
 
 class VideoWindow(QMainWindow):
 
     def __init__(self, parent=None):
         # render scene programmatically first
-        scene = extract_scene('algomanim/bubblesort.py', 'BubbleSortScene')
+        self.anims = custom_renderer('algomanim/bubblesort.py', 'BubbleSortScene')
+        # self.anims = [{'start_index': x, 'end_index': x + 3 if x == 1 else x, 'action_pairs': [],
+        #    'run_time': 1 if x % 2 == 0 else 0.5, 'start_time': x} for x in range(10)]
 
         super(VideoWindow, self).__init__(parent)
         self.setWindowTitle("AlgoManimHelper")
@@ -69,6 +39,27 @@ class VideoWindow(QMainWindow):
         self.errorLabel = QLabel()
         self.errorLabel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
+        # Animation Scrubber
+        animListLayout = QHBoxLayout()
+        self.animLbls = []
+        for anim in self.anims:
+            desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
+                else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
+            animLbl = QLabel(desc)
+            animLbl.setStyleSheet("background-color: white; color: black")
+            animLbl.setAlignment(Qt.AlignCenter)
+            animLbl.setWordWrap(True)
+            animLbl.setFixedHeight(60)
+            width = max(int(150 * anim['run_time']), 80)
+            animLbl.setFixedWidth(width)
+            self.animLbls.append(animLbl)
+            animListLayout.addWidget(animLbl)
+        animListBox = QGroupBox()
+        animListBox.setLayout(animListLayout)
+        self.animListScroll = QScrollArea()
+        self.animListScroll.setWidget(animListBox)
+        self.animListScroll.setFixedHeight(100)
+
         # Widget for window contents
         wid = QWidget(self)
         self.setCentralWidget(wid)
@@ -82,6 +73,7 @@ class VideoWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(video_widget)
         layout.addLayout(control_layout)
+        layout.addWidget(self.animListScroll)
         layout.addWidget(self.errorLabel)
 
         # Set widget to contain window contents
@@ -116,7 +108,22 @@ class VideoWindow(QMainWindow):
             self.playButton.setIcon(
                     self.style().standardIcon(QStyle.SP_MediaPlay))
 
+    def set_active_lbl(self, index):
+        self.animLbls[index].setStyleSheet("background-color: #2980b9; color: white")
+
+    def set_inactive_lbl(self, index):
+        self.animLbls[index].setStyleSheet("background-color: white; color: black")
+
     def position_changed(self, position):
+        for (i, anim) in enumerate(self.anims):
+            start_time = anim['start_time'] * 1000
+            end_time = (anim['start_time'] + anim['run_time']) * 1000
+            if position >= start_time and position <= end_time:
+                self.set_active_lbl(i)
+                self.animListScroll.ensureWidgetVisible(self.animLbls[i])
+            else:
+                self.set_inactive_lbl(i)
+
         self.positionSlider.setValue(position)
 
     def duration_changed(self, duration):
