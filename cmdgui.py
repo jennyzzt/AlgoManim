@@ -160,12 +160,11 @@ class GuiWindow(QDialog):
 
     @staticmethod
     def get_video_fp_from_stdout(stdout):
-        fp = ""
         # target line format is "File ready at <video_path>"
         for line in stdout.splitlines():
             if line.startswith("File ready at"):
-                fp = line.split()[-1]
-        return fp
+                return line.split()[-1]
+        return ""
 
     def show_video_on_render_success(self, video_fp):
         # Set video filepath in the player
