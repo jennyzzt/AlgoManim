@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QDir, Qt, QUrl, QSizeF
+from PyQt5.QtCore import Qt, QUrl, QSizeF
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 from PyQt5.QtWidgets import *
@@ -60,9 +60,8 @@ class VideoPlayerWidget(QWidget):
         self.setLayout(main_layout)
 
     def open_video(self):
-        file = QDir.current().filePath(str(self.video_fp))
         self.media_player.setMedia(
-            QMediaContent(QUrl.fromLocalFile(file)))
+            QMediaContent(QUrl.fromLocalFile(str(self.video_fp))))
 
         # Enable play button and un-grey it
         self.play_button.setEnabled(True)
