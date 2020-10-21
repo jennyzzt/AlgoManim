@@ -4,7 +4,8 @@ from enum import Enum
 # Value tied to index in radio_buttons
 class VideoQuality(Enum):
 
-    def __new__(cls, **kwargs):
+    def __new__(cls, *args, **kwargs):
+        del args    # unused
         del kwargs  # unused
 
         value = len(cls.__members__)
