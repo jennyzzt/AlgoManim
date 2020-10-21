@@ -11,7 +11,7 @@ VIDEO_HEIGHT = 270
 
 class VideoPlayerWidget(QWidget):
     def __init__(self, video_fp, position_changed_callback=None, parent=None):
-        super(VideoPlayerWidget, self).__init__(parent)
+        super().__init__(parent)
 
         self.video_fp = video_fp
         self.position_changed_callback = position_changed_callback
@@ -82,6 +82,8 @@ class VideoPlayerWidget(QWidget):
         self.set_media_position(position)
 
     def media_state_changed(self, state):
+        del state  # unused
+
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.play_button.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPause))

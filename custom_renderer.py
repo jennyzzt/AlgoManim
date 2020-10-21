@@ -3,17 +3,34 @@ from argparse import Namespace
 import manimlib.config
 import manimlib.constants
 from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
-from video_quality import VideoQuality
+from gui.video_quality import VideoQuality
+
 
 def extract_scene(file_path, scene_name, video_quality):
-    args = Namespace(color=None, file=file_path, file_name=None,
-        high_quality=video_quality == VideoQuality.high, leave_progress_bars=False,
-        low_quality=video_quality == VideoQuality.low, media_dir="./media/algomanim",
-        medium_quality=video_quality == VideoQuality.med, preview=True, quiet=False,
-        resolution=None, save_as_gif=False, save_last_frame=False, save_pngs=False,
-        scene_names=[scene_name], show_file_in_finder=False, sound=False,
-        start_at_animation_number=None, tex_dir=None, transparent=False, video_dir=None,
-        video_output_dir="./media/algomanim/videos", write_all=False, write_to_movie=False)
+    args = Namespace(color=None,
+                     file=file_path,
+                     file_name=None,
+                     high_quality=video_quality == VideoQuality.high,
+                     leave_progress_bars=False,
+                     low_quality=video_quality == VideoQuality.low,
+                     media_dir="./media/algomanim",
+                     medium_quality=video_quality == VideoQuality.med,
+                     preview=True,
+                     quiet=False,
+                     resolution=None,
+                     save_as_gif=False,
+                     save_last_frame=False,
+                     save_pngs=False,
+                     scene_names=[scene_name],
+                     show_file_in_finder=False,
+                     sound=False,
+                     start_at_animation_number=None,
+                     tex_dir=None,
+                     transparent=False,
+                     video_dir=None,
+                     video_output_dir="./media/algomanim/videos",
+                     write_all=False,
+                     write_to_movie=False)
     config = manimlib.config.get_configuration(args)
     manimlib.constants.initialize_directories(config)
 
@@ -35,6 +52,7 @@ def extract_scene(file_path, scene_name, video_quality):
 
     return scene_class(**scene_kwargs)
 
+
 def custom_renderer(file_path, scene_name, video_quality):
     scene = extract_scene(file_path, scene_name, video_quality)
     action_pairs = scene.action_pairs.copy()
@@ -44,10 +62,13 @@ def custom_renderer(file_path, scene_name, video_quality):
     for (i, action_pair) in enumerate(action_pairs):
         action = action_pair.curr_action()
         run_time = 1 if action_pair.run_time is None else action_pair.run_time
-        anim = {'start_index': start_index, 'end_index': start_index, 'action_pairs': [action_pair],
-            'run_time': run_time, 'start_time': start_time,
-            'can_change_runtime': action_pair.can_change_runtime(),
-            'can_change_color': action_pair.can_change_color()}
+        anim = {'start_index': start_index,
+                'end_index': start_index,
+                'action_pairs': [action_pair],
+                'run_time': run_time,
+                'start_time': start_time,
+                'can_change_runtime': action_pair.can_change_runtime(),
+                'can_change_color': action_pair.can_change_color()}
         start_time += run_time
         for action_pair2 in action_pairs[i+1:]:
             action2 = action_pair2.curr_action()

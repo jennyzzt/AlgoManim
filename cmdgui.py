@@ -3,23 +3,31 @@ import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl, Qt
-from gui.video_player import VideoPlayerWidget
+
 from custom_renderer import custom_renderer
-from video_quality import VideoQuality
+from gui.video_player import VideoPlayerWidget
+from gui.video_quality import VideoQuality
+
 
 WORKING_DIR = Path().absolute()
 
 # Testing parameter
 TEST_VIDEO = False
 
-# ======== Main GUI ========
-
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
 
+
+# ======== Main GUI ========
+
+
 class GuiWindow(QDialog):
+
+    # pylint: disable=too-many-instance-attributes
+    # Instance attributes required to organise window.
+
     def __init__(self, parent=None):
-        super(GuiWindow, self).__init__(parent)
+        super().__init__(parent)
         self.original_palette = QApplication.palette()
 
         self.setWindowTitle("AlgoManimHelper")
@@ -78,7 +86,8 @@ class GuiWindow(QDialog):
 
         # Video player
         self.video_player = VideoPlayerWidget(video_fp=None,
-            position_changed_callback=self.media_position_changed, parent=self)
+                                              position_changed_callback=self.media_position_changed,
+                                              parent=self)
 
         # Animation Scrubber
         self.anim_scrubber = None
@@ -110,7 +119,7 @@ class GuiWindow(QDialog):
     def render_video(self):
         if TEST_VIDEO:
             self.show_video_on_render_success(WORKING_DIR /
-                "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
+                                              "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
             return
 
         pyfile_relpath = self.pyfile_lineedit.text()
@@ -119,15 +128,14 @@ class GuiWindow(QDialog):
 
         # Render Video Programmatically
         self.anims = custom_renderer(pyfile_relpath, scene_name, video_quality)
-        # TODO: handle fnf and scene-not-in-script errors visibly
         video_fp = WORKING_DIR / f'./media/algomanim/videos/{scene_name}.mp4'
         self.create_anims_scrubber()
         self.show_video_on_render_success(video_fp)
 
     def create_anims_scrubber(self):
-        '''
+        """
         Create horizontal list of anim boxes as an animation scrubber
-        '''
+        """
         # Animation Scrubber
         anim_box_list = QHBoxLayout()
         anim_box_list.setContentsMargins(0, 0, 0, 0)
@@ -149,11 +157,11 @@ class GuiWindow(QDialog):
         self.main_layout.addWidget(self.anim_scrubber, 3, 0, 1, -1)
 
     def create_anim_box(self, anim):
-        '''
+        """
         Create a single anim box from the properties of anim
-        '''
+        """
         desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
-                else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
+            else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
         anim_box_layout = QVBoxLayout()

@@ -1,9 +1,12 @@
 from enum import Enum
 
+
 # Value tied to index in radio_buttons
 class VideoQuality(Enum):
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, **kwargs):
+        del kwargs  # unused
+
         value = len(cls.__members__)
         obj = object.__new__(cls)
         obj._value_ = value
