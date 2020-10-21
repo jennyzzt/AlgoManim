@@ -45,6 +45,11 @@ class TestAlgoScene:
         AlgoSceneWait()
         assert wait.call_count == 2
 
+    @patch("algomanim.algoscene.Scene.clear")
+    def test_clear(self, clear, _):
+        AlgoSceneClear()
+        clear.assert_called_once_with()
+
 
 default_transform = AlgoTransform([], transform=mock_animation)
 
@@ -105,3 +110,7 @@ class AlgoSceneSkip(AlgoScene):
 class AlgoSceneWait(AlgoScene):
     def customize(self, action_pairs):
         self.add_wait(0)
+
+class AlgoSceneClear(AlgoScene):
+    def customize(self, action_pairs):
+        self.clear()
