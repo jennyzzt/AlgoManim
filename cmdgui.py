@@ -51,8 +51,9 @@ class GuiWindow(QDialog):
         self.scene_names = []
 
         scene_label = QLabel("Scene Name:")
-        self.scene_lineedit = QLineEdit("")
-        scene_label.setBuddy(self.scene_lineedit)
+        self.scene_combobox = QComboBox()
+        self.scene_combobox.setPlaceholderText("Select a scene")
+        scene_label.setBuddy(self.scene_combobox)
 
         # Arrange text fields
         text_layout = QHBoxLayout()
@@ -60,7 +61,7 @@ class GuiWindow(QDialog):
         text_layout.addWidget(self.pyfile_lineedit, stretch=1)
         text_layout.addWidget(pyfile_select_button)
         text_layout.addWidget(scene_label)
-        text_layout.addWidget(self.scene_lineedit, stretch=1)
+        text_layout.addWidget(self.scene_combobox, stretch=1)
 
         # Quality radio buttons
         quality_label = QLabel("Video Quality:")
@@ -125,6 +126,11 @@ class GuiWindow(QDialog):
             # Obtain relevant scene names
             self.scene_names = self.get_scene_names(file_path_str)
 
+            # Clear any previous entries and (re)fill combobox
+            self.scene_combobox.clear()
+            for name in self.scene_names:
+                self.scene_combobox.addItem(name)
+
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod
     def get_scene_names(python_fp):
@@ -147,7 +153,7 @@ class GuiWindow(QDialog):
 
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
-        scene_name = self.scene_lineedit.text()
+        scene_name = self.scene_combobox.currentText()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
         # Render video programmatically
