@@ -2,3 +2,4 @@ manimlib==0.1.11
 pylint==2.6.0
 pytest==6.1.1
 pytest-cov==2.10.1
+PyQt5==5.15.1

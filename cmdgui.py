@@ -1,12 +1,11 @@
 
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl
-from enum import Enum
-from gui.video_player import VideoPlayerWidget
 import sys
 import subprocess
-
+from enum import Enum
 from pathlib import Path
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QUrl
+from gui.video_player import VideoPlayerWidget
 
 WORKING_DIR = Path().absolute()
 
@@ -89,8 +88,8 @@ class GuiWindow(QDialog):
 
         # Create button group for easy access
         self.radio_btn_grp = QButtonGroup()
-        for i in range(len(radio_buttons)):
-            self.radio_btn_grp.addButton(radio_buttons[i], id=i)
+        for (i, radio_button) in enumerate(radio_buttons):
+            self.radio_btn_grp.addButton(radio_button, id=i)
 
         # Render button
         render_button = QPushButton("Render")
@@ -130,7 +129,8 @@ class GuiWindow(QDialog):
 
     def render_video(self):
         if TEST_VIDEO:
-            self.show_video_on_render_success(WORKING_DIR / "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
+            self.show_video_on_render_success(WORKING_DIR / 
+                "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
             return
 
         pyfile_relpath = self.pyfile_lineedit.text()

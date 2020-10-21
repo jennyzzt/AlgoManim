@@ -1,10 +1,5 @@
 # pylint: disable=R0903
-from argparse import Namespace
-import manimlib.config
-import manimlib.constants
-import manimlib.extract_scene
 from manimlib.imports import *
-import pathlib
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
@@ -52,7 +47,7 @@ class AlgoSceneAction:
             if transform.can_change_color():
                 can_change_color = True
                 break
-        
+
         return can_change_color
 
     def change_color(self, new_color):
