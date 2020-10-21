@@ -10,10 +10,10 @@ VIDEO_HEIGHT = 360
 
 
 class VideoPlayerWidget(QWidget):
-    def __init__(self, video_fp, position_changed_callback=None, parent=None):
+    def __init__(self, position_changed_callback=None, parent=None):
         super().__init__(parent)
 
-        self.video_fp = video_fp
+        self.video_fp = ""
         self.position_changed_callback = position_changed_callback
 
         self.media_player = QMediaPlayer(None, QMediaPlayer.VideoSurface)
@@ -60,7 +60,9 @@ class VideoPlayerWidget(QWidget):
 
         self.setLayout(main_layout)
 
-    def open_video(self):
+    # Display the video stored at video_fp
+    def open_video(self, video_fp):
+        self.video_fp = video_fp
         self.media_player.setMedia(
             QMediaContent(QUrl.fromLocalFile(str(self.video_fp))))
 
