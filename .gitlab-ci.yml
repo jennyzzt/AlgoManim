@@ -12,7 +12,7 @@ pylint:
   stage: Lint
   allow_failure: true
   script:
-    - pylint algomanim tests
+    - pylint *
 
 unit test:
   stage: Test

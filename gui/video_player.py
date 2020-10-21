@@ -10,10 +10,11 @@ VIDEO_HEIGHT = 270
 
 
 class VideoPlayerWidget(QWidget):
-    def __init__(self, video_fp, parent=None):
+    def __init__(self, video_fp, position_changed_callback=None, parent=None):
         super(VideoPlayerWidget, self).__init__(parent)
 
         self.video_fp = video_fp
+        self.position_changed_callback = position_changed_callback
 
         self.media_player = QMediaPlayer(None, QMediaPlayer.VideoSurface)
 
@@ -89,6 +90,7 @@ class VideoPlayerWidget(QWidget):
                 self.style().standardIcon(QStyle.SP_MediaPlay))
 
     def media_position_changed(self, position):
+        self.position_changed_callback(position)
         self.position_slider.blockSignals(True)
         self.position_slider.setValue(position)
         self.position_slider.blockSignals(False)

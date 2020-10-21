@@ -6,3 +6,15 @@ disable=
     C0115, # missing-class-docstring
     C0116, # missing-function-docstring
 extension-pkg-whitelist=PyQt5
+ignore=
+    venv,
+    README.md,
+    __pycache__,
+    media,
+    example_scenes.py,
+    requirements.txt,
+    .vscode,
+    .idea,
+    .pylintrc,
+    .coverage,
+    .pytest_cache

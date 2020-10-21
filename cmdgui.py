@@ -1,53 +1,26 @@
 
 import sys
-import subprocess
-from enum import Enum
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt
 from gui.video_player import VideoPlayerWidget
+from custom_renderer import custom_renderer
+from video_quality import VideoQuality
 
 WORKING_DIR = Path().absolute()
 
 # Testing parameter
 TEST_VIDEO = False
 
-
-# ======== Helpers ========
-
-
-# Value tied to index in radio_buttons
-class VideoQuality(Enum):
-
-    def __new__(cls, *args, **kwargs):
-        value = len(cls.__members__)
-        obj = object.__new__(cls)
-        obj._value_ = value
-        return obj
-
-    def __init__(self, index, cmdflag):
-        self.index = index
-        self.cmdflag = cmdflag
-
-    low = 0, "-l"
-    med = 1, "-m"
-    high = 2, "--high_quality"
-
-    @staticmethod
-    def retrieve_by_index(index):
-        for quality in VideoQuality:
-            if quality.index == index:
-                return quality
-        return None
-
-
 # ======== Main GUI ========
 
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 800
 
 class GuiWindow(QDialog):
     def __init__(self, parent=None):
         super(GuiWindow, self).__init__(parent)
-        self.originalPalette = QApplication.palette()
+        self.original_palette = QApplication.palette()
 
         self.setWindowTitle("AlgoManimHelper")
 
@@ -104,7 +77,13 @@ class GuiWindow(QDialog):
         quality_layout.addWidget(render_button)
 
         # Video player
-        self.video_player = VideoPlayerWidget(video_fp=None, parent=self)
+        self.video_player = VideoPlayerWidget(video_fp=None,
+            position_changed_callback=self.media_position_changed, parent=self)
+
+        # Animation Scrubber
+        self.anim_scrubber = None
+        self.anim_lbls = []
+        self.anims = []
 
         # Organise main window
         self.main_layout = QGridLayout()
@@ -113,23 +92,24 @@ class GuiWindow(QDialog):
         self.main_layout.addWidget(self.video_player, 2, 0, 1, -1)
 
         self.setLayout(self.main_layout)
+        self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
     def show_file_dialog(self):
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setDirectoryUrl(QUrl.fromLocalFile(str(WORKING_DIR)))
 
-        fp_str, _ = dialog.getOpenFileName(filter="Python files (*.py)")
-        fp = Path(fp_str)
+        file_path_str, _ = dialog.getOpenFileName(filter="Python files (*.py)")
+        file_path = Path(file_path_str)
 
-        if fp.suffix == ".py":
+        if file_path.suffix == ".py":
             # Show chosen file's relative path in text box
-            relpath = fp.relative_to(WORKING_DIR)
+            relpath = file_path.relative_to(WORKING_DIR)
             self.pyfile_lineedit.setText(str(relpath))
 
     def render_video(self):
         if TEST_VIDEO:
-            self.show_video_on_render_success(WORKING_DIR / 
+            self.show_video_on_render_success(WORKING_DIR /
                 "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
             return
 
@@ -137,26 +117,94 @@ class GuiWindow(QDialog):
         scene_name = self.scene_lineedit.text()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
-        # Render video
-        process = subprocess.Popen(['python3', '-m', 'manim',
-                                    pyfile_relpath, scene_name, video_quality.cmdflag],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        # TODO: show progress
-        stdout, stderr = process.communicate()
+        # Render Video Programmatically
+        self.anims = custom_renderer(pyfile_relpath, scene_name, video_quality)
+        # TODO: handle fnf and scene-not-in-script errors visibly
+        video_fp = WORKING_DIR / f'./media/algomanim/videos/{scene_name}.mp4'
+        self.create_anims_scrubber()
+        self.show_video_on_render_success(video_fp)
 
-        # Retrieves file not found error
-        # scene-not-in-script error would be at index 1
-        errmsg = stderr.decode("utf-8").splitlines()[-1]
+    def create_anims_scrubber(self):
+        '''
+        Create horizontal list of anim boxes as an animation scrubber
+        '''
+        # Animation Scrubber
+        anim_box_list = QHBoxLayout()
+        anim_box_list.setContentsMargins(0, 0, 0, 0)
+        self.anim_lbls = []
+        for anim in self.anims:
+            anim_box = self.create_anim_box(anim)
+            anim_box_list.addLayout(anim_box)
+        anim_group_box = QGroupBox()
+        anim_group_box.setLayout(anim_box_list)
 
-        if errmsg.isspace():
-            # success
-            video_fp = self.get_video_fp_from_stdout(stdout=stdout.decode("utf-8"))
-            self.show_video_on_render_success(video_fp)
-        else:
-            # failed to output video
-            # TODO: handle fnf and scene-not-in-script errors visibly
-            print(errmsg)
+        # remove previous anim_scrubber if it already exists
+        if self.anim_scrubber is not None:
+            self.main_layout.removeWidget(self.anim_scrubber)
+        self.anim_scrubber = QScrollArea()
+        self.anim_scrubber.setWidget(anim_group_box)
+        self.anim_scrubber.setFixedHeight(130)
+        self.main_layout.addWidget(self.anim_scrubber, 3, 0, 1, -1)
+
+    def create_anim_box(self, anim):
+        '''
+        Create a single anim box from the properties of anim
+        '''
+        desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
+                else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
+        anim_box = QVBoxLayout()
+        anim_box.setContentsMargins(0, 0, 0, 0)
+        anim_lbl = QLabel(desc)
+        anim_lbl.setStyleSheet("background-color: white; color: black")
+        anim_lbl.setAlignment(Qt.AlignCenter)
+        anim_lbl.setWordWrap(True)
+        anim_lbl.setFixedHeight(60)
+        width = max(int(150 * anim['run_time']), 80)
+        anim_lbl.setFixedWidth(width)
+        self.anim_lbls.append(anim_lbl)
+
+        btn_layout = QHBoxLayout()
+        runtime_btn = QPushButton()
+        runtime_btn_policy = runtime_btn.sizePolicy()
+        runtime_btn_policy.setRetainSizeWhenHidden(True)
+        runtime_btn.setSizePolicy(runtime_btn_policy)
+        runtime_btn.setFixedHeight(40)
+        runtime_btn.setFixedWidth(40)
+        runtime_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
+        color_btn = QPushButton()
+        color_btn_policy = color_btn.sizePolicy()
+        color_btn_policy.setRetainSizeWhenHidden(True)
+        color_btn.setSizePolicy(color_btn_policy)
+        color_btn.setFixedHeight(40)
+        color_btn.setFixedWidth(40)
+        color_btn.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
+
+        if not anim['can_change_runtime']:
+            runtime_btn.hide()
+        if not anim['can_change_color']:
+            color_btn.hide()
+        btn_layout.addWidget(runtime_btn)
+        btn_layout.addWidget(color_btn)
+
+        anim_box.addLayout(btn_layout)
+        anim_box.addWidget(anim_lbl)
+        return anim_box
+
+    def set_active_lbl(self, index):
+        self.anim_lbls[index].setStyleSheet("background-color: #2980b9; color: white")
+        self.anim_scrubber.ensureWidgetVisible(self.anim_lbls[index])
+
+    def set_inactive_lbl(self, index):
+        self.anim_lbls[index].setStyleSheet("background-color: white; color: black")
+
+    def media_position_changed(self, position):
+        for (i, anim) in enumerate(self.anims):
+            start_time = anim['start_time'] * 1000
+            end_time = (anim['start_time'] + anim['run_time']) * 1000
+            if start_time <= position <= end_time:
+                self.set_active_lbl(i)
+            else:
+                self.set_inactive_lbl(i)
 
     @staticmethod
     def get_video_fp_from_stdout(stdout):
