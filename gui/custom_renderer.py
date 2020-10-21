@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-from argparse import Namespace
-import manimlib.config
-import manimlib.constants
-from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
-from gui.video_quality import VideoQuality
 
 """
 Functions for rendering manim animation into a video using algomanim API
 and constructing anim dicts for AnimationBar widget
 """
+
+from argparse import Namespace
+import manimlib.config
+import manimlib.constants
+from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
+from gui.video_quality import VideoQuality
 
 
 # Modification of internal manim function using algomanim API

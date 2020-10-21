@@ -90,7 +90,8 @@ class GuiWindow(QDialog):
         self.animation_bar = AnimationBar()
 
         # Video player
-        self.video_player = VideoPlayerWidget(position_changed_callback=self.animation_bar.media_position_changed,
+        self.video_player = VideoPlayerWidget(position_changed_callback=self.animation_bar
+                                                                            .media_position_changed,
                                               parent=self)
 
         # Link animation bar and video player
