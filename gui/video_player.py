@@ -33,7 +33,7 @@ class VideoPlayerWidget(QWidget):
         # Video scrubber
         self.position_slider = QSlider(Qt.Horizontal)
         self.position_slider.setRange(0, 0)
-        self.position_slider.sliderMoved.connect(self.set_position)
+        self.position_slider.valueChanged.connect(self.slider_position_changed)
 
         self.error_label = QLabel()
         self.error_label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
@@ -41,8 +41,8 @@ class VideoPlayerWidget(QWidget):
         # Wire up media player
         self.media_player.setVideoOutput(video_item)
         self.media_player.stateChanged.connect(self.media_state_changed)
-        self.media_player.positionChanged.connect(self.position_changed)
-        self.media_player.durationChanged.connect(self.duration_changed)
+        self.media_player.positionChanged.connect(self.media_position_changed)
+        self.media_player.durationChanged.connect(self.media_duration_changed)
         self.media_player.error.connect(self.handle_error)
 
         # Arrange video controls
@@ -78,6 +78,9 @@ class VideoPlayerWidget(QWidget):
         else:
             self.media_player.play()
 
+    def slider_position_changed(self, position):
+        self.media_player.setPosition(position)
+
     def media_state_changed(self, state):
         if self.media_player.state() == QMediaPlayer.PlayingState:
             self.play_button.setIcon(
@@ -86,14 +89,13 @@ class VideoPlayerWidget(QWidget):
             self.play_button.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPlay))
 
-    def position_changed(self, position):
+    def media_position_changed(self, position):
+        self.position_slider.blockSignals(True)
         self.position_slider.setValue(position)
+        self.position_slider.blockSignals(False)
 
-    def duration_changed(self, duration):
+    def media_duration_changed(self, duration):
         self.position_slider.setRange(0, duration)
-
-    def set_position(self, position):
-        self.media_player.setPosition(position)
 
     def handle_error(self):
         self.play_button.setEnabled(False)
