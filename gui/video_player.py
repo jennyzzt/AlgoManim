@@ -5,8 +5,8 @@ from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 from PyQt5.QtWidgets import *
 
 # 16:9 ratio
-VIDEO_WIDTH = 480
-VIDEO_HEIGHT = 270
+VIDEO_WIDTH = 640
+VIDEO_HEIGHT = 360
 
 
 class VideoPlayerWidget(QWidget):

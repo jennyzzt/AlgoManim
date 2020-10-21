@@ -12,7 +12,7 @@ from gui.video_quality import VideoQuality
 WORKING_DIR = Path().absolute()
 
 # Testing parameter
-TEST_VIDEO = False
+TEST_VIDEO_ONLY = False
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 800
@@ -34,7 +34,8 @@ class GuiWindow(QDialog):
 
         # Python file path field
         pyfile_label = QLabel("Python File Relative Path:")
-        self.pyfile_lineedit = QLineEdit("")
+        self.pyfile_lineedit = QLineEdit()
+        self.pyfile_lineedit.setPlaceholderText("Select a Python file")
         # Enforce file selection via dialog
         self.pyfile_lineedit.setReadOnly(True)
         pyfile_label.setBuddy(self.pyfile_lineedit)
@@ -89,7 +90,7 @@ class GuiWindow(QDialog):
                                               position_changed_callback=self.media_position_changed,
                                               parent=self)
 
-        # Animation Scrubber
+        # Animation scrubber
         self.anim_scrubber = None
         self.anim_boxes = []
         self.anims = []
@@ -101,7 +102,6 @@ class GuiWindow(QDialog):
         self.main_layout.addWidget(self.video_player, 2, 0, 1, -1)
 
         self.setLayout(self.main_layout)
-        self.setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
     def show_file_dialog(self):
         dialog = QFileDialog()
@@ -117,18 +117,19 @@ class GuiWindow(QDialog):
             self.pyfile_lineedit.setText(str(relpath))
 
     def render_video(self):
-        if TEST_VIDEO:
+        if TEST_VIDEO_ONLY:
             self.show_video_on_render_success(WORKING_DIR /
-                                              "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
+                                              "media/algomanim/videos/BubbleSortScene.mp4")
             return
 
+        # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
         scene_name = self.scene_lineedit.text()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
-        # Render Video Programmatically
+        # Render video programmatically
         self.anims = custom_renderer(pyfile_relpath, scene_name, video_quality)
-        video_fp = WORKING_DIR / f'./media/algomanim/videos/{scene_name}.mp4'
+        video_fp = WORKING_DIR / f'media/algomanim/videos/{scene_name}.mp4'
         self.create_anims_scrubber()
         self.show_video_on_render_success(video_fp)
 
@@ -239,5 +240,6 @@ class GuiWindow(QDialog):
 if __name__ == '__main__':
     app = QApplication([])  # no cmd line params
     gui = GuiWindow()
+    gui.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
     gui.show()
     sys.exit(app.exec_())
