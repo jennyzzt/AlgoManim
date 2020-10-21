@@ -1,4 +1,5 @@
 
+import ast
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
@@ -47,6 +48,8 @@ class GuiWindow(QDialog):
         pyfile_select_button.clicked.connect(self.show_file_dialog)
 
         # Scene name field
+        self.scene_names = []
+
         scene_label = QLabel("Scene Name:")
         self.scene_lineedit = QLineEdit("")
         scene_label.setBuddy(self.scene_lineedit)
@@ -118,6 +121,23 @@ class GuiWindow(QDialog):
             # Show chosen file's relative path in text box
             relpath = file_path.relative_to(WORKING_DIR)
             self.pyfile_lineedit.setText(str(relpath))
+
+            # Obtain relevant scene names
+            self.scene_names = self.get_scene_names(file_path_str)
+
+    # Returns list of AlgoScene subclasses in the Python file at python_fp
+    @staticmethod
+    def get_scene_names(python_fp):
+        with open(python_fp) as file:
+            node = ast.parse(file.read())
+
+        scene_names = []
+        all_classes = [n for n in node.body if isinstance(n, ast.ClassDef)]
+        for cls in all_classes:
+            if "AlgoScene" in [base.id for base in cls.bases]:
+                scene_names.append(cls.name)
+
+        return scene_names
 
     def render_video(self):
         if TEST_VIDEO_ONLY:
