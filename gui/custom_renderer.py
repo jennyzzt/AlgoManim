@@ -5,7 +5,13 @@ import manimlib.constants
 from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
 from gui.video_quality import VideoQuality
 
+"""
+Functions for rendering manim animation into a video using algomanim API
+and constructing anim dicts for AnimationBar widget
+"""
 
+
+# Modification of internal manim function using algomanim API
 def extract_scene(file_path, scene_name, video_quality):
     args = Namespace(color=None,
                      file=file_path,
@@ -39,23 +45,20 @@ def extract_scene(file_path, scene_name, video_quality):
     scene_class = get_scenes_to_render(all_scene_classes, config)[0]
 
     scene_kwargs = {
-        key: config[key]
-        for key in [
-            "camera_config",
-            "file_writer_config",
-            "skip_animations",
-            "start_at_animation_number",
-            "end_at_animation_number",
-            "leave_progress_bars",
-        ]
+        key: config[key] for key in ["camera_config",
+                                     "file_writer_config",
+                                     "skip_animations",
+                                     "start_at_animation_number",
+                                     "end_at_animation_number",
+                                     "leave_progress_bars",
+                                     ]
     }
 
     return scene_class(**scene_kwargs)
 
 
-def custom_renderer(file_path, scene_name, video_quality):
-    scene = extract_scene(file_path, scene_name, video_quality)
-    action_pairs = scene.action_pairs.copy()
+# Constructs anim dicts for use in AnimationBar widget
+def construct_anims(scene, action_pairs):
     anims = []
     start_time = 0
     start_index = 0
@@ -70,7 +73,7 @@ def custom_renderer(file_path, scene_name, video_quality):
                 'can_change_runtime': action_pair.can_change_runtime(),
                 'can_change_color': action_pair.can_change_color()}
         start_time += run_time
-        for action_pair2 in action_pairs[i+1:]:
+        for action_pair2 in action_pairs[i + 1:]:
             action2 = action_pair2.curr_action()
             if action2.w_prev:
                 if action2.act == action.act:
@@ -80,7 +83,7 @@ def custom_renderer(file_path, scene_name, video_quality):
                         anim['can_change_color'] = True
                     action_pairs.remove(action_pair2)
             elif (action2.act != scene.play and action2.act != scene.wait) and \
-                (action.act != scene.play and action.act != scene.wait):
+                    (action.act != scene.play and action.act != scene.wait):
                 anim['end_index'] += 1
                 anim['action_pairs'].append(action_pair2)
                 if action_pair2.can_change_color():
@@ -92,3 +95,13 @@ def custom_renderer(file_path, scene_name, video_quality):
         anims.append(anim)
 
     return anims
+
+
+# Renders video and returns anim dicts for use in AnimationBar widget
+def custom_renderer(file_path, scene_name, video_quality):
+    # Output video file
+    scene = extract_scene(file_path, scene_name, video_quality)
+
+    # Construct animation representation
+    action_pairs = scene.action_pairs.copy()
+    return construct_anims(scene=scene, action_pairs=action_pairs)
