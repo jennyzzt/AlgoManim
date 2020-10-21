@@ -79,7 +79,7 @@ class VideoPlayerWidget(QWidget):
             self.media_player.play()
 
     def slider_position_changed(self, position):
-        self.media_player.setPosition(position)
+        self.set_media_position(position)
 
     def media_state_changed(self, state):
         if self.media_player.state() == QMediaPlayer.PlayingState:
@@ -88,6 +88,9 @@ class VideoPlayerWidget(QWidget):
         else:
             self.play_button.setIcon(
                 self.style().standardIcon(QStyle.SP_MediaPlay))
+
+    def set_media_position(self, position):
+        self.media_player.setPosition(position)
 
     def media_position_changed(self, position):
         self.position_changed_callback(position)

@@ -82,7 +82,7 @@ class GuiWindow(QDialog):
 
         # Animation Scrubber
         self.anim_scrubber = None
-        self.anim_lbls = []
+        self.anim_boxes = []
         self.anims = []
 
         # Organise main window
@@ -131,11 +131,13 @@ class GuiWindow(QDialog):
         # Animation Scrubber
         anim_box_list = QHBoxLayout()
         anim_box_list.setContentsMargins(0, 0, 0, 0)
-        self.anim_lbls = []
+        self.anim_boxes = []
         for anim in self.anims:
             anim_box = self.create_anim_box(anim)
-            anim_box_list.addLayout(anim_box)
+            anim_box_list.addWidget(anim_box)
+            self.anim_boxes.append(anim_box)
         anim_group_box = QGroupBox()
+        anim_group_box.setStyleSheet("border-style: none")
         anim_group_box.setLayout(anim_box_list)
 
         # remove previous anim_scrubber if it already exists
@@ -143,7 +145,7 @@ class GuiWindow(QDialog):
             self.main_layout.removeWidget(self.anim_scrubber)
         self.anim_scrubber = QScrollArea()
         self.anim_scrubber.setWidget(anim_group_box)
-        self.anim_scrubber.setFixedHeight(130)
+        self.anim_scrubber.setFixedHeight(100)
         self.main_layout.addWidget(self.anim_scrubber, 3, 0, 1, -1)
 
     def create_anim_box(self, anim):
@@ -152,16 +154,16 @@ class GuiWindow(QDialog):
         '''
         desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
                 else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
-        anim_box = QVBoxLayout()
-        anim_box.setContentsMargins(0, 0, 0, 0)
+        anim_box = QGroupBox()
+        anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
+        anim_box_layout = QVBoxLayout()
+        anim_box_layout.setContentsMargins(0, 0, 0, 0)
         anim_lbl = QLabel(desc)
-        anim_lbl.setStyleSheet("background-color: white; color: black")
         anim_lbl.setAlignment(Qt.AlignCenter)
         anim_lbl.setWordWrap(True)
-        anim_lbl.setFixedHeight(60)
+        anim_box.setFixedHeight(100)
         width = max(int(150 * anim['run_time']), 80)
-        anim_lbl.setFixedWidth(width)
-        self.anim_lbls.append(anim_lbl)
+        anim_box.setFixedWidth(width)
 
         btn_layout = QHBoxLayout()
         runtime_btn = QPushButton()
@@ -186,16 +188,20 @@ class GuiWindow(QDialog):
         btn_layout.addWidget(runtime_btn)
         btn_layout.addWidget(color_btn)
 
-        anim_box.addLayout(btn_layout)
-        anim_box.addWidget(anim_lbl)
+        anim_box_layout.addLayout(btn_layout)
+        anim_box_layout.addWidget(anim_lbl)
+        anim_box.setLayout(anim_box_layout)
+
+        anim_box.mouseReleaseEvent = lambda event: \
+            self.video_player.set_media_position(anim['start_time'] * 1000)
         return anim_box
 
     def set_active_lbl(self, index):
-        self.anim_lbls[index].setStyleSheet("background-color: #2980b9; color: white")
-        self.anim_scrubber.ensureWidgetVisible(self.anim_lbls[index])
+        self.anim_boxes[index].setStyleSheet("background-color: #2980b9; color: white")
+        self.anim_scrubber.ensureWidgetVisible(self.anim_boxes[index])
 
     def set_inactive_lbl(self, index):
-        self.anim_lbls[index].setStyleSheet("background-color: white; color: black")
+        self.anim_boxes[index].setStyleSheet("background-color: white; color: black")
 
     def media_position_changed(self, position):
         for (i, anim) in enumerate(self.anims):
