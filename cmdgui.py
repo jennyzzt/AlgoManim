@@ -1,12 +1,14 @@
 
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QUrl
 from enum import Enum
 from gui.video_player import VideoPlayerWidget
 import sys
 import subprocess
 
 from pathlib import Path
+
+WORKING_DIR = Path().absolute()
 
 # Testing parameter
 TEST_VIDEO = False
@@ -53,7 +55,14 @@ class GuiWindow(QDialog):
         # Python file path field
         pyfile_label = QLabel("Python File Relative Path:")
         self.pyfile_lineedit = QLineEdit("")
+        # Enforce file selection via dialog
+        self.pyfile_lineedit.setReadOnly(True)
         pyfile_label.setBuddy(self.pyfile_lineedit)
+
+        # File selection dialog
+        pyfile_select_button = QPushButton()
+        pyfile_select_button.setIcon(self.style().standardIcon(QStyle.SP_DirIcon))
+        pyfile_select_button.clicked.connect(self.show_file_dialog)
 
         # Scene name field
         scene_label = QLabel("Scene Name:")
@@ -64,6 +73,7 @@ class GuiWindow(QDialog):
         text_layout = QHBoxLayout()
         text_layout.addWidget(pyfile_label)
         text_layout.addWidget(self.pyfile_lineedit, stretch=1)
+        text_layout.addWidget(pyfile_select_button)
         text_layout.addWidget(scene_label)
         text_layout.addWidget(self.scene_lineedit, stretch=1)
 
@@ -105,10 +115,22 @@ class GuiWindow(QDialog):
 
         self.setLayout(self.main_layout)
 
-    @pyqtSlot()
+    def show_file_dialog(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setDirectoryUrl(QUrl.fromLocalFile(str(WORKING_DIR)))
+
+        fp_str, _ = dialog.getOpenFileName(filter="Python files (*.py)")
+        fp = Path(fp_str)
+
+        if fp.suffix == ".py":
+            # Show chosen file's relative path in text box
+            relpath = fp.relative_to(WORKING_DIR)
+            self.pyfile_lineedit.setText(str(relpath))
+
     def render_video(self):
         if TEST_VIDEO:
-            self.show_video_on_render_success(Path().absolute() / "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
+            self.show_video_on_render_success(WORKING_DIR / "media/videos/bubblesort/480p15/BubbleSortScene.mp4")
             return
 
         pyfile_relpath = self.pyfile_lineedit.text()
