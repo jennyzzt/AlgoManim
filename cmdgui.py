@@ -1,4 +1,3 @@
-
 import ast
 import os
 import sys
@@ -10,6 +9,7 @@ from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
+from gui.anim_track_board import AnimTrackBoard
 
 WORKING_DIR = Path().absolute()
 ERROR_MSG_STYLESHEET = "font: bold 13pt"
@@ -92,20 +92,23 @@ class GuiWindow(QDialog):
         # Animation bar
         self.animation_bar = AnimationBar()
 
-        # Video player
-        self.video_player = VideoPlayerWidget(position_changed_callback=self.animation_bar
-                                                                            .media_position_changed,
-                                              parent=self)
+        # Customisation of animation track board
+        self.anim_track_board = AnimTrackBoard()
+        self.animation_bar.link_track_board(self.anim_track_board)
 
-        # Link animation bar and video player
+        # Video player
+        self.video_player = VideoPlayerWidget(position_changed_callback=
+                                              self.animation_bar.media_position_changed,
+                                              parent=self)
         self.animation_bar.link_video_player(video_player=self.video_player)
 
         # Organise main window
         self.main_layout = QGridLayout()
         self.main_layout.addLayout(text_layout, 0, 0, 1, -1)  # layout extends to right edge
         self.main_layout.addLayout(quality_layout, 1, 0, 1, -1)
-        self.main_layout.addWidget(self.video_player, 2, 0, 1, -1)
+        self.main_layout.addWidget(self.video_player, 2, 0)
         self.main_layout.addWidget(self.animation_bar, 3, 0, 1, -1)
+        self.main_layout.addWidget(self.anim_track_board, 2, 1)
 
         self.setLayout(self.main_layout)
 

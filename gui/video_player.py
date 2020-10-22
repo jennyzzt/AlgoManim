@@ -1,4 +1,3 @@
-
 from PyQt5.QtCore import Qt, QUrl, QSizeF
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
