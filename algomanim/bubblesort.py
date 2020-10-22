@@ -1,6 +1,7 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
+from algomanim.settings import Shape
 
 class BubbleSortScene(AlgoScene):
     def algoconstruct(self):
@@ -22,6 +23,10 @@ class BubbleSortScene(AlgoScene):
         result = list(map(FadeIn, self.save_mobjects))
         self.save_mobjects = []
         return result
+
+    def preconfig(self, settings):
+        settings['node_shape'] = Shape.CIRCLE
+        settings['highlight_color'] = "#FF0000"
 
     def customize(self, action_pairs):
         # demonstrating the allowed edits that can be made for animations

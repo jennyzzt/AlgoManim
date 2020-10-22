@@ -18,3 +18,5 @@ ignore=
     .pylintrc,
     .coverage,
     .pytest_cache
+[DESIGN]
+max-attributes=12
