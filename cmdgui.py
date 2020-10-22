@@ -1,5 +1,6 @@
 
 import ast
+import os
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
@@ -10,8 +11,8 @@ from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
 
-
 WORKING_DIR = Path().absolute()
+ERROR_MSG_STYLESHEET = "font: bold 13pt"
 
 # Testing parameter
 TEST_VIDEO_ONLY = False
@@ -48,8 +49,6 @@ class GuiWindow(QDialog):
         pyfile_select_button.clicked.connect(self.show_file_dialog)
 
         # Scene name field
-        self.scene_names = []
-
         scene_label = QLabel("Scene Name:")
         self.scene_combobox = QComboBox()
         self.scene_combobox.setPlaceholderText("Select a scene")
@@ -112,6 +111,7 @@ class GuiWindow(QDialog):
 
     def show_file_dialog(self):
         dialog = QFileDialog()
+        dialog.setOption(QFileDialog.DontUseNativeDialog)
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setDirectoryUrl(QUrl.fromLocalFile(str(WORKING_DIR)))
 
@@ -123,12 +123,9 @@ class GuiWindow(QDialog):
             relpath = file_path.relative_to(WORKING_DIR)
             self.pyfile_lineedit.setText(str(relpath))
 
-            # Obtain relevant scene names
-            self.scene_names = self.get_scene_names(file_path_str)
-
             # Clear any previous entries and (re)fill combobox
             self.scene_combobox.clear()
-            for name in self.scene_names:
+            for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
@@ -155,6 +152,27 @@ class GuiWindow(QDialog):
         pyfile_relpath = self.pyfile_lineedit.text()
         scene_name = self.scene_combobox.currentText()
         video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
+
+        # Check that the python file exists
+        if not os.path.exists(pyfile_relpath):
+            err = QMessageBox(icon=QMessageBox.Critical,
+                              text="File does not exist")
+            err.setInformativeText('The python file no longer exists at the given location. '
+                                   'Select another file to proceed.')
+            err.setStandardButtons(QMessageBox.Close)
+            err.setStyleSheet(ERROR_MSG_STYLESHEET)
+            err.exec_()
+            return
+
+        # Check that a scene has been selected
+        if self.scene_combobox.currentIndex() < 0:
+            err = QMessageBox(icon=QMessageBox.Critical,
+                              text="No scene selected")
+            err.setInformativeText('You must select a scene to render')
+            err.setStandardButtons(QMessageBox.Close)
+            err.setStyleSheet(ERROR_MSG_STYLESHEET)
+            err.exec_()
+            return
 
         # Render video programmatically
         anims = custom_renderer(pyfile_relpath, scene_name, video_quality)
