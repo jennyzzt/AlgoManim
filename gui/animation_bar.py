@@ -76,6 +76,7 @@ class AnimationBar(QWidget):
 
         btn_layout = QHBoxLayout()
 
+        # Create customise buttons
         runtime_btn = QPushButton()
         runtime_btn.clicked.connect(lambda : self.change_runtime(anim))
         runtime_btn_policy = runtime_btn.sizePolicy()
@@ -94,18 +95,22 @@ class AnimationBar(QWidget):
         color_btn.setFixedWidth(40)
         color_btn.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
 
+        # Remove customise buttons that are not applicable
         if not anim['can_change_runtime']:
             runtime_btn.hide()
         if not anim['can_change_color']:
             color_btn.hide()
 
+        # Layout cutomise buttons
         btn_layout.addWidget(runtime_btn)
         btn_layout.addWidget(color_btn)
 
+        # Layout anim box
         anim_box_layout.addLayout(btn_layout)
         anim_box_layout.addWidget(anim_lbl)
         anim_box.setLayout(anim_box_layout)
 
+        # Clicking on anim box jumps video to anim
         anim_box.mouseReleaseEvent = lambda event: \
             self.video_player.set_media_position(anim['start_time'] * 1000)
 
