@@ -23,19 +23,27 @@ class AnimTrackBoard(QWidget):
 
         self.setLayout(main_layout)
 
-    def create_change_box(self, anim):
-        anim_desc = f'Anim {anim["start_index"] + 1}' \
+    @staticmethod
+    def create_change_box(anim, change_type):
+        anim_desc = 'Animation ' + \
+            (f'{anim["start_index"] + 1}' \
             if anim['start_index'] == anim['end_index'] \
-            else f'Anim {anim["start_index"] + 1} - {anim["end_index"] + 1}'
-        change_desc = 'Change Color'
+            else f'{anim["start_index"] + 1} - {anim["end_index"] + 1}')
+        change_desc = f'Change {change_type.name} to: '
 
         # Create change box
-        change_box = QGroupBox(f'{anim_desc}: {change_desc}')
+        change_box = QGroupBox(anim_desc)
+        change_box.setStyleSheet("margin-top: 6px")
         change_box.setCheckable(True)
 
         # Set layout
         change_box_layout = QHBoxLayout()
         change_box.setLayout(change_box_layout)
+
+        change_box_layout.addWidget(QLabel(change_desc))
+        # Add specific widgets for this change
+        for widget in change_type.get_widgets():
+            change_box_layout.addWidget(widget)
 
         return change_box
 
@@ -45,9 +53,9 @@ class AnimTrackBoard(QWidget):
         change_group_box.setLayout(self.change_box_list)
         self.scroll_area.setWidget(change_group_box)
 
-    def add_change(self, anim):
+    def add_change(self, anim, change_type):
         self.changes.append(anim)
-        change_box = self.create_change_box(anim)
+        change_box = self.create_change_box(anim, change_type)
         self.change_box_list.addWidget(change_box)
         self.update_view()
 

@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
-
+from gui.customisation_type import CustomisationType
 
 class AnimationBar(QWidget):
 
@@ -70,7 +70,8 @@ class AnimationBar(QWidget):
 
         # Create customise buttons
         runtime_btn = QPushButton()
-        runtime_btn.clicked.connect(lambda : self.track_board.add_change(anim))
+        runtime_btn.clicked.connect(lambda : self.track_board
+                                    .add_change(anim, CustomisationType.RUNTIME))
         runtime_btn_policy = runtime_btn.sizePolicy()
         runtime_btn_policy.setRetainSizeWhenHidden(True)
         runtime_btn.setSizePolicy(runtime_btn_policy)
@@ -79,7 +80,8 @@ class AnimationBar(QWidget):
         runtime_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
 
         color_btn = QPushButton()
-        color_btn.clicked.connect(lambda : self.track_board.add_change(anim))
+        color_btn.clicked.connect(lambda : self.track_board
+                                  .add_change(anim, CustomisationType.COLOR))
         color_btn_policy = color_btn.sizePolicy()
         color_btn_policy.setRetainSizeWhenHidden(True)
         color_btn.setSizePolicy(color_btn_policy)
