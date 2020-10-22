@@ -9,8 +9,13 @@ from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 from PyQt5.QtWidgets import *
 
 # 16:9 ratio
-VIDEO_WIDTH = 640
-VIDEO_HEIGHT = 360
+VIDEO_WIDTH_RATIO = 16
+VIDEO_HEIGHT_RATIO = 9
+
+VIDEO_BASE_WIDTH = 640
+VIDEO_BASE_HEIGHT = 360
+
+VIEW_OFFSET = 5
 
 
 class VideoPlayerWidget(QWidget):
@@ -24,10 +29,17 @@ class VideoPlayerWidget(QWidget):
 
         # Supporting infrastructure to display media player
         video_item = QGraphicsVideoItem()
-        video_item.setSize(QSizeF(VIDEO_WIDTH, VIDEO_HEIGHT))
+        video_item.setSize(QSizeF(VIDEO_BASE_WIDTH, VIDEO_BASE_HEIGHT))
+
         scene = QGraphicsScene(self)
         scene.addItem(video_item)
+
         graphics_view = QGraphicsView(scene)
+        # Offset prevents scrollbars from appearing on video window
+        graphics_view.setMinimumSize(VIDEO_BASE_WIDTH + VIEW_OFFSET, VIDEO_BASE_HEIGHT + VIEW_OFFSET)
+        # Ensure view scales up in increments of 16:9 ratio
+        graphics_view.setBaseSize(VIDEO_BASE_WIDTH, VIDEO_BASE_HEIGHT)
+        graphics_view.setSizeIncrement(VIDEO_WIDTH_RATIO, VIDEO_HEIGHT_RATIO)
 
         # Play button
         self.play_button = QPushButton()

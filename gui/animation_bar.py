@@ -1,6 +1,11 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
+
 from gui.customisation_type import CustomisationType
+from .video_player import VIDEO_BASE_WIDTH
+
+BAR_BASE_HEIGHT = 150
+
 
 class AnimationBar(QWidget):
 
@@ -17,6 +22,7 @@ class AnimationBar(QWidget):
 
         # Set up scrollbar for boxes
         self.scroll_area = QScrollArea()
+        self.scroll_area.setMinimumSize(VIDEO_BASE_WIDTH, BAR_BASE_HEIGHT)
 
         # Arrange widget contents
         main_layout = QHBoxLayout()

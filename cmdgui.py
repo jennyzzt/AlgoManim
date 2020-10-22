@@ -17,9 +17,6 @@ ERROR_MSG_STYLESHEET = "font: bold 13pt"
 # Testing parameter
 TEST_VIDEO_ONLY = False
 
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 800
-
 
 # ======== Main GUI ========
 
@@ -107,7 +104,7 @@ class GuiWindow(QDialog):
         self.main_layout.addLayout(text_layout, 0, 0, 1, -1)  # layout extends to right edge
         self.main_layout.addLayout(quality_layout, 1, 0, 1, -1)
         self.main_layout.addWidget(self.video_player, 2, 0)
-        self.main_layout.addWidget(self.animation_bar, 3, 0, 1, -1)
+        self.main_layout.addWidget(self.animation_bar, 3, 0)
         self.main_layout.addWidget(self.anim_track_board, 2, 1)
 
         self.setLayout(self.main_layout)
@@ -147,8 +144,8 @@ class GuiWindow(QDialog):
 
     def render_video(self):
         if TEST_VIDEO_ONLY:
-            self.display_video(WORKING_DIR /
-                               "media/algomanim/videos/BubbleSortScene.mp4")
+            self.video_player.open_video(WORKING_DIR /
+                                         "media/algomanim/videos/BubbleSortScene.mp4")
             return
 
         # Retrieve render parameters
@@ -191,6 +188,5 @@ class GuiWindow(QDialog):
 if __name__ == '__main__':
     app = QApplication([])  # no cmd line params
     gui = GuiWindow()
-    gui.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
     gui.show()
     sys.exit(app.exec_())
