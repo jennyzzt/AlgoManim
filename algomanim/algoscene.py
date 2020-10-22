@@ -1,5 +1,6 @@
 # pylint: disable=R0903
 from manimlib.imports import *
+from algomanim.settings import DEFAULT_SETTINGS
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
@@ -116,6 +117,12 @@ class AlgoScene(Scene):
     # Used to reobtain objects that are removed by certain animations
     save_mobjects = None
 
+    # Default settings
+    settings = DEFAULT_SETTINGS
+
+    def preconfig(self, settings):
+        pass
+
     def algoconstruct(self):
         pass
 
@@ -164,9 +171,11 @@ class AlgoScene(Scene):
             action_pair.fast_forward(speed_up)
 
     def construct(self):
+        self.preconfig(self.settings)
         self.action_pairs = []
         self.algoconstruct()
         self.customize(self.action_pairs)
+
         if len(self.action_pairs) > 0:
             last_action_pair = self.action_pairs[-1]
             last_act = last_action_pair.act()
