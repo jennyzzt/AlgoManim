@@ -122,7 +122,7 @@ class AlgoList:
         self.nodes[i].swap_with(self.nodes[j], animated)
 
     def compare(self, i, j, animated=True):
-        self.dehighlight(0, 1, 2, 3, 4, animated=animated)
+        self.dehighlight(*list(range(len(self.nodes))), animated=animated)
         self.highlight(i, j, animated=animated)
         return self.get_val(i) < self.get_val(j)
 
