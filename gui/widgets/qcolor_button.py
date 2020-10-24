@@ -2,7 +2,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QPushButton, QColorDialog
 
-class ColorButton(QPushButton):
+class QColorButton(QPushButton):
     '''
     Custom Qt Widget to show a chosen color.
     '''
@@ -29,7 +29,7 @@ class ColorButton(QPushButton):
         if self._color:
             self.setStyleSheet(f'{self._style}; background-color: {self._color};')
 
-    def color(self):
+    def get_color(self):
         return self._color
 
     # Show color picker dialog to select color

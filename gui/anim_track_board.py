@@ -1,5 +1,17 @@
 from PyQt5.QtWidgets import *
 
+class AnimChange():
+
+    def __init__(self, anim, change_type, input_widget=None):
+        self.anim = anim
+        self.change_type = change_type
+        self.input_widget = input_widget
+
+    def apply(self):
+        change_value = self.input_widget.get_value()
+        for action_pair in self.anim['action_pairs']:
+            action_pair.change_color(change_value) # TODO
+
 class AnimTrackBoard(QWidget):
 
     def __init__(self, parent=None):
@@ -42,10 +54,14 @@ class AnimTrackBoard(QWidget):
 
         change_box_layout.addWidget(QLabel(change_desc))
         # Add specific widgets for this change
-        for widget in change_type.get_widgets():
+        widgets = change_type.get_widgets()
+        input_widget = change_type.wrap_input_widget(
+            widgets[change_type.input_widget_index]
+        )
+        for widget in widgets:
             change_box_layout.addWidget(widget)
 
-        return change_box
+        return change_box, input_widget
 
     def update_view(self):
         change_group_box = QGroupBox()
@@ -54,10 +70,14 @@ class AnimTrackBoard(QWidget):
         self.scroll_area.setWidget(change_group_box)
 
     def add_change(self, anim, change_type):
-        self.changes.append(anim)
-        change_box = self.create_change_box(anim, change_type)
+        change_box, input_widget = self.create_change_box(anim, change_type)
+        self.changes.append(AnimChange(anim, change_type, input_widget))
         self.change_box_list.addWidget(change_box)
         self.update_view()
 
     def apply_changes(self):
+        for change in self.changes:
+            change.apply()
         print(f'{len(self.changes)} changes applied')
+
+        # TODO: reset track board
