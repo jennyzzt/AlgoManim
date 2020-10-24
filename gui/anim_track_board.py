@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 
+# pylint: disable=too-few-public-methods
 class AnimChange():
 
     def __init__(self, anim, change_type, input_widget=None):
@@ -75,9 +76,19 @@ class AnimTrackBoard(QWidget):
         self.change_box_list.addWidget(change_box)
         self.update_view()
 
+    @staticmethod
+    # can move this fn to a util file later
+    def clear_layout(layout):
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+    def reset(self):
+        self.changes = []
+        self.clear_layout(self.change_box_list)
+
     def apply_changes(self):
         for change in self.changes:
             change.apply()
-        print(f'{len(self.changes)} changes applied')
-
-        # TODO: reset track board
+        self.reset()
