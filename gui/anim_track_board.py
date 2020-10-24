@@ -10,7 +10,7 @@ class AnimChange():
     def apply(self):
         change_value = self.input_widget.get_value()
         for action_pair in self.anim['action_pairs']:
-            action_pair.change_color(change_value) # TODO
+            self.change_type.customise(action_pair)(change_value)
 
 class AnimTrackBoard(QWidget):
 
@@ -41,7 +41,7 @@ class AnimTrackBoard(QWidget):
             (f'{anim["start_index"] + 1}' \
             if anim['start_index'] == anim['end_index'] \
             else f'{anim["start_index"] + 1} - {anim["end_index"] + 1}')
-        change_desc = f'Change {change_type.name} to: '
+        change_desc = f'Change {change_type.name.lower()} to: '
 
         # Create change box
         change_box = QGroupBox(anim_desc)
