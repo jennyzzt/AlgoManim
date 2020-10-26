@@ -5,19 +5,18 @@ from algomanim.settings import Shape
 from enum import Enum, auto
 
 class AlgoListMetadata(Enum):
-    SWAP = auto(),
-    COMPARE = auto(),
-    CENTER = auto(),
-    SHOW = auto(),
-    HIDE = auto(),
-    HIGHLIGHT = auto(),
-    DEHIGHLIGHT = auto(),
-    GET_VAL = auto(),
-    APPEND = auto(),
-    POP = auto(),
-    SLICE = auto(),
+    SWAP = auto()
+    COMPARE = auto()
+    CENTER = auto()
+    SHOW = auto()
+    HIDE = auto()
+    HIGHLIGHT = auto()
+    DEHIGHLIGHT = auto()
+    GET_VAL = auto()
+    APPEND = auto()
+    POP = auto()
+    SLICE = auto()
     CONCAT = auto()
-
 
 class Metadata:
     global_uid = 0
@@ -159,7 +158,8 @@ class AlgoList:
         )
         static_action = AlgoSceneAction(self.grp.center)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata if metadata else Metadata(AlgoListMetadata.CENTER))
+        self.scene.add_action_pair(anim_action, static_action, animated=animated,
+            metadata=metadata if metadata else Metadata(AlgoListMetadata.CENTER))
 
     def show(self, animated=True):
         meta = Metadata(AlgoListMetadata.SHOW)
@@ -275,7 +275,7 @@ class AlgoList:
         self.group()
     
     @staticmethod
-    def find_frame(action_pairs, method, occurence):
+    def find_index(action_pairs, method, occurence):
         indexes = []
         uids = set()
         for i, action_pair in enumerate(action_pairs):
@@ -293,5 +293,3 @@ class AlgoList:
                 break
 
         return indexes
-
-        
