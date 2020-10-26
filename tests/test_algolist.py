@@ -1,6 +1,6 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algolist import AlgoList
+from algomanim.algolist import AlgoList, AlgoListMetadata, Metadata
 from algomanim.settings import DEFAULT_SETTINGS
 
 test_list = [1, 2, 3]
@@ -24,7 +24,8 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True
+            animated=True,
+            metadata=Metadata(AlgoListMetadata.SWAP)
         )
 
     @patch("algomanim.algolist.AlgoListNode.show")
@@ -76,5 +77,6 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True
+            animated=True,
+            metadata=Metadata(AlgoListMetadata.CONCAT)
         )
