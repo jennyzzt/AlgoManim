@@ -1,21 +1,22 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
 from algomanim.algolist import AlgoList
-
+from algomanim.settings import DEFAULT_SETTINGS
 
 test_list = [1, 2, 3]
+algoscene = Mock()
+algoscene.settings = DEFAULT_SETTINGS
 
 @patch("algomanim.algolist.VGroup", Mock())
 @patch("algomanim.algolist.TextMobject", Mock())
-@patch("algomanim.algoscene.AlgoScene")
 class TestAlgoList:
     @patch("algomanim.algolist.AlgoList.show")
-    def test_constructor_calls_show(self, show, algoscene):
+    def test_constructor_calls_show(self, show):
         AlgoList(algoscene, test_list)
         show.assert_called_once()
 
     @patch("algomanim.algolist.AlgoSceneAction")
-    def test_swap_adds_two_actions(self, algoscene_action, algoscene):
+    def test_swap_adds_two_actions(self, algoscene_action):
         algolist = AlgoList(algoscene, test_list)
         algoscene.reset_mock()
 
@@ -28,7 +29,7 @@ class TestAlgoList:
 
     @patch("algomanim.algolist.AlgoListNode.show")
     @patch("algomanim.algolist.AlgoListNode.set_right_of")
-    def test_append_to_right_of_list(self, show, set_right_of, algoscene):
+    def test_append_to_right_of_list(self, show, set_right_of):
         algolist = AlgoList(algoscene, test_list)
         show.reset_mock()
         set_right_of.reset_mock()
@@ -40,7 +41,7 @@ class TestAlgoList:
         set_right_of.assert_called_once()
 
     @patch("algomanim.algolist.AlgoListNode.hide")
-    def test_pop_last_element_when_no_given_index(self, hide, algoscene):
+    def test_pop_last_element_when_no_given_index(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()
         algolist.pop()
@@ -49,7 +50,7 @@ class TestAlgoList:
         hide.assert_called_once()
 
     @patch("algomanim.algolist.AlgoListNode.hide")
-    def test_pop_invalid_index_does_nothing(self, hide, algoscene):
+    def test_pop_invalid_index_does_nothing(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()
         algolist.pop(6)
@@ -58,15 +59,14 @@ class TestAlgoList:
         hide.assert_not_called()
 
     @patch("algomanim.algolist.AlgoList.highlight")
-    def test_slice_outofbounds_index_get_truncated(self,
-                                                   highlight, algoscene):
+    def test_slice_outofbounds_index_get_truncated(self, highlight):
         algolist = AlgoList(algoscene, test_list)
         sublist = algolist.slice(-1, 3)
         assert sublist.len() == algolist.len()
         highlight.assert_called_once()
 
     @patch("algomanim.algolist.AlgoSceneAction")
-    def test_concat_two_lists_together(self, algoscene_action, algoscene):
+    def test_concat_two_lists_together(self, algoscene_action):
         algolist1 = AlgoList(algoscene, test_list)
         algolist1_prevlen = algolist1.len()
         algolist2 = AlgoList(algoscene, test_list)

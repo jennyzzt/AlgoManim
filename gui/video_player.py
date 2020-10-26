@@ -1,3 +1,8 @@
+# pylint: disable=no-name-in-module
+# pylint: disable=import-error
+# Known issue where CI runner cannot import QtMultimedia, QtMultimediaWidgets.
+# No solution possible on user side.
+
 from PyQt5.QtCore import Qt, QUrl, QSizeF
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
