@@ -1,11 +1,11 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algolist import AlgoList
+from algomanim.algolist import AlgoList, AlgoListMetadata
 from algomanim.settings import Shape
 
 class BubbleSortScene(AlgoScene):
     def algoconstruct(self):
-        algolist = AlgoList(self, [25, 43, 5, 18, 30])
+        algolist = AlgoList(self, [25, 43])
         swaps_made = True
         while swaps_made:
             swaps_made = False
@@ -35,7 +35,16 @@ class BubbleSortScene(AlgoScene):
         highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
         for index in highlight_indices:
             action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
+            
+        print(AlgoList.find_frame(action_pairs, AlgoListMetadata.COMPARE, 2))
 
+        for i, action in enumerate(action_pairs):
+            if action.metadata:
+                # pass
+                # if len(action.metadata) > 1:
+                print(i, action.metadata.uid, action.metadata.metadata)
+            else:
+                print(i, "NONE")
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
 
