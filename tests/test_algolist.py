@@ -1,6 +1,6 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock, ANY
-from algomanim.algolist import AlgoList, AlgoListMetadata, Metadata
+from algomanim.algolist import AlgoList, AlgoListMetadata
 from algomanim.algoscene import AlgoScene
 from algomanim.settings import DEFAULT_SETTINGS
 
@@ -97,7 +97,9 @@ class TestAlgoList:
         list_index = algolist.find_index(test_algoscene.action_pairs, AlgoListMetadata.COMPARE, 2)
 
         last_elem = num_initialisation_action_pairs + \
-                    len(algolist.find_index(test_algoscene.action_pairs, AlgoListMetadata.COMPARE, 1)) + \
-                    len(algolist.find_index(test_algoscene.action_pairs, AlgoListMetadata.SWAP, 1))
+                    len(algolist.find_index(test_algoscene.action_pairs,
+                            AlgoListMetadata.COMPARE, 1)) + \
+                    len(algolist.find_index(test_algoscene.action_pairs,
+                            AlgoListMetadata.SWAP, 1))
 
         assert last_elem == list_index[0]

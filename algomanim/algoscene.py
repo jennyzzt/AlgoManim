@@ -138,7 +138,7 @@ class AlgoScene(Scene):
 
     def add_action_pair(self, anim_action, static_action, animated=True, metadata=None):
         self.action_pairs.append(
-            AlgoSceneActionPair(anim_action, static_action, 
+            AlgoSceneActionPair(anim_action, static_action,
             run_time=None if animated else 0, metadata=metadata)
         )
 

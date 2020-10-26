@@ -1,8 +1,8 @@
-# pylint: disable=E0602,E1101
+# pylint: disable=E0602,E1101,R0903
+from enum import Enum, auto
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.settings import Shape
-from enum import Enum, auto
 
 class AlgoListMetadata(Enum):
     SWAP = auto()
@@ -24,7 +24,7 @@ class Metadata:
         self.metadata = metadata
         self.uid = Metadata.global_uid
         Metadata.global_uid += 1
-        
+
 class AlgoListNode:
     def __init__(self, scene, val):
         self.scene = scene
@@ -232,14 +232,15 @@ class AlgoList:
             )
             static_action = AlgoSceneAction(right_grp.set_right_of, AlgoTransform([left_node]))
 
-            self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=Metadata(AlgoListMetadata.POP))
+            self.scene.add_action_pair(anim_action, static_action, animated=animated,
+                                        metadata=Metadata(AlgoListMetadata.POP))
 
     def slice(self, start, stop, step=1, animated=True):
         if start < 0:
             start = 0
         if stop > self.len():
             stop = self.len()
-        
+
         meta = Metadata(AlgoListMetadata.SLICE)
         self.highlight(*range(start, stop, step), animated=animated, metadata=meta)
 
@@ -271,9 +272,10 @@ class AlgoList:
         )
         static_action = AlgoSceneAction(other_list.grp.next_to, AlgoTransform([self.grp, RIGHT]))
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=Metadata(AlgoListMetadata.CONCAT))
+        self.scene.add_action_pair(anim_action, static_action, animated=animated,
+                                        metadata=Metadata(AlgoListMetadata.CONCAT))
         self.group()
-    
+
     @staticmethod
     def find_index(action_pairs, method, occurence):
         indexes = []

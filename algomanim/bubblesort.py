@@ -32,19 +32,10 @@ class BubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
-        highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
+        highlight_indices = AlgoList.find_index(action_pairs, AlgoListMetadata.COMPARE, 2)
         for index in highlight_indices:
             action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
-            
-        print(AlgoList.find_frame(action_pairs, AlgoListMetadata.COMPARE, 2))
 
-        for i, action in enumerate(action_pairs):
-            if action.metadata:
-                # pass
-                # if len(action.metadata) > 1:
-                print(i, action.metadata.uid, action.metadata.metadata)
-            else:
-                print(i, "NONE")
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
 
