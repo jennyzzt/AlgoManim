@@ -1,4 +1,3 @@
-
 # pylint: disable=no-name-in-module
 # pylint: disable=import-error
 # Known issue where CI runner cannot import QtMultimedia, QtMultimediaWidgets.

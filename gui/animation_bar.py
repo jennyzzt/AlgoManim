@@ -1,14 +1,14 @@
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
-
+from gui.customisation_type import CustomisationType
 
 class AnimationBar(QWidget):
 
-    def __init__(self, video_player=None, parent=None):
+    def __init__(self, video_player=None, anim_track_board=None, parent=None):
         super().__init__(parent)
 
         self.video_player = video_player
+        self.track_board = anim_track_board
 
         self.anims = []
         self.anim_boxes = []
@@ -26,6 +26,9 @@ class AnimationBar(QWidget):
 
     def link_video_player(self, video_player):
         self.video_player = video_player
+
+    def link_track_board(self, track_board):
+        self.track_board = track_board
 
     def fill_bar(self, anims):
         self.anims = anims
@@ -67,6 +70,8 @@ class AnimationBar(QWidget):
 
         # Create customise buttons
         runtime_btn = QPushButton()
+        runtime_btn.clicked.connect(lambda : self.track_board
+                                    .add_change(anim, CustomisationType.RUNTIME))
         runtime_btn_policy = runtime_btn.sizePolicy()
         runtime_btn_policy.setRetainSizeWhenHidden(True)
         runtime_btn.setSizePolicy(runtime_btn_policy)
@@ -75,6 +80,8 @@ class AnimationBar(QWidget):
         runtime_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
 
         color_btn = QPushButton()
+        color_btn.clicked.connect(lambda : self.track_board
+                                  .add_change(anim, CustomisationType.COLOR))
         color_btn_policy = color_btn.sizePolicy()
         color_btn_policy.setRetainSizeWhenHidden(True)
         color_btn.setSizePolicy(color_btn_policy)
