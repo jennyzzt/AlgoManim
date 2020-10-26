@@ -1,11 +1,13 @@
 # pylint: disable=R0201
-from unittest.mock import patch, Mock
-from algomanim.algolist import AlgoList
+from unittest.mock import patch, Mock, ANY
+from algomanim.algolist import AlgoList, AlgoListMetadata
+from algomanim.algoscene import AlgoScene
 from algomanim.settings import DEFAULT_SETTINGS
 
 test_list = [1, 2, 3]
 algoscene = Mock()
 algoscene.settings = DEFAULT_SETTINGS
+
 
 @patch("algomanim.algolist.VGroup", Mock())
 @patch("algomanim.algolist.TextMobject", Mock())
@@ -24,7 +26,8 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True
+            animated=True,
+            metadata=ANY
         )
 
     @patch("algomanim.algolist.AlgoListNode.show")
@@ -76,5 +79,27 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True
+            animated=True,
+            metadata=ANY
         )
+
+    def test_find_index_2nd_compare(self):
+        test_algoscene = AlgoScene()
+        algolist = AlgoList(test_algoscene, test_list)
+
+        num_initialisation_action_pairs = len(test_algoscene.action_pairs)
+
+        algolist.compare(0, 1)
+        algolist.swap(0, 1)
+        algolist.compare(1, 2)
+        algolist.swap(1, 2)
+
+        list_index = algolist.find_index(test_algoscene.action_pairs, AlgoListMetadata.COMPARE, 2)
+
+        last_elem = num_initialisation_action_pairs + \
+                    len(algolist.find_index(test_algoscene.action_pairs,
+                            AlgoListMetadata.COMPARE, 1)) + \
+                    len(algolist.find_index(test_algoscene.action_pairs,
+                            AlgoListMetadata.SWAP, 1))
+
+        assert last_elem == list_index[0]

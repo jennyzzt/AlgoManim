@@ -1,11 +1,11 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algolist import AlgoList
+from algomanim.algolist import AlgoList, AlgoListMetadata
 from algomanim.settings import Shape
 
 class BubbleSortScene(AlgoScene):
     def algoconstruct(self):
-        algolist = AlgoList(self, [25, 43, 5, 18, 30])
+        algolist = AlgoList(self, [25, 43])
         swaps_made = True
         while swaps_made:
             swaps_made = False
@@ -32,7 +32,7 @@ class BubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
-        highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
+        highlight_indices = AlgoList.find_index(action_pairs, AlgoListMetadata.COMPARE, 2)
         for index in highlight_indices:
             action_pairs[index].change_color(PURPLE) # pylint: disable=E0602
 
