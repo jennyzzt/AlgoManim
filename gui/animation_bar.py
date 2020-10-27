@@ -1,9 +1,10 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
-from gui.panels.customisation_type import CustomisationType
-from .video_player import VIDEO_BASE_WIDTH
+from gui.video_player import VIDEO_BASE_WIDTH
 
+
+# Scrollbar base height
 BAR_BASE_HEIGHT = 150
 
 
@@ -68,45 +69,13 @@ class AnimationBar(QWidget):
         anim_lbl = QLabel(desc)
         anim_lbl.setAlignment(Qt.AlignCenter)
         anim_lbl.setWordWrap(True)
-        anim_box.setFixedHeight(100)
+
+        # Size box
+        anim_box.setFixedHeight(BAR_BASE_HEIGHT - 20)  # prevent height overflow
         width = max(int(150 * anim['run_time']), 80)
         anim_box.setFixedWidth(width)
 
-        btn_layout = QHBoxLayout()
-
-        # Create customise buttons
-        runtime_btn = QPushButton()
-        runtime_btn.clicked.connect(lambda : self.changes_panel
-                                    .add_change(anim, CustomisationType.RUNTIME))
-        runtime_btn_policy = runtime_btn.sizePolicy()
-        runtime_btn_policy.setRetainSizeWhenHidden(True)
-        runtime_btn.setSizePolicy(runtime_btn_policy)
-        runtime_btn.setFixedHeight(40)
-        runtime_btn.setFixedWidth(40)
-        runtime_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
-
-        color_btn = QPushButton()
-        color_btn.clicked.connect(lambda : self.changes_panel
-                                  .add_change(anim, CustomisationType.COLOR))
-        color_btn_policy = color_btn.sizePolicy()
-        color_btn_policy.setRetainSizeWhenHidden(True)
-        color_btn.setSizePolicy(color_btn_policy)
-        color_btn.setFixedHeight(40)
-        color_btn.setFixedWidth(40)
-        color_btn.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
-
-        # Remove customise buttons that are not applicable
-        if not anim['can_change_runtime']:
-            runtime_btn.hide()
-        if not anim['can_change_color']:
-            color_btn.hide()
-
-        # Layout cutomise buttons
-        btn_layout.addWidget(runtime_btn)
-        btn_layout.addWidget(color_btn)
-
         # Layout anim box
-        anim_box_layout.addLayout(btn_layout)
         anim_box_layout.addWidget(anim_lbl)
         anim_box.setLayout(anim_box_layout)
 
