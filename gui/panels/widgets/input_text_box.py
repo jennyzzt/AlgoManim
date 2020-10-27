@@ -1,4 +1,5 @@
-from gui.widgets.input_widget import InputWidget
+from gui.panels.widgets.input_widget import InputWidget
+
 
 class InputTextBox(InputWidget):
 

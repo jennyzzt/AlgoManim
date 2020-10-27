@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
-from gui.customisation_type import CustomisationType
+from gui.panels.customisation_type import CustomisationType
 from .video_player import VIDEO_BASE_WIDTH
 
 BAR_BASE_HEIGHT = 150
@@ -13,7 +13,7 @@ class AnimationBar(QWidget):
         super().__init__(parent)
 
         self.video_player = video_player
-        self.track_board = anim_track_board
+        self.changes_panel = anim_track_board
 
         self.anims = []
         self.anim_boxes = []
@@ -33,8 +33,8 @@ class AnimationBar(QWidget):
     def link_video_player(self, video_player):
         self.video_player = video_player
 
-    def link_track_board(self, track_board):
-        self.track_board = track_board
+    def link_changes_panel(self, changes_panel):
+        self.changes_panel = changes_panel
 
     def fill_bar(self, anims):
         self.anims = anims
@@ -76,7 +76,7 @@ class AnimationBar(QWidget):
 
         # Create customise buttons
         runtime_btn = QPushButton()
-        runtime_btn.clicked.connect(lambda : self.track_board
+        runtime_btn.clicked.connect(lambda : self.changes_panel
                                     .add_change(anim, CustomisationType.RUNTIME))
         runtime_btn_policy = runtime_btn.sizePolicy()
         runtime_btn_policy.setRetainSizeWhenHidden(True)
@@ -86,7 +86,7 @@ class AnimationBar(QWidget):
         runtime_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
 
         color_btn = QPushButton()
-        color_btn.clicked.connect(lambda : self.track_board
+        color_btn.clicked.connect(lambda : self.changes_panel
                                   .add_change(anim, CustomisationType.COLOR))
         color_btn_policy = color_btn.sizePolicy()
         color_btn_policy.setRetainSizeWhenHidden(True)

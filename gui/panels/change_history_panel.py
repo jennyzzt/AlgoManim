@@ -1,7 +1,10 @@
 from PyQt5.QtWidgets import *
 
+from gui.panels.base_changes_panel import BaseChangesPanel
+
+
 # pylint: disable=too-few-public-methods
-class AnimChange():
+class AnimChange:
 
     def __init__(self, anim, change_type, input_widget=None):
         self.anim = anim
@@ -13,7 +16,8 @@ class AnimChange():
         for action_pair in self.anim['action_pairs']:
             self.change_type.customise(action_pair)(change_value)
 
-class AnimTrackBoard(QWidget):
+
+class ChangeHistoryPanel(BaseChangesPanel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -22,26 +26,12 @@ class AnimTrackBoard(QWidget):
         self.change_box_list = QVBoxLayout()
         self.change_box_list.setContentsMargins(0, 0, 0, 0)
 
-        # Set up scrollbar
-        self.scroll_area = QScrollArea()
-
-        # Apply button
-        apply_button = QPushButton("Apply")
-        apply_button.clicked.connect(self.apply_changes)
-
-        # Arrange widget contents
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.scroll_area)
-        main_layout.addWidget(apply_button)
-
-        self.setLayout(main_layout)
-
     @staticmethod
     def create_change_box(anim, change_type):
         anim_desc = 'Animation ' + \
-            (f'{anim["start_index"] + 1}' \
-            if anim['start_index'] == anim['end_index'] \
-            else f'{anim["start_index"] + 1} - {anim["end_index"] + 1}')
+                    (f'{anim["start_index"] + 1}' \
+                         if anim['start_index'] == anim['end_index'] \
+                         else f'{anim["start_index"] + 1} - {anim["end_index"] + 1}')
         change_desc = f'Change {change_type.name.lower()} to: '
 
         # Create change box

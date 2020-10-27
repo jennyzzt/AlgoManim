@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class InputWidget(ABC):
 
     def __init__(self):

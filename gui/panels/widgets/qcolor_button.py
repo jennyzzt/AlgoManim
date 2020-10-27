@@ -2,10 +2,11 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QPushButton, QColorDialog
 
+
 class QColorButton(QPushButton):
-    '''
+    """
     Custom Qt Widget to show a chosen color.
-    '''
+    """
 
     colorChanged = pyqtSignal()
 
