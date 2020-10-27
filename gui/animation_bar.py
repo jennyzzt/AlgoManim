@@ -96,7 +96,8 @@ class AnimationBar(QWidget):
         for (i, anim) in enumerate(self.anims):
             start_time = anim['start_time'] * 1000
             end_time = (anim['start_time'] + anim['run_time']) * 1000
-            if start_time <= position <= end_time:
+            if (start_time <= position < end_time) or \
+                (start_time == position and end_time == start_time):
                 self.set_active_lbl(i)
             else:
                 self.set_inactive_lbl(i)
