@@ -88,14 +88,14 @@ def construct_anims(scene, action_pairs):
                     anim['end_index'] += 1
                     anim['action_pairs'].append(action_pair2)
                     if action_pair2.can_change_color():
-                        anim['can_change_color'] = True
+                        anim['customisations'][CustomisationType.COLOR] = action_pair2.get_color()
                     action_pairs.remove(action_pair2)
             elif (action2.act != scene.play and action2.act != scene.wait) and \
                     (action.act != scene.play and action.act != scene.wait):
                 anim['end_index'] += 1
                 anim['action_pairs'].append(action_pair2)
                 if action_pair2.can_change_color():
-                    anim['can_change_color'] = True
+                    anim['customisations'][CustomisationType.COLOR] = action_pair2.get_color()
                 action_pairs.remove(action_pair2)
             else:
                 break
