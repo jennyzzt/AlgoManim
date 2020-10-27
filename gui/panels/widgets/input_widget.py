@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-
+# pylint: disable=too-few-public-methods
 class InputWidget(ABC):
 
     def __init__(self):
-        super().__init__()
+        super()
 
     @abstractmethod
     def get_value(self):

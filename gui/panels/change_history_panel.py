@@ -50,10 +50,6 @@ class ChangeHistoryPanel(BaseChangesPanel):
         to UI to display the animation and current value of change
         '''
 
-        '''change_box, input_widget = self.create_change_box(anim, change_type)
-        self.change_box_list.addWidget(change_box)
-        self.update_view()'''
-
     @staticmethod
     # can move this fn to a util file later
     def clear_layout(layout):

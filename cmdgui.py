@@ -27,7 +27,8 @@ class GuiWindow(QDialog):
 
     # pylint: disable=too-many-instance-attributes
     # Instance attributes required to organise window.
-
+    # pylint: disable=too-many-statements
+    # Statements necessary to piece widgets together.
     def __init__(self, parent=None):
         super().__init__(parent)
         self.original_palette = QApplication.palette()

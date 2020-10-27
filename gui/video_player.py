@@ -36,7 +36,8 @@ class VideoPlayerWidget(QWidget):
 
         graphics_view = QGraphicsView(scene)
         # Offset prevents scrollbars from appearing on video window
-        graphics_view.setMinimumSize(VIDEO_BASE_WIDTH + VIEW_OFFSET, VIDEO_BASE_HEIGHT + VIEW_OFFSET)
+        graphics_view.setMinimumSize(VIDEO_BASE_WIDTH + VIEW_OFFSET,
+            VIDEO_BASE_HEIGHT + VIEW_OFFSET)
         # Ensure view scales up in increments of 16:9 ratio
         graphics_view.setBaseSize(VIDEO_BASE_WIDTH, VIDEO_BASE_HEIGHT)
         graphics_view.setSizeIncrement(VIDEO_WIDTH_RATIO, VIDEO_HEIGHT_RATIO)
