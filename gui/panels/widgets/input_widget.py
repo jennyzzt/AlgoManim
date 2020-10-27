@@ -9,3 +9,8 @@ class InputWidget(ABC):
     @abstractmethod
     def get_value(self):
         pass
+
+    @abstractmethod
+    # Returns a version of itself that is non-modifiable
+    def read_only(self):
+        pass

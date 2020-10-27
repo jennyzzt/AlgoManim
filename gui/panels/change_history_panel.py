@@ -11,32 +11,29 @@ class ChangeHistoryPanel(BaseChangesPanel):
         self.change_box_list.setContentsMargins(0, 0, 0, 0)
 
     @staticmethod
-    def create_change_box(anim, change_type):
+    def create_change_box(anim_change):
+        start_index = anim_change.anim['start_index']
+        end_index = anim_change.anim['end_index']
         anim_desc = 'Animation ' + \
-                    (f'{anim["start_index"] + 1}' \
-                         if anim['start_index'] == anim['end_index'] \
-                         else f'{anim["start_index"] + 1} - {anim["end_index"] + 1}')
-        change_desc = f'Change {change_type.name.lower()} to: '
+                    (f'{start_index + 1}' \
+                     if start_index == end_index \
+                     else f'{start_index + 1} - {end_index + 1}')
+        change_desc = f'Change {anim_change.change_type.name.lower()} to: '
 
-        # Create change box
+        # Create box
         change_box = QGroupBox(anim_desc)
         change_box.setStyleSheet("margin-top: 6px")
-        change_box.setCheckable(True)
+        # change_box.setCheckable(True) # not fully supported
 
         # Set layout
         change_box_layout = QHBoxLayout()
         change_box.setLayout(change_box_layout)
 
+        # Add widgets
         change_box_layout.addWidget(QLabel(change_desc))
-        # Add specific widgets for this change
-        widgets = change_type.get_widgets()
-        input_widget = change_type.wrap_input_widget(
-            widgets[change_type.input_widget_index]
-        )
-        for widget in widgets:
-            change_box_layout.addWidget(widget)
+        change_box_layout.addWidget(anim_change.input_widget.read_only())
 
-        return change_box, input_widget
+        return change_box
 
     def update_view(self):
         change_group_box = QGroupBox()
@@ -49,6 +46,9 @@ class ChangeHistoryPanel(BaseChangesPanel):
         input widget exists elsewhere, anim_change object passed
         to UI to display the animation and current value of change
         '''
+        change_box = self.create_change_box(anim_change)
+        self.change_box_list.addWidget(change_box)
+        self.update_view()
 
     @staticmethod
     # can move this fn to a util file later
