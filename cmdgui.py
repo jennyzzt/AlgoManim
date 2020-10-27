@@ -11,6 +11,7 @@ from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
+from anim_change import AnimChange
 
 WORKING_DIR = Path().absolute()
 ERROR_MSG_STYLESHEET = "font: bold 13pt"
@@ -96,6 +97,8 @@ class GuiWindow(QDialog):
 
         self.change_history_panel = ChangeHistoryPanel()
         self.animation_bar.link_changes_panel(self.change_history_panel)
+        # Keep track of animation changes to be applied
+        self.changes = []
 
         # Side menu
         self.tab_menu = QTabWidget(parent=self)
@@ -137,6 +140,21 @@ class GuiWindow(QDialog):
             self.scene_combobox.clear()
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
+
+    def add_change(self, anim, change_type, input_widget):
+        anim_change = AnimChange(anim, change_type, input_widget)
+        self.changes.append(anim_change)
+        self.change_history_panel.add_change(anim_change)
+
+    def reset_changes(self):
+        self.changes = []
+        self.change_history_panel.reset()
+
+    def apply_changes(self):
+        for change in self.changes:
+            change.apply()
+        # Do the rendering here
+        self.reset_changes()
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod

@@ -92,8 +92,10 @@ class AlgoSceneActionPair:
     def skip(self):
         self.run_time = 0
 
-    def fast_forward(self, speed_up = '2'):
-        speed_up = float(speed_up)
+    def fast_forward(self, speed_up = 2):
+        if not isinstance(speed_up, float) or not isinstance(speed_up, int):
+            speed_up = float(speed_up)
+
         if self.run_time is None:
             self.run_time = 1 / speed_up
         else:

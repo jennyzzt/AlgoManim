@@ -2,27 +2,11 @@ from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
 
-
-# pylint: disable=too-few-public-methods
-class AnimChange:
-
-    def __init__(self, anim, change_type, input_widget=None):
-        self.anim = anim
-        self.change_type = change_type
-        self.input_widget = input_widget
-
-    def apply(self):
-        change_value = self.input_widget.get_value()
-        for action_pair in self.anim['action_pairs']:
-            self.change_type.customise(action_pair)(change_value)
-
-
 class ChangeHistoryPanel(BaseChangesPanel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.changes = []
         self.change_box_list = QVBoxLayout()
         self.change_box_list.setContentsMargins(0, 0, 0, 0)
 
@@ -60,11 +44,15 @@ class ChangeHistoryPanel(BaseChangesPanel):
         change_group_box.setLayout(self.change_box_list)
         self.scroll_area.setWidget(change_group_box)
 
-    def add_change(self, anim, change_type):
-        change_box, input_widget = self.create_change_box(anim, change_type)
-        self.changes.append(AnimChange(anim, change_type, input_widget))
+    def add_change(self, anim_change):
+        '''
+        input widget exists elsewhere, anim_change object passed
+        to UI to display the animation and current value of change
+        '''
+
+        '''change_box, input_widget = self.create_change_box(anim, change_type)
         self.change_box_list.addWidget(change_box)
-        self.update_view()
+        self.update_view()'''
 
     @staticmethod
     # can move this fn to a util file later
@@ -75,10 +63,4 @@ class ChangeHistoryPanel(BaseChangesPanel):
                 child.widget().deleteLater()
 
     def reset(self):
-        self.changes = []
         self.clear_layout(self.change_box_list)
-
-    def apply_changes(self):
-        for change in self.changes:
-            change.apply()
-        self.reset()
