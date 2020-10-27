@@ -31,7 +31,12 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
         # Add widgets
         change_box_layout.addWidget(QLabel(change_desc))
-        change_box_layout.addWidget(anim_change.input_widget.read_only())
+        widget = anim_change.change_type.get_widget()
+        input_widget = anim_change.change_type.wrap_input_widget(widget)
+        input_widget.set_value(anim_change.get_value())
+        read_only_widget = input_widget.get_widget()
+        read_only_widget.setEnabled(False)
+        change_box_layout.addWidget(read_only_widget)
 
         return change_box
 

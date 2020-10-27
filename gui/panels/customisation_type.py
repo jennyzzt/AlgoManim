@@ -1,6 +1,7 @@
 # pylint: disable=no-value-for-parameter
 
 from enum import Enum
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QLineEdit
 
 from gui.panels.widgets.input_color_button import InputColorButton

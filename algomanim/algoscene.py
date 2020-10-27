@@ -14,6 +14,13 @@ class AlgoTransform:
         self.args = args
         self.color_index = color_index
 
+    def get_color(self):
+        if not self.can_change_color():
+            print('WARNING: Transform does not have color property')
+            return None
+
+        return self.args[self.color_index]
+
     def can_change_color(self):
         return self.color_index is not None
 
@@ -55,6 +62,9 @@ class AlgoSceneAction:
         for transform in self.transforms:
             transform.change_color(new_color)
 
+    def get_color(self):
+        return self.transforms[0].get_color()
+
     def run(self, run_time=None):
         args = []
         for transform in self.transforms:
@@ -88,6 +98,12 @@ class AlgoSceneActionPair:
 
     def can_change_color(self):
         return self.anim_action.can_change_color()
+
+    def get_color(self):
+        return self.anim_action.get_color()
+
+    def get_runtime(self):
+        return 1 if self.run_time is None else self.run_time
 
     def skip(self):
         self.run_time = 0

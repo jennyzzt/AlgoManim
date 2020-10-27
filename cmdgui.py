@@ -1,4 +1,5 @@
 import ast
+from gui.panels.customisation_type import CustomisationType
 import os
 import sys
 from pathlib import Path
@@ -91,16 +92,16 @@ class GuiWindow(QDialog):
 
         # Animation bar
         self.animation_bar = AnimationBar()
+        self.animation_bar.link_gui_window(self)
 
         # Panels for side menu
         self.customise_panel = CustomisePanel()
-        self.animation_bar.link_customise_panel(self.customise_panel)
         self.customise_panel.link_gui_window(self)
 
         self.change_history_panel = ChangeHistoryPanel()
         self.animation_bar.link_changes_panel(self.change_history_panel)
         # Keep track of animation changes to be applied
-        self.changes = []
+        self.changes = dict()
 
         # Side menu
         self.tab_menu = QTabWidget(parent=self)
@@ -143,17 +144,30 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
-    def add_change(self, anim, change_type, input_widget):
-        anim_key = anim["start_index"]
-        keys = [anim_change.anim["start_index"] for anim_change in self.changes]
-        if anim_key not in keys:
+    def anim_clicked(self, anim):
+        change_vals = dict()
+        for change_type in CustomisationType:
+            key = (anim["start_index"], change_type)
+            if key in self.changes:
+                change_vals[change_type] = self.changes[key].get_value()
+            elif change_type in anim["customisations"]:
+                change_vals[change_type] = anim["customisations"][change_type]
+    
+        self.customise_panel.set_animation(anim, change_vals)
+
+    def add_change(self, anim, change_type, change_value):
+        key = (anim["start_index"], change_type)
+        if key not in self.changes:
             # check if animchange has not already been added to list of changes
-            anim_change = AnimChange(anim, change_type, input_widget)
-            self.changes.append(anim_change)
+            anim_change = AnimChange(anim, change_type, change_value)
+            self.changes[key] = anim_change
             self.change_history_panel.add_change(anim_change)
+        else:
+            self.changes[key].update_value(change_value)
+            # TODO: update change in history panel?
 
     def reset_changes(self):
-        self.changes = []
+        self.changes = dict()
         self.change_history_panel.reset()
 
     def apply_changes(self):

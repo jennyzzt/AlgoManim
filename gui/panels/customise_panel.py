@@ -2,6 +2,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
+from gui.panels.widgets.qcolor_button import QColorButton
+
 from .customisation_type import CustomisationType
 
 # pylint: disable=too-few-public-methods
@@ -12,45 +14,55 @@ class CustomisePanel(BaseChangesPanel):
         self.custom_menu = QVBoxLayout()
         # self.custom_menu.setContentsMargins(10, 10, 0, 0)
 
-        self.anim_lbl = QLabel("Please click on an animation to customize")
-        self.anim_lbl.setAlignment(Qt.AlignHCenter)
+        self.title_lbl = QLabel("Please click on an animation to customize")
+        self.title_lbl.setAlignment(Qt.AlignHCenter)
 
-        self.anim_layouts = dict()
-        self.curr_form_layout = None
+        self.form_frame = QFrame()
+        form_layout = QFormLayout()
+        self.change_widgets = dict()
+        for change_type in CustomisationType:
+            widget = change_type.get_widget()
+            label = QLabel(change_type.name.title())
+            form_layout.addRow(label, widget)
+            self.change_widgets[change_type] = (label, change_type.wrap_input_widget(widget))
+        self.save_button = QPushButton("Save changes")
+        self.save_button.clicked.connect(self.save_changes)
+        form_layout.addWidget(self.save_button)
+        self.form_frame.setLayout(form_layout)
+        self.form_frame.hide()
         self.curr_anim = None
-        self.change_widgets = None
 
-        self.custom_menu.addWidget(self.anim_lbl)
+        self.custom_menu.addWidget(self.title_lbl)
+        self.custom_menu.addWidget(self.form_frame)
         self.scroll_area.setLayout(self.custom_menu)
 
     def save_changes(self):
-        for (change_type, input_widget) in self.change_widgets:
-            self.gui_window.add_change(self.curr_anim, change_type, input_widget)
+        for change_type in self.change_widgets:
+            (_, change_widget) = self.change_widgets[change_type]
+            self.gui_window.add_change(self.curr_anim, change_type, change_widget.get_value())
 
-    def set_animation(self, anim):
-        anim_key = anim["start_index"]
+    def set_animation(self, anim, change_vals):
         self.curr_anim = anim
+        start_index = anim['start_index']
+        end_index = anim['end_index']
+        anim_desc = 'Animation ' + \
+                    (f'{start_index + 1}' \
+                     if start_index == end_index \
+                     else f'{start_index + 1} - {end_index + 1}')
+        self.title_lbl.setText(anim_desc)
+        change_possible = False
+        for change_type in CustomisationType:
+            (change_label, change_widget) = self.change_widgets[change_type]
+            if change_type in anim["customisations"]:
+                change_possible = True
+                val = change_vals[change_type]
+                change_label.show()
+                change_widget.get_widget().show()
+                change_widget.set_value(val)
+            else:
+                change_label.hide()
+                change_widget.get_widget().hide()
 
-        if anim_key in self.anim_layouts:
-            form_layout = self.anim_layouts[anim_key]
-        else:
-            form_layout = QFormLayout()
-            self.change_widgets = []
-            for change_type in CustomisationType:
-                # check if change_type can be changed in animation in the first place
-                widget = change_type.get_widget()
-                input_widget = change_type.wrap_input_widget(widget)
-                self.change_widgets.append((change_type, input_widget))
-                form_layout.addRow(QLabel(change_type.name.title()),
-                    widget)
-            self.anim_layouts[anim_key] = form_layout
+        self.save_button.setEnabled(change_possible)
 
-            save_button = QPushButton("Save changes")
-            save_button.clicked.connect(self.save_changes)
-            form_layout.addRow(save_button)
-
-        if self.curr_form_layout is not None:
-            self.custom_menu.removeItem(self.curr_form_layout)
-
-        self.curr_form_layout = form_layout
-        self.custom_menu.addLayout(form_layout)
+        self.form_frame.show()

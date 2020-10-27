@@ -10,12 +10,12 @@ BAR_BASE_HEIGHT = 150
 
 class AnimationBar(QWidget):
 
-    def __init__(self, video_player=None, anim_track_board=None, customise_panel=None, parent=None):
+    def __init__(self, video_player=None, anim_track_board=None, gui_window=None, parent=None):
         super().__init__(parent)
 
         self.video_player = video_player
         self.changes_panel = anim_track_board
-        self.customise_panel = customise_panel
+        self.gui_window = gui_window
 
         self.anims = []
         self.anim_boxes = []
@@ -38,8 +38,8 @@ class AnimationBar(QWidget):
     def link_changes_panel(self, changes_panel):
         self.changes_panel = changes_panel
 
-    def link_customise_panel(self, customise_panel):
-        self.customise_panel = customise_panel
+    def link_gui_window(self, gui_window):
+        self.gui_window = gui_window
 
     def fill_bar(self, anims):
         self.anims = anims
@@ -91,7 +91,7 @@ class AnimationBar(QWidget):
 
     def set_mouse_clicked(self, anim):
         self.video_player.set_media_position(anim['start_time'] * 1000)
-        self.customise_panel.set_animation(anim)
+        self.gui_window.anim_clicked(anim)
 
     def set_active_lbl(self, index):
         self.anim_boxes[index].setStyleSheet("background-color: #2980b9; color: white")

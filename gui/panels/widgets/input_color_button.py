@@ -8,8 +8,14 @@ class InputColorButton(InputWidget):
         super().__init__()
         self.qcolor_button = qcolor_button
 
+    def get_widget(self):
+        return self.qcolor_button
+
     def get_value(self):
         return self.qcolor_button.get_color()
+
+    def set_value(self, val):
+        return self.qcolor_button.set_color(val)
 
     def read_only(self):
         return QWidget(self).setEnabled(False)

@@ -10,6 +10,7 @@ import manimlib.config
 import manimlib.constants
 from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
 from gui.video_quality import VideoQuality
+from gui.panels.customisation_type import CustomisationType
 
 
 # Modification of internal manim function using algomanim API
@@ -66,13 +67,19 @@ def construct_anims(scene, action_pairs):
     for (i, action_pair) in enumerate(action_pairs):
         action = action_pair.curr_action()
         run_time = 1 if action_pair.run_time is None else action_pair.run_time
+        customisations = dict()
+        if action_pair.can_change_runtime():
+            customisations[CustomisationType.RUNTIME] = action_pair.get_runtime()
+
+        if action_pair.can_change_color():
+            customisations[CustomisationType.COLOR] = action_pair.get_color()
+
         anim = {'start_index': start_index,
                 'end_index': start_index,
                 'action_pairs': [action_pair],
                 'run_time': run_time,
                 'start_time': start_time,
-                'can_change_runtime': action_pair.can_change_runtime(),
-                'can_change_color': action_pair.can_change_color()}
+                'customisations': customisations}
         start_time += run_time
         for action_pair2 in action_pairs[i + 1:]:
             action2 = action_pair2.curr_action()
