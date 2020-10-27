@@ -10,11 +10,10 @@ BAR_BASE_HEIGHT = 150
 
 class AnimationBar(QWidget):
 
-    def __init__(self, video_player=None, anim_track_board=None, gui_window=None, parent=None):
+    def __init__(self, video_player=None, gui_window=None, parent=None):
         super().__init__(parent)
 
         self.video_player = video_player
-        self.changes_panel = anim_track_board
         self.gui_window = gui_window
 
         self.anims = []
@@ -34,9 +33,6 @@ class AnimationBar(QWidget):
 
     def link_video_player(self, video_player):
         self.video_player = video_player
-
-    def link_changes_panel(self, changes_panel):
-        self.changes_panel = changes_panel
 
     def link_gui_window(self, gui_window):
         self.gui_window = gui_window
@@ -107,5 +103,6 @@ class AnimationBar(QWidget):
             if (start_time <= position < end_time) or \
                 (start_time == position and end_time == start_time):
                 self.set_active_lbl(i)
+                self.gui_window.anim_clicked(anim)
             else:
                 self.set_inactive_lbl(i)

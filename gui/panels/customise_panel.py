@@ -25,16 +25,18 @@ class CustomisePanel(BaseChangesPanel):
             label = QLabel(change_type.name.title())
             form_layout.addRow(label, widget)
             self.change_widgets[change_type] = (label, change_type.wrap_input_widget(widget))
-        self.save_button = QPushButton("Save changes")
-        self.save_button.clicked.connect(self.save_changes)
-        form_layout.addWidget(self.save_button)
         self.form_frame.setLayout(form_layout)
         self.form_frame.hide()
         self.curr_anim = None
 
+        self.save_button = QPushButton("Save changes")
+        self.save_button.clicked.connect(self.save_changes)
+
         self.custom_menu.addWidget(self.title_lbl)
         self.custom_menu.addWidget(self.form_frame)
+        self.custom_menu.addWidget(self.save_button, alignment=Qt.AlignBottom)
         self.scroll_area.setLayout(self.custom_menu)
+
 
     def save_changes(self):
         for change_type in self.change_widgets:

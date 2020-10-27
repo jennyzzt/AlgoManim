@@ -99,7 +99,6 @@ class GuiWindow(QDialog):
         self.customise_panel.link_gui_window(self)
 
         self.change_history_panel = ChangeHistoryPanel()
-        self.animation_bar.link_changes_panel(self.change_history_panel)
         # Keep track of animation changes to be applied
         self.changes = dict()
 
@@ -152,7 +151,7 @@ class GuiWindow(QDialog):
                 change_vals[change_type] = self.changes[key].get_value()
             elif change_type in anim["customisations"]:
                 change_vals[change_type] = anim["customisations"][change_type]
-    
+
         self.customise_panel.set_animation(anim, change_vals)
 
     def add_change(self, anim, change_type, change_value):
