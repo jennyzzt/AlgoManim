@@ -94,7 +94,8 @@ class GuiWindow(QDialog):
 
         # Panels for side menu
         self.customise_panel = CustomisePanel()
-        # self.animation_bar.link_changes_panel(self.customise_panel)
+        self.animation_bar.link_customise_panel(self.customise_panel)
+        self.customise_panel.link_gui_window(self)
 
         self.change_history_panel = ChangeHistoryPanel()
         self.animation_bar.link_changes_panel(self.change_history_panel)
@@ -143,9 +144,13 @@ class GuiWindow(QDialog):
                 self.scene_combobox.addItem(name)
 
     def add_change(self, anim, change_type, input_widget):
-        anim_change = AnimChange(anim, change_type, input_widget)
-        self.changes.append(anim_change)
-        self.change_history_panel.add_change(anim_change)
+        anim_key = anim["start_index"]
+        keys = [anim_change.anim["start_index"] for anim_change in self.changes]
+        if anim_key not in keys:
+            # check if animchange has not already been added to list of changes
+            anim_change = AnimChange(anim, change_type, input_widget)
+            self.changes.append(anim_change)
+            self.change_history_panel.add_change(anim_change)
 
     def reset_changes(self):
         self.changes = []
