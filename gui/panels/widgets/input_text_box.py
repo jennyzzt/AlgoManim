@@ -1,4 +1,3 @@
-from PyQt5.QtWidgets import QWidget
 from gui.panels.widgets.input_widget import InputWidget
 
 # pylint: disable=too-few-public-methods
@@ -16,6 +15,3 @@ class InputTextBox(InputWidget):
 
     def set_value(self, val):
         return self.qline_edit.setText(str(val))
-
-    def read_only(self):
-        return QWidget(self).setReadOnly(True)

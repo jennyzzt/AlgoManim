@@ -2,7 +2,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
-from gui.panels.widgets.qcolor_button import QColorButton
 
 from .customisation_type import CustomisationType
 

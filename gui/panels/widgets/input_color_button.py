@@ -1,4 +1,3 @@
-from PyQt5.QtWidgets import QWidget
 from gui.panels.widgets.input_widget import InputWidget
 
 # pylint: disable=too-few-public-methods
@@ -16,6 +15,3 @@ class InputColorButton(InputWidget):
 
     def set_value(self, val):
         return self.qcolor_button.set_color(val)
-
-    def read_only(self):
-        return QWidget(self).setEnabled(False)

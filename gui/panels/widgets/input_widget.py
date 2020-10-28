@@ -18,7 +18,5 @@ class InputWidget(ABC):
     def set_value(self, val):
         pass
 
-    @abstractmethod
-    # Returns a version of itself that is non-modifiable
     def read_only(self):
-        pass
+        return self.get_widget().setEnabled(False)

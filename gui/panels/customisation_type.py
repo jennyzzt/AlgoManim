@@ -1,13 +1,11 @@
 # pylint: disable=no-value-for-parameter
 
 from enum import Enum
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QLineEdit
 
 from gui.panels.widgets.input_color_button import InputColorButton
 from gui.panels.widgets.input_text_box import InputTextBox
 from gui.panels.widgets.qcolor_button import QColorButton
-
 
 class CustomisationType(Enum):
 

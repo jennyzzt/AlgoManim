@@ -7,6 +7,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.change_box_index = dict()
         self.change_box_list = QVBoxLayout()
         self.change_box_list.setContentsMargins(0, 0, 0, 0)
 
@@ -46,12 +47,26 @@ class ChangeHistoryPanel(BaseChangesPanel):
         change_group_box.setLayout(self.change_box_list)
         self.scroll_area.setWidget(change_group_box)
 
+    def update_change(self, anim_change):
+        # delete previous change with this anim key
+        anim_key = (anim_change.anim['start_index'],
+                    anim_change.change_type)
+        prev_change_box_index = self.change_box_index[anim_key]
+        self.change_box_list.takeAt(prev_change_box_index) \
+                            .widget().deleteLater()
+
+        # update indexes in change_box_index
+        for key in self.change_box_index:
+            if self.change_box_index[key] > prev_change_box_index:
+                self.change_box_index[key] -= 1
+
+        # add new change
+        self.add_change(anim_change)
+
     def add_change(self, anim_change):
-        '''
-        input widget exists elsewhere, anim_change object passed
-        to UI to display the animation and current value of change
-        '''
         change_box = self.create_change_box(anim_change)
+        key = (anim_change.anim['start_index'], anim_change.change_type)
+        self.change_box_index[key] = self.change_box_list.count()
         self.change_box_list.addWidget(change_box)
         self.update_view()
 

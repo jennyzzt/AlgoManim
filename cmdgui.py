@@ -1,5 +1,4 @@
 import ast
-from gui.panels.customisation_type import CustomisationType
 import os
 import sys
 from pathlib import Path
@@ -10,6 +9,7 @@ from gui.custom_renderer import custom_renderer, construct_anims
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
+from gui.panels.customisation_type import CustomisationType
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from anim_change import AnimChange
@@ -162,14 +162,14 @@ class GuiWindow(QDialog):
     def add_change(self, anim, change_type, change_value):
         anim_index = self.anims.index(anim)
         key = (anim_index, change_type)
+        anim_change = AnimChange(anim, change_type, change_value)
         if key not in self.changes:
             # check if animchange has not already been added to list of changes
-            anim_change = AnimChange(anim, change_type, change_value)
             self.changes[key] = anim_change
             self.change_history_panel.add_change(anim_change)
         else:
             self.changes[key].update_value(change_value)
-            # TODO: update change in history panel?
+            self.change_history_panel.update_change(anim_change)
 
     def reset_changes(self):
         self.changes = dict()
