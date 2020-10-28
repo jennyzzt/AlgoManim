@@ -139,10 +139,9 @@ class AlgoScene(Scene):
     # Used to reobtain objects that are removed by certain animations
     save_mobjects = None
 
-    # Default settings
-    settings = DEFAULT_SETTINGS
-
     def __init__(self, **kwargs):
+        # Default settings
+        self.settings = DEFAULT_SETTINGS.copy()
         self.kwargs = kwargs
         if not hasattr(self, 'post_customize_fns'):
             self.post_customize_fns = []
