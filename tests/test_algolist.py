@@ -26,8 +26,7 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True,
-            metadata=ANY
+            animated=True
         )
 
     @patch("algomanim.algolist.AlgoListNode.show")
@@ -79,27 +78,24 @@ class TestAlgoList:
         algoscene.add_action_pair.assert_called_once_with(
             algoscene.create_play_action(),
             algoscene_action(),
-            animated=True,
-            metadata=ANY
+            animated=True
         )
 
     def test_find_index_2nd_compare(self):
         test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
-        num_initialisation_action_pairs = len(test_algoscene.action_pairs)
-
         algolist.compare(0, 1)
         algolist.swap(0, 1)
         algolist.compare(1, 2)
         algolist.swap(1, 2)
 
-        list_index = algolist.find_index(test_algoscene.action_pairs, AlgoListMetadata.COMPARE, 2)
+        action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
+                                                         AlgoListMetadata.COMPARE))
 
-        last_elem = num_initialisation_action_pairs + \
-                    len(algolist.find_index(test_algoscene.action_pairs,
-                            AlgoListMetadata.COMPARE, 1)) + \
-                    len(algolist.find_index(test_algoscene.action_pairs,
-                            AlgoListMetadata.SWAP, 1))
+        sum_action_pairs = len(AlgoList.find_action_pairs(test_algoscene, 2,
+                            AlgoListMetadata.COMPARE, AlgoListMetadata.DEHIGHLIGHT)) + \
+                    len(AlgoList.find_action_pairs(test_algoscene, 2,
+                            AlgoListMetadata.COMPARE, AlgoListMetadata.HIGHLIGHT))
 
-        assert last_elem == list_index[0]
+        assert action_pairs_len == sum_action_pairs

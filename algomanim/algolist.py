@@ -5,7 +5,6 @@ from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.settings import Shape
 
-
 class AlgoListMetadata(Enum):
     SWAP = auto()
     COMPARE = auto()
@@ -20,7 +19,6 @@ class AlgoListMetadata(Enum):
     SLICE = auto()
     CONCAT = auto()
     SET_RIGHT_OF = auto()
-
 
 class Metadata:
     counter = Counter()
@@ -39,7 +37,8 @@ class Metadata:
         return list(map(lambda lower: lower.action_pair, self.children))
 
     def __str__(self):
-        return f'Metadata(meta={self.metadata}, fid={self.fid}, children=[{self.__print_children()}])'
+        return f'Metadata(meta={self.metadata}, fid={self.fid}' + \
+                                    f', children=[{self.__print_children()}])'
 
     def __print_children(self):
         strings = []
@@ -47,7 +46,6 @@ class Metadata:
             strings.append(str(i) + ', ')
 
         return ''.join(strings)
-
 
 class LowerMetadata:
 
@@ -59,8 +57,8 @@ class LowerMetadata:
         self.val = val  # list of values affected by function
 
     def __str__(self):
-        return f'LowerMetadata(meta={self.metadata}, val={self.val}, action_pair={self.action_pair})'
-
+        return f'LowerMetadata(meta={self.metadata}, val={self.val}' + \
+                                        f', action_pair={self.action_pair})'
 
 class AlgoListNode:
     def __init__(self, scene, val):
@@ -100,7 +98,8 @@ class AlgoListNode:
         if metadata:
             # Initialise a LowerMetadata class for this low level function
             action_pair = self.scene.action_pairs[-1]
-            lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF, action_pair, val=[self.val, node.val])
+            lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF,
+                                            action_pair, val=[self.val, node.val])
 
             metadata.add_lower(lower_meta)
 
@@ -403,7 +402,5 @@ class AlgoList:
                         if lower_level == lower.metadata:
                             pairs.append(lower.action_pair)
                     return pairs
-                else:
-                    return meta_tree.get_all_action_pairs()
-
-
+                return meta_tree.get_all_action_pairs()
+        return []
