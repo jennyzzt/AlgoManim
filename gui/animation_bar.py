@@ -60,8 +60,14 @@ class AnimationBar(QWidget):
         """
         Create a single anim box from the properties of anim
         """
-        desc = f'Animation\n{anim["start_index"] + 1}' if anim['start_index'] == anim['end_index'] \
-            else f'Animation\n{anim["start_index"] + 1} - {anim["end_index"] + 1}'
+        # Get all relevant animation information stored in the action pair metadata
+        anim_infos = dict.fromkeys(map(lambda action: action.metadata, anim['action_pairs']))
+        anim_info = [f'{info.metadata.name}' for info in anim_infos if info is not None]
+        if anim_info:
+            desc = '\n'.join(anim_info)
+        else:
+            # Lacks metadata, assume custom animation
+            desc = 'Custom Animation'
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
