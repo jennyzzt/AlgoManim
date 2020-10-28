@@ -19,13 +19,7 @@ class AlgoListMetadata(Enum):
     POP = auto()
     SLICE = auto()
     CONCAT = auto()
-
-
-class LowerAlgoListMetadata(Enum):
-    SHOW = auto()
-    HIDE = auto()
-    HIGHLIGHT = auto()
-    DEHIGHLIGHT = auto()
+    SET_RIGHT_OF = auto()
 
 
 class Metadata:
@@ -41,16 +35,28 @@ class Metadata:
     def add_lower(self, lowermeta):
         self.children.append(lowermeta)
 
+    def get_all_action_pairs(self):
+        return map(lambda lower: lower.action_pair, self.children)
+
     def __str__(self):
-        return f'Metadata(meta={self.metadata}, fid={self.fid}, children={self.children})'
+        return f'Metadata(meta={self.metadata}, fid={self.fid}, children=[{self.__print_children()}])'
+
+    def __print_children(self):
+        strings = []
+        for i in self.children:
+            strings.append(str(i) + ', ')
+
+        return ''.join(strings)
 
 
 class LowerMetadata:
 
-    def __init__(self, metadata, action_pair, val):
+    def __init__(self, metadata, action_pair, val=None):
+        if val is None:
+            val = []
         self.metadata = metadata
         self.action_pair = action_pair
-        self.val = val
+        self.val = val  # list of values affected by function
 
     def __str__(self):
         return f'LowerMetadata(meta={self.metadata}, val={self.val})'
@@ -88,7 +94,15 @@ class AlgoListNode:
 
     def set_right_of(self, node, metadata=None):
         action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
-        self.scene.add_action_pair(action, action, animated=False, metadata=metadata)
+        self.scene.add_action_pair(action, action, animated=False)
+
+        # Only add to meta_trees if it comes from a high-level function and not initialisation
+        if metadata:
+            # Initialise a LowerMetadata class for this low level function
+            action_pair = self.scene.action_pairs[-1]
+            lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF, action_pair, val=[self.val, node.val])
+
+            metadata.add_lower(lower_meta)
 
     def static_swap(self, node):
         self_center = self.grp.get_center()
@@ -104,17 +118,30 @@ class AlgoListNode:
         )
         static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
-    def show(self, animated=True, w_prev=False, metadata=None):
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.SWAP, action_pair, val=[self.val, node.val])
+
+        assert metadata is not None
+        metadata.add_lower(lower_meta)
+
+    def show(self, metadata, animated=True, w_prev=False):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
         )
         static_action = AlgoSceneAction(self.scene.add, AlgoTransform([self.grp]), w_prev=w_prev)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
-    def hide(self, animated=True, w_prev=False, metadata=None):
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
+
+        metadata.add_lower(lower_meta)
+
+    def hide(self, metadata, animated=True, w_prev=False):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp], transform=FadeOut),
             w_prev=w_prev
@@ -122,7 +149,13 @@ class AlgoListNode:
         static_action = AlgoSceneAction(self.scene.remove,
             AlgoTransform([self.grp]), w_prev=w_prev)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val, node.val])
+
+        metadata.add_lower(lower_meta)
 
     def highlight(self, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
@@ -135,7 +168,14 @@ class AlgoListNode:
             AlgoTransform([self.highlight_color], color_index=0)
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.HIGHLIGHT, action_pair, val=[self.val])
+
+        assert metadata is not None
+        metadata.add_lower(lower_meta)
 
     def dehighlight(self, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
@@ -151,8 +191,15 @@ class AlgoListNode:
             AlgoTransform([self.node_color], color_index=0)
         )
 
-        self.scene.add_metadata()
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.DEHIGHLIGHT, action_pair, val=[self.val])
+
+        assert metadata is not None
+        metadata.add_lower(lower_meta)
+
 
 class AlgoList:
     def __init__(self, scene, arr):
@@ -170,38 +217,60 @@ class AlgoList:
         self.show(animated=False)
 
     def swap(self, i, j, animated=True):
+        metadata = Metadata(AlgoListMetadata.SWAP)
+
         temp = self.nodes[i]
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
-        self.nodes[i].swap_with(self.nodes[j], animated, metadata=Metadata(AlgoListMetadata.SWAP))
+        self.nodes[i].swap_with(self.nodes[j], animated, metadata=metadata)
+
+        self.scene.add_metadata(metadata)
 
     def compare(self, i, j, animated=True):
         meta = Metadata(AlgoListMetadata.COMPARE)
         self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
         self.highlight(i, j, animated=animated, metadata=meta)
-        return self.get_val(i) < self.get_val(j)
+
+        self.scene.add_metadata(meta)
+
+        return self.get_val(i, metadata=meta) < self.get_val(j, metadata=meta)
 
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
 
     def center(self, animated=True, metadata=None):
+        curr_metadata = metadata if metadata else Metadata(AlgoListMetadata.CENTER)
+
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp.center], transform=ApplyMethod)
         )
         static_action = AlgoSceneAction(self.grp.center)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated,
-            metadata=metadata if metadata else Metadata(AlgoListMetadata.CENTER))
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Initialise a LowerMetadata class for this low level function
+        action_pair = self.scene.action_pairs[-1]
+        lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+
+        curr_metadata.add_lower(lower_meta)
+
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(metadata)
 
     def show(self, animated=True):
         meta = Metadata(AlgoListMetadata.SHOW)
         for node in self.nodes:
-            node.show(animated, metadata=meta)
+            node.show(meta, animated)
+
+        self.scene.add_metadata(meta)
 
     def hide(self, animated=True):
         meta = Metadata(AlgoListMetadata.HIDE)
         for node in self.nodes:
-            node.hide(animated, metadata=meta)
+            node.hide(meta, animated)
+
+        self.scene.add_metadata(meta)
 
     def highlight(self, *indexes, animated=True, metadata=None):
         first = True
@@ -213,6 +282,10 @@ class AlgoList:
             else:
                 self.nodes[index].highlight(animated, w_prev=True, metadata=cur_metadata)
 
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(cur_metadata)
+
     def dehighlight(self, *indexes, animated=True, metadata=None):
         first = True
         cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.DEHIGHLIGHT)
@@ -223,9 +296,19 @@ class AlgoList:
             else:
                 self.nodes[index].dehighlight(animated, w_prev=True, metadata=cur_metadata)
 
-    def get_val(self, index, animated=False):
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(cur_metadata)
+
+    def get_val(self, index, animated=False, metadata=None):
+        cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.GET_VAL)
         if animated:
-            self.highlight(index, metadata=Metadata(AlgoListMetadata.GET_VAL))
+            self.highlight(index, metadata=metadata)
+
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(cur_metadata)
+
         return self.nodes[index].val
 
     def len(self):
@@ -238,10 +321,14 @@ class AlgoList:
             node.set_right_of(self.nodes[-1], metadata=meta)
         self.nodes.append(node)
 
-        node.show(animated, metadata=meta)
+        node.show(meta, animated)
         self.group()
         self.center(animated=False, metadata=meta)
 
+        self.scene.add_metadata(meta)
+
+    # List type functions: needs refactored to fit meta_trees / Metadata functionality
+    # Currently not needed for Iteration3's bubblesort
     def pop(self, i=None, animated=True):
         if i is None:
             i = self.len()-1
@@ -264,8 +351,7 @@ class AlgoList:
             )
             static_action = AlgoSceneAction(right_grp.set_right_of, AlgoTransform([left_node]))
 
-            self.scene.add_action_pair(anim_action, static_action, animated=animated,
-                                        metadata=Metadata(AlgoListMetadata.POP))
+            self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
     def slice(self, start, stop, step=1, animated=True):
         if start < 0:
@@ -290,7 +376,7 @@ class AlgoList:
         )
         static_action = AlgoSceneAction(sublist.grp.shift,
             AlgoTransform([DOWN * 1.1 * self.nodes[0].node_length]))
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=meta)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
         return sublist
 
     def concat(self, other_list, animated=True):
@@ -304,26 +390,25 @@ class AlgoList:
         )
         static_action = AlgoSceneAction(other_list.grp.next_to, AlgoTransform([self.grp, RIGHT]))
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated,
-                                        metadata=Metadata(AlgoListMetadata.CONCAT))
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
         self.group()
 
-    @staticmethod
-    def find_index(action_pairs, method, occurence):
-        indexes = []
-        uids = set()
-        for i, action_pair in enumerate(action_pairs):
-            meta = action_pair.metadata
-            if meta is None:
-                continue
-
-            if len(uids) <= occurence:
-                if meta.metadata == method:
-                    if meta.uid not in uids:
-                        uids.add(meta.uid)
-                    if len(uids) == occurence:
-                        indexes.append(i)
-            else:
-                break
-
-        return indexes
+    # @staticmethod
+    # def find_index(action_pairs, method, occurence):
+    #     indexes = []
+    #     uids = set()
+    #     for i, action_pair in enumerate(action_pairs):
+    #         meta = action_pair.metadata
+    #         if meta is None:
+    #             continue
+    #
+    #         if len(uids) <= occurence:
+    #             if meta.metadata == method:
+    #                 if meta.uid not in uids:
+    #                     uids.add(meta.uid)
+    #                 if len(uids) == occurence:
+    #                     indexes.append(i)
+    #         else:
+    #             break
+    #
+    #     return indexes

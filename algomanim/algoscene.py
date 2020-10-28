@@ -71,7 +71,7 @@ class AlgoSceneAction:
             self.act(*args, run_time=run_time)
 
 class AlgoSceneActionPair:
-    def __init__(self, anim_action, static_action=None, run_time=None, metadata=None):
+    def __init__(self, anim_action, static_action=None, run_time=None):
         '''
         encodes a pair of AlgoSceneActions
         if run_time is None, anim_action is run
@@ -81,7 +81,6 @@ class AlgoSceneActionPair:
         self.anim_action = anim_action
         self.static_action = static_action if static_action is not None else anim_action
         self.run_time = run_time
-        self.metadata = metadata
 
     def can_change_runtime(self):
         return self.anim_action.can_change_runtime
@@ -139,11 +138,14 @@ class AlgoScene(Scene):
             w_prev=w_prev, can_change_runtime=True
         )
 
-    def add_action_pair(self, anim_action, static_action, animated=True, metadata=None):
+    def add_action_pair(self, anim_action, static_action, animated=True):
         self.action_pairs.append(
             AlgoSceneActionPair(anim_action, static_action,
-            run_time=None if animated else 0, metadata=metadata)
+            run_time=None if animated else 0)
         )
+
+    def add_metadata(self, metadata):
+        self.meta_trees.append(metadata)
 
     def skip(self, start, end=None):
         if end is None:
@@ -178,7 +180,10 @@ class AlgoScene(Scene):
     def construct(self):
         self.preconfig(self.settings)
         self.action_pairs = []
+        self.meta_trees = []
         self.algoconstruct()
+        for meta_tree in self.meta_trees:
+            print(meta_tree)
         self.customize(self.action_pairs)
 
         if len(self.action_pairs) > 0:
