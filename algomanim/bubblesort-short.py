@@ -3,7 +3,7 @@ from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList, AlgoListMetadata
 from algomanim.settings import Shape
 
-class BubbleSortScene(AlgoScene):
+class ShortBubbleSortScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, [25, 43])
         swaps_made = True
