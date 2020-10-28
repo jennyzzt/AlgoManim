@@ -16,7 +16,10 @@ class AnimationBar(QWidget):
         self.video_player = video_player
         self.gui_window = gui_window
 
-        self.reset()
+        self.anims = []
+        self.anim_boxes = []
+        self.anim_box_list = QHBoxLayout()
+        self.anim_box_list.setContentsMargins(0, 0, 0, 0)
 
         # Set up scrollbar for boxes
         self.scroll_area = QScrollArea()
@@ -34,15 +37,11 @@ class AnimationBar(QWidget):
     def link_gui_window(self, gui_window):
         self.gui_window = gui_window
 
-    def reset(self):
-        self.anims = []
+    def fill_bar(self, anims):
+        self.anims = anims
         self.anim_boxes = []
         self.anim_box_list = QHBoxLayout()
         self.anim_box_list.setContentsMargins(0, 0, 0, 0)
-
-    def fill_bar(self, anims):
-        self.reset()
-        self.anims = anims
 
         for anim in self.anims:
             anim_box = self.create_anim_box(anim)

@@ -103,6 +103,9 @@ class GuiWindow(QDialog):
 
         # Keep track of animation changes to be applied
         self.changes = dict()
+
+        # Initialize scene vars set by render
+        self.scene_name = ""
         self.scene = None
         self.anims = None
 
