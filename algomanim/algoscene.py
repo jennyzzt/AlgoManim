@@ -105,17 +105,19 @@ class AlgoSceneActionPair:
     def get_runtime(self):
         return 1 if self.run_time is None else self.run_time
 
+    def set_runtime(self, run_time):
+        if not isinstance(run_time, float) or not isinstance(run_time, int):
+            run_time = float(run_time)
+        self.run_time = run_time
+
     def skip(self):
-        self.run_time = 0
+        self.set_runtime(0)
 
     def fast_forward(self, speed_up = 2):
-        if not isinstance(speed_up, float) or not isinstance(speed_up, int):
-            speed_up = float(speed_up)
-
         if self.run_time is None:
-            self.run_time = 1 / speed_up
+            self.set_runtime(1 / speed_up)
         else:
-            self.run_time /= speed_up
+            self.set_runtime(self.run_time / speed_up)
 
     def curr_action(self):
         if self.run_time is None or self.run_time > 0:
@@ -140,6 +142,12 @@ class AlgoScene(Scene):
     # Default settings
     settings = DEFAULT_SETTINGS
 
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        if not hasattr(self, 'post_customize_fns'):
+            self.post_customize_fns = []
+        Scene.__init__(self, **kwargs)
+
     def preconfig(self, settings):
         pass
 
@@ -148,6 +156,12 @@ class AlgoScene(Scene):
 
     def customize(self, action_pairs):
         pass
+
+    def post_config(self, settings):
+        pass
+
+    def rerender(self):
+        self.__init__(**self.kwargs)
 
     def create_play_action(self, *transforms, w_prev=False):
         return AlgoSceneAction(
@@ -193,6 +207,7 @@ class AlgoScene(Scene):
 
     def construct(self):
         self.preconfig(self.settings)
+        self.post_config(self.settings)
         self.action_pairs = []
         self.algoconstruct()
         self.customize(self.action_pairs)
@@ -204,6 +219,9 @@ class AlgoScene(Scene):
                 # wait action is required at the end if last animation is not
                 # a play/wait or has been skipped, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
+
+        for post_customize in self.post_customize_fns:
+            post_customize(self.action_pairs)
 
         # save a copy of action_pairs
         action_pairs_copy = self.action_pairs.copy()

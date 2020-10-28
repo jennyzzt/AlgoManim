@@ -6,7 +6,7 @@ from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 
-from gui.custom_renderer import custom_renderer
+from gui.custom_renderer import custom_renderer, construct_anims
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
@@ -99,8 +99,12 @@ class GuiWindow(QDialog):
         self.customise_panel.link_gui_window(self)
 
         self.change_history_panel = ChangeHistoryPanel()
+        self.change_history_panel.link_gui_window(self)
+
         # Keep track of animation changes to be applied
         self.changes = dict()
+        self.scene = None
+        self.anims = None
 
         # Side menu
         self.tab_menu = QTabWidget(parent=self)
@@ -146,7 +150,8 @@ class GuiWindow(QDialog):
     def anim_clicked(self, anim):
         change_vals = dict()
         for change_type in CustomisationType:
-            key = (anim["start_index"], change_type)
+            anim_index = self.anims.index(anim)
+            key = (anim_index, change_type)
             if key in self.changes:
                 change_vals[change_type] = self.changes[key].get_value()
             elif change_type in anim["customisations"]:
@@ -155,7 +160,8 @@ class GuiWindow(QDialog):
         self.customise_panel.set_animation(anim, change_vals)
 
     def add_change(self, anim, change_type, change_value):
-        key = (anim["start_index"], change_type)
+        anim_index = self.anims.index(anim)
+        key = (anim_index, change_type)
         if key not in self.changes:
             # check if animchange has not already been added to list of changes
             anim_change = AnimChange(anim, change_type, change_value)
@@ -170,8 +176,14 @@ class GuiWindow(QDialog):
         self.change_history_panel.reset()
 
     def apply_changes(self):
-        for change in self.changes:
-            change.apply()
+        def post_customize(action_pairs):
+            for (anim_index, change_type), anim_change  in self.changes.items():
+                anim = self.anims[anim_index]
+                for i in range(anim["start_index"], anim["end_index"] + 1):
+                    action_pair = action_pairs[i]
+                    change_type.customise(action_pair)(anim_change.get_value())
+        self.scene.post_customize_fns.append(post_customize)
+        self.render_video(rerender=True)
         # Do the rendering here
         self.reset_changes()
 
@@ -189,46 +201,50 @@ class GuiWindow(QDialog):
 
         return scene_names
 
-    def render_video(self):
+    def render_video(self, rerender=False):
         if TEST_VIDEO_ONLY:
             self.video_player.open_video(WORKING_DIR /
                                          "media/algomanim/videos/BubbleSortScene.mp4")
             return
 
-        # Retrieve render parameters
-        pyfile_relpath = self.pyfile_lineedit.text()
-        scene_name = self.scene_combobox.currentText()
-        video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
+        if rerender:
+            self.scene.rerender()
+            self.anims = construct_anims(self.scene)
+        else:
+            # Retrieve render parameters
+            pyfile_relpath = self.pyfile_lineedit.text()
+            self.scene_name = self.scene_combobox.currentText()
+            video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
-        # Check that the python file exists
-        if not os.path.exists(pyfile_relpath):
-            err = QMessageBox(icon=QMessageBox.Critical,
-                              text="File does not exist")
-            err.setInformativeText('The python file no longer exists at the given location. '
-                                   'Select another file to proceed.')
-            err.setStandardButtons(QMessageBox.Close)
-            err.setStyleSheet(ERROR_MSG_STYLESHEET)
-            err.exec_()
-            return
+            # Check that the python file exists
+            if not os.path.exists(pyfile_relpath):
+                err = QMessageBox(icon=QMessageBox.Critical,
+                                    text="File does not exist")
+                err.setInformativeText('The python file no longer exists at the given location. '
+                                        'Select another file to proceed.')
+                err.setStandardButtons(QMessageBox.Close)
+                err.setStyleSheet(ERROR_MSG_STYLESHEET)
+                err.exec_()
+                return
 
-        # Check that a scene has been selected
-        if self.scene_combobox.currentIndex() < 0:
-            err = QMessageBox(icon=QMessageBox.Critical,
-                              text="No scene selected")
-            err.setInformativeText('You must select a scene to render')
-            err.setStandardButtons(QMessageBox.Close)
-            err.setStyleSheet(ERROR_MSG_STYLESHEET)
-            err.exec_()
-            return
+            # Check that a scene has been selected
+            if self.scene_combobox.currentIndex() < 0:
+                err = QMessageBox(icon=QMessageBox.Critical,
+                                    text="No scene selected")
+                err.setInformativeText('You must select a scene to render')
+                err.setStandardButtons(QMessageBox.Close)
+                err.setStyleSheet(ERROR_MSG_STYLESHEET)
+                err.exec_()
+                return
 
-        # Render video programmatically
-        anims = custom_renderer(pyfile_relpath, scene_name, video_quality)
+            # Render video programmatically
+            self.scene, self.anims = custom_renderer(pyfile_relpath, self.scene_name, video_quality)
 
         # Add animation boxes to scrollbar
-        self.animation_bar.fill_bar(anims)
+        self.animation_bar.fill_bar(self.anims)
 
         # Display video
-        video_fp = WORKING_DIR / f'media/algomanim/videos/{scene_name}.mp4'
+        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
         self.video_player.open_video(video_fp=video_fp)
 
 

@@ -60,7 +60,8 @@ def extract_scene(file_path, scene_name, video_quality):
 
 
 # Constructs anim dicts for use in AnimationBar widget
-def construct_anims(scene, action_pairs):
+def construct_anims(scene):
+    action_pairs = scene.action_pairs.copy()
     anims = []
     start_time = 0
     start_index = 0
@@ -105,11 +106,10 @@ def construct_anims(scene, action_pairs):
     return anims
 
 
-# Renders video and returns anim dicts for use in AnimationBar widget
+# Renders video and returns scene along with anim dicts for use in AnimationBar widget
 def custom_renderer(file_path, scene_name, video_quality):
     # Output video file
     scene = extract_scene(file_path, scene_name, video_quality)
 
     # Construct animation representation
-    action_pairs = scene.action_pairs.copy()
-    return construct_anims(scene=scene, action_pairs=action_pairs)
+    return scene, construct_anims(scene)

@@ -33,7 +33,7 @@ class CustomisationType(Enum):
 
     @staticmethod
     def action_pair_fast_forward(action_pair):
-        return action_pair.fast_forward
+        return action_pair.set_runtime
 
     COLOR = (
         get_change_color_widget.__get__(Enum),
