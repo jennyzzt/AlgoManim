@@ -36,7 +36,7 @@ class Metadata:
         self.children.append(lowermeta)
 
     def get_all_action_pairs(self):
-        return map(lambda lower: lower.action_pair, self.children)
+        return list(map(lambda lower: lower.action_pair, self.children))
 
     def __str__(self):
         return f'Metadata(meta={self.metadata}, fid={self.fid}, children=[{self.__print_children()}])'
@@ -59,7 +59,7 @@ class LowerMetadata:
         self.val = val  # list of values affected by function
 
     def __str__(self):
-        return f'LowerMetadata(meta={self.metadata}, val={self.val})'
+        return f'LowerMetadata(meta={self.metadata}, val={self.val}, action_pair={self.action_pair})'
 
 
 class AlgoListNode:
@@ -256,7 +256,7 @@ class AlgoList:
 
         # Only add if it is a higher level function
         if metadata is None:
-            self.scene.add_metadata(metadata)
+            self.scene.add_metadata(curr_metadata)
 
     def show(self, animated=True):
         meta = Metadata(AlgoListMetadata.SHOW)
@@ -393,22 +393,17 @@ class AlgoList:
         self.scene.add_action_pair(anim_action, static_action, animated=animated)
         self.group()
 
-    # @staticmethod
-    # def find_index(action_pairs, method, occurence):
-    #     indexes = []
-    #     uids = set()
-    #     for i, action_pair in enumerate(action_pairs):
-    #         meta = action_pair.metadata
-    #         if meta is None:
-    #             continue
-    #
-    #         if len(uids) <= occurence:
-    #             if meta.metadata == method:
-    #                 if meta.uid not in uids:
-    #                     uids.add(meta.uid)
-    #                 if len(uids) == occurence:
-    #                     indexes.append(i)
-    #         else:
-    #             break
-    #
-    #     return indexes
+    @staticmethod
+    def find_action_pairs(scene, occurence, method, lower_level=None):
+        for meta_tree in scene.meta_trees:
+            if method == meta_tree.metadata and occurence == meta_tree.fid:
+                if lower_level:
+                    pairs = []
+                    for lower in meta_tree.children:
+                        if lower_level == lower.metadata:
+                            pairs.append(lower.action_pair)
+                    return pairs
+                else:
+                    return meta_tree.get_all_action_pairs()
+
+

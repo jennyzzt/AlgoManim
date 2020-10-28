@@ -31,6 +31,9 @@ class BubbleSortScene(AlgoScene):
     def customize(self, action_pairs):
         # demonstrating the allowed edits that can be made for animations
 
+        # 1) find the animations for your different functions
+        print(AlgoList.find_action_pairs(self, 2, AlgoListMetadata.COMPARE, AlgoListMetadata.SWAP))
+
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
 
