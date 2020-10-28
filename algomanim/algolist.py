@@ -92,12 +92,11 @@ class AlgoListNode:
 
     def set_right_of(self, node, metadata=None):
         action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
-        self.scene.add_action_pair(action, action, animated=False)
+        action_pair = self.scene.add_action_pair(action, action, animated=False)
 
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
-            action_pair = self.scene.action_pairs[-1]
             lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF,
                                             action_pair, val=[self.val, node.val])
 
@@ -117,10 +116,10 @@ class AlgoListNode:
         )
         static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
         lower_meta = LowerMetadata(AlgoListMetadata.SWAP, action_pair, val=[self.val, node.val])
 
         assert metadata is not None
@@ -132,10 +131,10 @@ class AlgoListNode:
         )
         static_action = AlgoSceneAction(self.scene.add, AlgoTransform([self.grp]), w_prev=w_prev)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
         lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
 
         metadata.add_lower(lower_meta)
@@ -148,11 +147,10 @@ class AlgoListNode:
         static_action = AlgoSceneAction(self.scene.remove,
             AlgoTransform([self.grp]), w_prev=w_prev)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
-        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val, node.val])
+        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
 
         metadata.add_lower(lower_meta)
 
@@ -167,10 +165,10 @@ class AlgoListNode:
             AlgoTransform([self.highlight_color], color_index=0)
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
         lower_meta = LowerMetadata(AlgoListMetadata.HIGHLIGHT, action_pair, val=[self.val])
 
         assert metadata is not None
@@ -190,10 +188,10 @@ class AlgoListNode:
             AlgoTransform([self.node_color], color_index=0)
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
         lower_meta = LowerMetadata(AlgoListMetadata.DEHIGHLIGHT, action_pair, val=[self.val])
 
         assert metadata is not None
@@ -245,10 +243,10 @@ class AlgoList:
         )
         static_action = AlgoSceneAction(self.grp.center)
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        action_pair = self.scene.action_pairs[-1]
         lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
 
         curr_metadata.add_lower(lower_meta)

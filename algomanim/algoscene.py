@@ -139,10 +139,10 @@ class AlgoScene(Scene):
         )
 
     def add_action_pair(self, anim_action, static_action, animated=True):
-        self.action_pairs.append(
-            AlgoSceneActionPair(anim_action, static_action,
-            run_time=None if animated else 0)
-        )
+        pair = AlgoSceneActionPair(anim_action, static_action,
+                                   run_time=None if animated else 0)
+        self.action_pairs.append(pair)
+        return pair
 
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)

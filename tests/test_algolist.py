@@ -81,7 +81,7 @@ class TestAlgoList:
             animated=True
         )
 
-    def test_find_index_2nd_compare(self):
+    def test_find_action_pairs_2nd_compare(self):
         test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
@@ -95,7 +95,56 @@ class TestAlgoList:
 
         sum_action_pairs = len(AlgoList.find_action_pairs(test_algoscene, 2,
                             AlgoListMetadata.COMPARE, AlgoListMetadata.DEHIGHLIGHT)) + \
-                    len(AlgoList.find_action_pairs(test_algoscene, 2,
+                           len(AlgoList.find_action_pairs(test_algoscene, 2,
                             AlgoListMetadata.COMPARE, AlgoListMetadata.HIGHLIGHT))
 
         assert action_pairs_len == sum_action_pairs
+
+    def test_find_action_pairs_2nd_compare_with_lower(self):
+        test_algoscene = AlgoScene()
+        algolist = AlgoList(test_algoscene, test_list)
+
+        algolist.compare(0, 1)
+        algolist.swap(0, 1)
+        algolist.compare(1, 2)
+        algolist.swap(1, 2)
+
+        action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
+                                                         AlgoListMetadata.COMPARE,
+                                                          AlgoListMetadata.DEHIGHLIGHT))
+
+        sum_action_pairs = len(AlgoList.find_action_pairs(test_algoscene, 2,
+                            AlgoListMetadata.COMPARE)) - \
+                           len(AlgoList.find_action_pairs(test_algoscene, 2,
+                            AlgoListMetadata.COMPARE, AlgoListMetadata.HIGHLIGHT))
+
+        assert action_pairs_len == sum_action_pairs
+
+    def test_find_action_pairs_2nd_compare_invalid_upper(self):
+        test_algoscene = AlgoScene()
+        algolist = AlgoList(test_algoscene, test_list)
+
+        algolist.compare(0, 1)
+        algolist.swap(0, 1)
+        algolist.compare(1, 2)
+        algolist.swap(1, 2)
+
+        action_pairs = AlgoList.find_action_pairs(test_algoscene, 2,
+                                                  AlgoListMetadata.HIGHLIGHT)
+
+        assert len(action_pairs) == 0
+
+    def test_find_action_pairs_2nd_compare_invalid_lower(self):
+        test_algoscene = AlgoScene()
+        algolist = AlgoList(test_algoscene, test_list)
+
+        algolist.compare(0, 1)
+        algolist.swap(0, 1)
+        algolist.compare(1, 2)
+        algolist.swap(1, 2)
+
+        action_pairs = AlgoList.find_action_pairs(test_algoscene, 2,
+                                                  AlgoListMetadata.COMPARE,
+                                                  AlgoListMetadata.SWAP)
+
+        assert len(action_pairs) == 0
