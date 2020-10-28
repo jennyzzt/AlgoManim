@@ -1,8 +1,10 @@
 # pylint: disable=E0602,E1101,R0903
 from enum import Enum, auto
+from collections import Counter
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.settings import Shape
+
 
 class AlgoListMetadata(Enum):
     SWAP = auto()
@@ -18,12 +20,41 @@ class AlgoListMetadata(Enum):
     SLICE = auto()
     CONCAT = auto()
 
+
+class LowerAlgoListMetadata(Enum):
+    SHOW = auto()
+    HIDE = auto()
+    HIGHLIGHT = auto()
+    DEHIGHLIGHT = auto()
+
+
 class Metadata:
-    global_uid = 0
+    counter = Counter()
+
     def __init__(self, metadata):
         self.metadata = metadata
-        self.uid = Metadata.global_uid
-        Metadata.global_uid += 1
+        Metadata.counter[metadata] += 1
+
+        self.fid = Metadata.counter[metadata]
+        self.children = []
+
+    def add_lower(self, lowermeta):
+        self.children.append(lowermeta)
+
+    def __str__(self):
+        return f'Metadata(meta={self.metadata}, fid={self.fid}, children={self.children})'
+
+
+class LowerMetadata:
+
+    def __init__(self, metadata, action_pair, val):
+        self.metadata = metadata
+        self.action_pair = action_pair
+        self.val = val
+
+    def __str__(self):
+        return f'LowerMetadata(meta={self.metadata}, val={self.val})'
+
 
 class AlgoListNode:
     def __init__(self, scene, val):
@@ -58,6 +89,22 @@ class AlgoListNode:
     def set_right_of(self, node, metadata=None):
         action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
         self.scene.add_action_pair(action, action, animated=False, metadata=metadata)
+
+    def static_swap(self, node):
+        self_center = self.grp.get_center()
+        node_center = node.grp.get_center()
+        self.grp.move_to(node_center)
+        node.grp.move_to(self_center)
+
+    def swap_with(self, node, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
+            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
 
     def show(self, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
@@ -104,22 +151,7 @@ class AlgoListNode:
             AlgoTransform([self.node_color], color_index=0)
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
-
-    def static_swap(self, node):
-        self_center = self.grp.get_center()
-        node_center = node.grp.get_center()
-        self.grp.move_to(node_center)
-        node.grp.move_to(self_center)
-
-    def swap_with(self, node, animated=True, w_prev=False, metadata=None):
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
-            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
-            w_prev=w_prev
-        )
-        static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
-
+        self.scene.add_metadata()
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
 
 class AlgoList:
