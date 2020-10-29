@@ -43,7 +43,7 @@ class AlgoTransform:
 
 class AlgoSceneAction:
     @staticmethod
-    def create_static_action(function, args=None, color_index=None):
+    def create_static_action(function, args=[], color_index=None): # pylint: disable=W0102
         return AlgoSceneAction(
             do_nothing,
             transform=AlgoTransform(args, transform=function, color_index=color_index),
@@ -209,9 +209,8 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.fast_forward(speed_up)
 
-    def create_animation_blocks(self, action_pairs, anim_blocks):
+    def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
         # convert action_pairs into anim_blocks
-        self.anim_blocks = []
         start_time = 0
         for (i, action_pair) in enumerate(action_pairs):
             action = action_pair.curr_action()
