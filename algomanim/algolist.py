@@ -25,9 +25,6 @@ class Metadata:
         self.uid = Metadata.global_uid
         Metadata.global_uid += 1
 
-def do_nothing(*args):
-    return
-
 class AlgoListNode:
     def __init__(self, scene, val):
         self.scene = scene
@@ -59,16 +56,14 @@ class AlgoListNode:
         self.grp = VGroup(self.node, self.txt)
 
     def set_right_of(self, node, metadata=None):
-        action = AlgoSceneAction(do_nothing,
-            AlgoTransform([node.grp, RIGHT], transform=self.grp.next_to), w_prev=True)
+        action = AlgoSceneAction.create_static_action(self.grp.next_to, [node.grp, RIGHT])
         self.scene.add_action_pair(action, action, animated=False, metadata=metadata)
 
     def show(self, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
         )
-        static_action = AlgoSceneAction(do_nothing, AlgoTransform([self.grp],
-            transform=self.scene.add), w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
 
@@ -77,8 +72,7 @@ class AlgoListNode:
             AlgoTransform([self.grp], transform=FadeOut),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction(do_nothing,
-            AlgoTransform([self.grp], transform=self.scene.remove), w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
 
@@ -88,10 +82,10 @@ class AlgoListNode:
                           transform=ApplyMethod, color_index=1),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction(
-            do_nothing,
-            AlgoTransform([self.highlight_color], transform=self.node.set_fill, color_index=0),
-            w_prev=True
+        static_action = AlgoSceneAction.create_static_action(
+            self.node.set_fill,
+            [self.highlight_color],
+            color_index=0
         )
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
@@ -105,10 +99,10 @@ class AlgoListNode:
             ),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction(
-            do_nothing,
-            AlgoTransform([self.node_color], transform=self.node.set_fill, color_index=0),
-            w_prev=True
+        static_action = AlgoSceneAction.create_static_action(
+            self.node.set_fill,
+            [self.node_color],
+            color_index=0
         )
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
@@ -129,9 +123,8 @@ class AlgoListNode:
             w_prev=True
         )
 
-        static_action = AlgoSceneAction(do_nothing,
-            AlgoTransform([node], transform=self.static_swap), w_prev=True)
-        static_action2 = AlgoSceneAction(lambda x: x, AlgoTransform([1]), w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(self.static_swap, [node])
+        static_action2 = AlgoSceneAction.create_empty_action()
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
         self.scene.add_action_pair(anim_action2, static_action2, animated=animated,
@@ -171,8 +164,7 @@ class AlgoList:
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp.center], transform=ApplyMethod)
         )
-        static_action = AlgoSceneAction(do_nothing,
-            transform=AlgoTransform(transform=self.grp.center, args=[]), w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(self.grp.center)
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated,
             metadata=metadata if metadata else Metadata(AlgoListMetadata.CENTER))
@@ -246,8 +238,7 @@ class AlgoList:
             anim_action = self.scene.create_play_action(
                 AlgoTransform([right_grp.next_to, left_node.grp, RIGHT], transform=ApplyMethod)
             )
-            static_action = AlgoSceneAction(do_nothing,
-                AlgoTransform([left_node], transform=right_grp.set_right_of), w_prev=True)
+            static_action = AlgoSceneAction.create_static_action(right_grp.set_right_of, [left_node])
 
             self.scene.add_action_pair(anim_action, static_action, animated=animated,
                                         metadata=Metadata(AlgoListMetadata.POP))
@@ -273,10 +264,10 @@ class AlgoList:
                 transform=ApplyMethod
             )
         )
-        static_action = AlgoSceneAction(
-            do_nothing,
-            AlgoTransform([DOWN * 1.1 * self.nodes[0].node_length], transform=sublist.grp.shift),
-            w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(
+            sublist.grp.shift,
+            [DOWN * 1.1 * self.nodes[0].node_length]
+        )
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=meta)
         return sublist
 
@@ -289,8 +280,10 @@ class AlgoList:
                 transform=ApplyMethod
             )
         )
-        static_action = AlgoSceneAction(do_nothing,
-            AlgoTransform([self.grp, RIGHT], transform=other_list.grp.next_to), w_prev=True)
+        static_action = AlgoSceneAction.create_static_action(
+            other_list.grp.next_to,
+            [self.grp, RIGHT]
+        )
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated,
                                         metadata=Metadata(AlgoListMetadata.CONCAT))

@@ -44,12 +44,7 @@ class CustomisePanel(BaseChangesPanel):
 
     def set_animation(self, anim, change_vals):
         self.curr_anim = anim
-        start_index = anim.start_index
-        end_index = anim.end_index
-        anim_desc = 'Animation ' + \
-                    (f'{start_index + 1}' \
-                     if start_index == end_index \
-                     else f'{start_index + 1} - {end_index + 1}')
+        anim_desc = anim.desc()
         self.title_lbl.setText(anim_desc)
         change_possible = False
         for change_type in CustomisationType:

@@ -3,6 +3,9 @@ from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
 from .animation_block import AnimationBlock
 
+def do_nothing(*_):
+    return
+
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
         '''
@@ -39,6 +42,18 @@ class AlgoTransform:
         return self.transform(*self.args)
 
 class AlgoSceneAction:
+    @staticmethod
+    def create_static_action(function, args=[], color_index=None):
+        return AlgoSceneAction(
+            do_nothing,
+            transform=AlgoTransform(args, transform=function, color_index=color_index),
+            w_prev=True,
+            can_set_runtime=False)
+
+    @staticmethod
+    def create_empty_action():
+        return AlgoSceneAction.create_static_action(do_nothing, [])
+
     def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
         self.act = act
         self.transform = transform
@@ -173,18 +188,16 @@ class AlgoScene(Scene):
 
     def add_transform(self, index, transform):
         anim_action = self.create_play_action(AlgoTransform([], transform=transform))
-        # Using a dummy function to skip custom transform
-        static_action = AlgoSceneAction(lambda x: x, AlgoTransform([1]))
-        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
+        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, anim_action))
 
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
         # Using a dummy function to skip wait
-        static_action = AlgoSceneAction(lambda x: x, AlgoTransform([1]))
+        static_action = AlgoSceneAction.create_empty_action()
         self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
 
     def add_clear(self, index):
-        action = AlgoSceneAction(self.clear, AlgoTransform([]))
+        action = AlgoSceneAction.create_static_action(self.clear)
         self.action_pairs.insert(index, AlgoSceneActionPair(action))
 
     def fast_forward(self, start, end=None, speed_up=2):
