@@ -10,8 +10,6 @@ import manimlib.config
 import manimlib.constants
 from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_render
 from gui.video_quality import VideoQuality
-from gui.panels.customisation_type import CustomisationType
-
 
 # Modification of internal manim function using algomanim API
 def extract_scene(file_path, scene_name, video_quality):

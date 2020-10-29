@@ -43,7 +43,7 @@ class AlgoTransform:
 
 class AlgoSceneAction:
     @staticmethod
-    def create_static_action(function, args=[], color_index=None):
+    def create_static_action(function, args=None, color_index=None):
         return AlgoSceneAction(
             do_nothing,
             transform=AlgoTransform(args, transform=function, color_index=color_index),
@@ -75,8 +75,7 @@ class AlgoSceneAction:
     def run(self):
         if self.transform is not None:
             return self.transform.run()
-        else:
-            return []
+        return []
 
 class AlgoSceneActionPair:
     def __init__(self, anim_action, static_action=None, run_time=None, metadata=None):
@@ -150,6 +149,9 @@ class AlgoScene(Scene):
             # when rerendering, do not set this list back to []
             self.post_customize_fns = []
 
+        self.action_pairs = []
+        self.anim_blocks = []
+
         Scene.__init__(self, **kwargs)
 
     def preconfig(self, settings):
@@ -209,6 +211,7 @@ class AlgoScene(Scene):
 
     def create_animation_blocks(self, action_pairs, anim_blocks):
         # convert action_pairs into anim_blocks
+        self.anim_blocks = []
         start_time = 0
         for (i, action_pair) in enumerate(action_pairs):
             action = action_pair.curr_action()
@@ -240,9 +243,7 @@ class AlgoScene(Scene):
         self.preconfig(self.settings)
         self.post_config(self.settings)
 
-        self.action_pairs = []
         self.algoconstruct()
         self.customize(self.action_pairs)
 
-        self.anim_blocks = []
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)

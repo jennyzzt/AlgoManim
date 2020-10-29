@@ -54,6 +54,7 @@ class AnimationBlock:
         for action_pair in self.action_pairs:
             if action_pair.can_set_color():
                 return action_pair.get_color()
+        return None
 
     def add_action_pair(self, action_pair):
         self.action_pairs.append(action_pair)

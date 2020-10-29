@@ -238,7 +238,10 @@ class AlgoList:
             anim_action = self.scene.create_play_action(
                 AlgoTransform([right_grp.next_to, left_node.grp, RIGHT], transform=ApplyMethod)
             )
-            static_action = AlgoSceneAction.create_static_action(right_grp.set_right_of, [left_node])
+            static_action = AlgoSceneAction.create_static_action(
+                right_grp.set_right_of,
+                [left_node]
+            )
 
             self.scene.add_action_pair(anim_action, static_action, animated=animated,
                                         metadata=Metadata(AlgoListMetadata.POP))
