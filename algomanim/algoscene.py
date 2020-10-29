@@ -1,12 +1,13 @@
 # pylint: disable=R0903
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
+from .animation_block import AnimationBlock
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
         '''
         if transform is None, this class encapsulates a list of arguments
-        else, the arguments are for the transform constructor
+        else, the arguments are to be consumed by the transform function
         if color_index is None, this transform does not have a color property
         else, color can be changed by changing args[color_index]
         '''
@@ -14,71 +15,50 @@ class AlgoTransform:
         self.args = args
         self.color_index = color_index
 
+    def can_set_color(self):
+        return self.color_index is not None
+
     def get_color(self):
-        if not self.can_change_color():
+        if not self.can_set_color():
             print('WARNING: Transform does not have color property')
             return None
 
         return self.args[self.color_index]
 
-    def can_change_color(self):
-        return self.color_index is not None
-
-    def change_color(self, new_color):
-        if not self.can_change_color():
+    def set_color(self, color):
+        if not self.can_set_color():
             print('WARNING: Transform does not have color property')
             return
 
-        self.args[self.color_index] = new_color
+        self.args[self.color_index] = color
 
-    def generate(self):
+    def run(self):
         if self.transform is None:
             return self.args
 
         return self.transform(*self.args)
 
 class AlgoSceneAction:
-    def __init__(self, act, *transforms, w_prev=False, can_change_runtime=False):
+    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
         self.act = act
-        self.transforms = transforms
+        self.transform = transform
         self.w_prev = w_prev
-        self.can_change_runtime = can_change_runtime
+        self.can_set_runtime = can_set_runtime
 
-    def add_transforms(self, *transforms):
-        self.transforms += transforms
+    def can_set_color(self):
+        return self.transform.can_set_color()
 
-    def can_change_color(self):
-        can_change_color = False
-
-        # if a transform can change color, action can change color
-        for transform in self.transforms:
-            if transform.can_change_color():
-                can_change_color = True
-                break
-
-        return can_change_color
-
-    def change_color(self, new_color):
-        for transform in self.transforms:
-            transform.change_color(new_color)
+    def set_color(self, color):
+        self.transform.set_color(color)
 
     def get_color(self):
-        return self.transforms[0].get_color()
+        return self.transform.get_color()
 
-    def run(self, run_time=None):
-        args = []
-        for transform in self.transforms:
-            result = transform.generate()
-            if isinstance(result, list):
-                for arg in result:
-                    args.append(arg)
-            else:
-                args.append(result)
-
-        if run_time is None or not self.can_change_runtime:
-            self.act(*args)
+    def run(self):
+        if self.transform is not None:
+            return self.transform.run()
         else:
-            self.act(*args, run_time=run_time)
+            return []
 
 class AlgoSceneActionPair:
     def __init__(self, anim_action, static_action=None, run_time=None, metadata=None):
@@ -93,22 +73,30 @@ class AlgoSceneActionPair:
         self.run_time = run_time
         self.metadata = metadata
 
-    def can_change_runtime(self):
-        return self.anim_action.can_change_runtime
-
-    def can_change_color(self):
-        return self.anim_action.can_change_color()
-
-    def get_color(self):
-        return self.anim_action.get_color()
+    def can_set_runtime(self):
+        return self.anim_action.can_set_runtime
 
     def get_runtime(self):
+        return self.run_time
+
+    def get_runtime_val(self):
         return 1 if self.run_time is None else self.run_time
 
     def set_runtime(self, run_time):
         if not isinstance(run_time, float) or not isinstance(run_time, int):
             run_time = float(run_time)
         self.run_time = run_time
+
+    def can_set_color(self):
+        return self.anim_action.can_set_color() or \
+            self.static_action.can_set_color()
+
+    def get_color(self):
+        return self.anim_action.get_color()
+
+    def set_color(self, color):
+        self.anim_action.set_color(color)
+        self.static_action.set_color(color)
 
     def skip(self):
         self.set_runtime(0)
@@ -129,22 +117,21 @@ class AlgoSceneActionPair:
         return self.curr_action().act
 
     def run(self):
-        self.curr_action().run(self.run_time)
-
-    def change_color(self, new_color):
-        self.anim_action.change_color(new_color)
-        self.static_action.change_color(new_color)
+        return self.curr_action().run()
 
 class AlgoScene(Scene):
-    # Used to reobtain objects that are removed by certain animations
-    save_mobjects = None
-
     def __init__(self, **kwargs):
         # Default settings
         self.settings = DEFAULT_SETTINGS.copy()
+
+        # Used to reobtain objects that are removed by certain animations
+        self.save_mobjects = None
+
         self.kwargs = kwargs
         if not hasattr(self, 'post_customize_fns'):
+            # when rerendering, do not set this list back to []
             self.post_customize_fns = []
+
         Scene.__init__(self, **kwargs)
 
     def preconfig(self, settings):
@@ -162,10 +149,10 @@ class AlgoScene(Scene):
     def rerender(self):
         self.__init__(**self.kwargs)
 
-    def create_play_action(self, *transforms, w_prev=False):
+    def create_play_action(self, transform, w_prev=False):
         return AlgoSceneAction(
-            self.play, *transforms,
-            w_prev=w_prev, can_change_runtime=True
+            self.play, transform,
+            w_prev=w_prev, can_set_runtime=True
         )
 
     def add_action_pair(self, anim_action, static_action, animated=True, metadata=None):
@@ -183,7 +170,7 @@ class AlgoScene(Scene):
 
     def add_transform(self, index, transform):
         anim_action = self.create_play_action(AlgoTransform([], transform=transform))
-        # Using a dummy function to skip wait
+        # Using a dummy function to skip custom transform
         static_action = AlgoSceneAction(lambda x: x, AlgoTransform([1]))
         self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
 
@@ -204,39 +191,40 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.fast_forward(speed_up)
 
+    def create_animation_blocks(self, action_pairs, anim_blocks):
+        # convert action_pairs into anim_blocks
+        for (i, action_pair) in enumerate(action_pairs):
+            action = action_pair.curr_action()
+            if action.w_prev and len(anim_blocks) > 0 and anim_blocks[-1].act() == action.act:
+                anim_blocks[-1].add_action_pair(action_pair)
+            else:
+                anim_blocks.append(AnimationBlock([action_pair], i, i))
+
+    def execute_action_pairs(self, action_pairs, anim_blocks):
+        if len(action_pairs) > 0:
+            last_action_pair = action_pairs[-1]
+            last_act = last_action_pair.act()
+            if last_act != self.play or last_act != self.wait: # pylint: disable=W0143
+                # wait action is required at the end if last animation is not
+                # a play/wait, else the last animation will not be rendered
+                self.add_wait(len(self.action_pairs))
+
+        # run post customize functions from the GUI
+        for post_customize in self.post_customize_fns:
+            post_customize(self.action_pairs)
+
+        self.create_animation_blocks(action_pairs, anim_blocks)
+
+        for anim_block in self.anim_blocks:
+            anim_block.run()
+
     def construct(self):
         self.preconfig(self.settings)
         self.post_config(self.settings)
+
         self.action_pairs = []
         self.algoconstruct()
         self.customize(self.action_pairs)
 
-        if len(self.action_pairs) > 0:
-            last_action_pair = self.action_pairs[-1]
-            last_act = last_action_pair.act()
-            if last_act != self.play or last_act != self.wait or last_action_pair.run_time == 0: # pylint: disable=W0143
-                # wait action is required at the end if last animation is not
-                # a play/wait or has been skipped, else the last animation will not be rendered
-                self.add_wait(len(self.action_pairs))
-
-        for post_customize in self.post_customize_fns:
-            post_customize(self.action_pairs)
-
-        # save a copy of action_pairs
-        action_pairs_copy = self.action_pairs.copy()
-
-        # start executing actions
-        for (i, action_pair) in enumerate(self.action_pairs):
-            action = action_pair.curr_action()
-            for action_pair2 in self.action_pairs[i+1:]:
-                action2 = action_pair2.curr_action()
-                if action2.w_prev:
-                    if action2.act == action.act:
-                        action.add_transforms(*action2.transforms)
-                        self.action_pairs.remove(action_pair2)
-                else:
-                    break
-            action_pair.run()
-
-        # restore copy of action_pairs so that this information can be used post rendering
-        self.action_pairs = action_pairs_copy
+        self.anim_blocks = []
+        self.execute_action_pairs(self.action_pairs, self.anim_blocks)

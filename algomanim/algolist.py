@@ -115,12 +115,19 @@ class AlgoListNode:
     def swap_with(self, node, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
-            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
+        anim_action2 = self.scene.create_play_action(
+            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
+            w_prev=True
+        )
+
+        static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]), w_prev=w_prev)
+        static_action2 = AlgoSceneAction(lambda x: x, AlgoTransform([1]), w_prev=True)
 
         self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action2, static_action2, animated=animated,
+            metadata=metadata)
 
 class AlgoList:
     def __init__(self, scene, arr):

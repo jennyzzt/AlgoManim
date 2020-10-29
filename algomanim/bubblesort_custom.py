@@ -33,10 +33,10 @@ class CustomBubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
-        highlight_indices = [15, 16, 23, 24, 30, 31, 38, 39]
+        highlight_indices = [15, 16]
         for index in highlight_indices:
             # pink
-            action_pairs[index].change_color('#ff6666') # pylint: disable=E0602
+            action_pairs[index].set_color('#ff6666') # pylint: disable=E0602
 
         # 2) all animations are fast forwarded (2x speed)
         self.fast_forward(0, 75)

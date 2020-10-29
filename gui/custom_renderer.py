@@ -70,7 +70,7 @@ def construct_anims(scene):
         run_time = 1 if action_pair.run_time is None else action_pair.run_time
         customisations = dict()
         if action_pair.can_change_runtime():
-            customisations[CustomisationType.RUNTIME] = action_pair.get_runtime()
+            customisations[CustomisationType.RUNTIME] = action_pair.get_runtime_val()
 
         if action_pair.can_change_color():
             customisations[CustomisationType.COLOR] = action_pair.get_color()

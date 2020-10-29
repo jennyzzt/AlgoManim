@@ -33,7 +33,7 @@ class ShortBubbleSortScene(AlgoScene):
         # 1) color of highlight is changed for first iteration of algorithm
         highlight_indices = AlgoList.find_index(action_pairs, AlgoListMetadata.COMPARE, 2)
         for index in highlight_indices:
-            action_pairs[index].change_color(GREEN) # pylint: disable=E0602
+            action_pairs[index].set_color(GREEN) # pylint: disable=E0602
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
