@@ -18,12 +18,19 @@ class TestAlgoList:
         show.assert_called_once()
 
     @patch("algomanim.algolist.AlgoSceneAction")
-    def test_swap_adds_two_actions(self, algoscene_action):
+    def test_swap_adds_two_action_pairs(self, algoscene_action):
         algolist = AlgoList(algoscene, test_list)
         algoscene.reset_mock()
 
         algolist.swap(0, 1)
-        algoscene.add_action_pair.assert_called_once_with(
+        algoscene.add_action_pair.assert_called_with(
+            algoscene.create_play_action(),
+            algoscene_action(),
+            animated=True,
+            metadata=ANY
+        )
+
+        algoscene.add_action_pair.assert_called_with(
             algoscene.create_play_action(),
             algoscene_action(),
             animated=True,

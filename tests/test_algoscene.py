@@ -24,7 +24,7 @@ class TestAlgoScene:
         assert play.call_count == 2
 
 
-    def test_change_color(self, play):
+    def test_set_color(self, play):
         AlgoSceneCustomColor()
         play.assert_called_once_with(mock_animation(mock_color))
 
@@ -108,7 +108,7 @@ class AlgoSceneCustomColor(AlgoScene):
         self.add_action_pair(action, action)
 
     def customize(self, action_pairs):
-        action_pairs[0].change_color(mock_color)
+        action_pairs[0].set_color(mock_color)
 
 
 class AlgoSceneFastForward(AlgoScene):
