@@ -44,8 +44,8 @@ class CustomisePanel(BaseChangesPanel):
 
     def set_animation(self, anim, change_vals):
         self.curr_anim = anim
-        start_index = anim['start_index']
-        end_index = anim['end_index']
+        start_index = anim.start_index
+        end_index = anim.end_index
         anim_desc = 'Animation ' + \
                     (f'{start_index + 1}' \
                      if start_index == end_index \
@@ -54,7 +54,7 @@ class CustomisePanel(BaseChangesPanel):
         change_possible = False
         for change_type in CustomisationType:
             (change_label, change_widget) = self.change_widgets[change_type]
-            if change_type in anim["customisations"]:
+            if change_type in anim.customizations():
                 change_possible = True
                 val = change_vals[change_type]
                 change_label.show()

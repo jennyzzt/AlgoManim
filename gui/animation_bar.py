@@ -61,13 +61,14 @@ class AnimationBar(QWidget):
         Create a single anim box from the properties of anim
         """
         # Get all relevant animation information stored in the action pair metadata
-        anim_infos = dict.fromkeys(map(lambda action: action.metadata, anim['action_pairs']))
-        anim_info = [f'{info.metadata.name}' for info in anim_infos if info is not None]
-        if anim_info:
-            desc = '\n'.join(anim_info)
-        else:
-            # Lacks metadata, assume custom animation
-            desc = 'Custom Animation'
+        # anim_infos = dict.fromkeys(map(lambda action: action.metadata, anim['action_pairs']))
+        # anim_info = [f'{info.metadata.name}' for info in anim_infos if info is not None]
+        # if anim_info:
+        #    desc = '\n'.join(anim_info)
+        # else:
+        #    # Lacks metadata, assume custom animation
+        #    desc = 'Custom Animation'
+        desc = 'Custom Animation'
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
@@ -81,7 +82,7 @@ class AnimationBar(QWidget):
 
         # Size box
         anim_box.setFixedHeight(BAR_BASE_HEIGHT - 20)  # prevent height overflow
-        width = max(int(150 * anim['run_time']), 80)
+        width = max(int(150 * anim.runtime_val()), 80)
         anim_box.setFixedWidth(width)
 
         # Layout anim box
@@ -95,7 +96,7 @@ class AnimationBar(QWidget):
         return anim_box
 
     def set_mouse_clicked(self, anim):
-        self.video_player.set_media_position(anim['start_time'] * 1000)
+        self.video_player.set_media_position(anim.start_position())
         self.gui_window.anim_clicked(anim)
 
     def set_active_lbl(self, index):
@@ -107,10 +108,10 @@ class AnimationBar(QWidget):
 
     def media_position_changed(self, position):
         for (i, anim) in enumerate(self.anims):
-            start_time = anim['start_time'] * 1000
-            end_time = (anim['start_time'] + anim['run_time']) * 1000
-            if (start_time <= position < end_time) or \
-                (start_time == position and end_time == start_time):
+            start_position = anim.start_position()
+            end_position = anim.end_position()
+            if (start_position <= position < end_position) or \
+                (start_position == position and start_position == end_position):
                 self.set_active_lbl(i)
                 self.gui_window.anim_clicked(anim)
             else:

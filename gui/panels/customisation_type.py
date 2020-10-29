@@ -27,7 +27,7 @@ class CustomisationType(Enum):
 
     @staticmethod
     def action_pair_change_color(action_pair):
-        return action_pair.change_color
+        return action_pair.set_color
 
     @staticmethod
     def action_pair_fast_forward(action_pair):

@@ -1,8 +1,17 @@
+from gui.panels.customisation_type import CustomisationType
+
 class AnimationBlock:
-    def __init__(self, action_pairs, start_index, end_index):
+    def __init__(self, action_pairs, start_index, end_index, start_time):
         self.start_index = start_index
         self.end_index = end_index
+        self.start_time = start_time
         self.action_pairs = action_pairs
+
+    def start_position(self):
+        return self.start_time * 1000
+
+    def end_position(self):
+        return (self.start_time + self.runtime_val()) * 1000
 
     def first_pair(self):
         return self.action_pairs[0]
@@ -27,9 +36,24 @@ class AnimationBlock:
                 break
         return possible
 
+    def get_color(self):
+        for action_pair in self.action_pairs:
+            if action_pair.can_set_color():
+                return action_pair.get_color()
+
     def add_action_pair(self, action_pair):
         self.action_pairs.append(action_pair)
         self.end_index += 1
+
+    def customizations(self):
+        customizations = dict()
+        if self.can_set_color():
+            customizations[CustomisationType.COLOR] = self.get_color()
+
+        if self.can_set_runtime():
+            customizations[CustomisationType.RUNTIME] = self.runtime_val()
+
+        return customizations
 
     def run(self):
         action = self.first_pair().curr_action()

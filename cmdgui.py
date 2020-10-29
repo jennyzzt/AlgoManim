@@ -5,7 +5,7 @@ from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 
-from gui.custom_renderer import custom_renderer, construct_anims
+from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
@@ -155,10 +155,11 @@ class GuiWindow(QDialog):
         for change_type in CustomisationType:
             anim_index = self.anims.index(anim)
             key = (anim_index, change_type)
+            customizations = anim.customizations()
             if key in self.changes:
                 change_vals[change_type] = self.changes[key].get_value()
-            elif change_type in anim["customisations"]:
-                change_vals[change_type] = anim["customisations"][change_type]
+            elif change_type in customizations:
+                change_vals[change_type] = customizations[change_type]
 
         self.customise_panel.set_animation(anim, change_vals)
 
@@ -182,7 +183,7 @@ class GuiWindow(QDialog):
         def post_customize(action_pairs):
             for (anim_index, change_type), anim_change  in self.changes.items():
                 anim = self.anims[anim_index]
-                for i in range(anim["start_index"], anim["end_index"] + 1):
+                for i in range(anim.start_index, anim.end_index + 1):
                     action_pair = action_pairs[i]
                     change_type.customise(action_pair)(anim_change.get_value())
         self.scene.post_customize_fns.append(post_customize)
@@ -212,7 +213,7 @@ class GuiWindow(QDialog):
 
         if rerender:
             self.scene.rerender()
-            self.anims = construct_anims(self.scene)
+            self.anims = self.scene.anim_blocks
         else:
             # Retrieve render parameters
             pyfile_relpath = self.pyfile_lineedit.text()
@@ -241,7 +242,8 @@ class GuiWindow(QDialog):
                 return
 
             # Render video programmatically
-            self.scene, self.anims = custom_renderer(pyfile_relpath, self.scene_name, video_quality)
+            self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality)
+            self.anims = self.scene.anim_blocks
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)

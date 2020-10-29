@@ -58,58 +58,7 @@ def extract_scene(file_path, scene_name, video_quality):
 
     return scene_class(**scene_kwargs)
 
-
-# Constructs anim dicts for use in AnimationBar widget
-def construct_anims(scene):
-    action_pairs = scene.action_pairs.copy()
-    anims = []
-    start_time = 0
-    start_index = 0
-    for (i, action_pair) in enumerate(action_pairs):
-        action = action_pair.curr_action()
-        run_time = 1 if action_pair.run_time is None else action_pair.run_time
-        customisations = dict()
-        if action_pair.can_change_runtime():
-            customisations[CustomisationType.RUNTIME] = action_pair.get_runtime_val()
-
-        if action_pair.can_change_color():
-            customisations[CustomisationType.COLOR] = action_pair.get_color()
-
-        anim = {'start_index': start_index,
-                'end_index': start_index,
-                'action_pairs': [action_pair],
-                'run_time': run_time,
-                'start_time': start_time,
-                'customisations': customisations}
-        start_time += run_time
-        for action_pair2 in action_pairs[i + 1:]:
-            action2 = action_pair2.curr_action()
-            if action2.w_prev:
-                if action2.act == action.act:
-                    anim['end_index'] += 1
-                    anim['action_pairs'].append(action_pair2)
-                    if action_pair2.can_change_color():
-                        anim['customisations'][CustomisationType.COLOR] = action_pair2.get_color()
-                    action_pairs.remove(action_pair2)
-            elif (action2.act != scene.play and action2.act != scene.wait) and \
-                    (action.act != scene.play and action.act != scene.wait):
-                anim['end_index'] += 1
-                anim['action_pairs'].append(action_pair2)
-                if action_pair2.can_change_color():
-                    anim['customisations'][CustomisationType.COLOR] = action_pair2.get_color()
-                action_pairs.remove(action_pair2)
-            else:
-                break
-        start_index = anim['end_index'] + 1
-        anims.append(anim)
-
-    return anims
-
-
-# Renders video and returns scene along with anim dicts for use in AnimationBar widget
+# Renders video and returns scene
 def custom_renderer(file_path, scene_name, video_quality):
-    # Output video file
-    scene = extract_scene(file_path, scene_name, video_quality)
-
-    # Construct animation representation
-    return scene, construct_anims(scene)
+    # animation block information is inside scene
+    return extract_scene(file_path, scene_name, video_quality)

@@ -46,7 +46,10 @@ class AlgoSceneAction:
         self.can_set_runtime = can_set_runtime
 
     def can_set_color(self):
-        return self.transform.can_set_color()
+        if self.transform is not None:
+            return self.transform.can_set_color()
+
+        return False
 
     def set_color(self, color):
         self.transform.set_color(color)
@@ -193,12 +196,14 @@ class AlgoScene(Scene):
 
     def create_animation_blocks(self, action_pairs, anim_blocks):
         # convert action_pairs into anim_blocks
+        start_time = 0
         for (i, action_pair) in enumerate(action_pairs):
             action = action_pair.curr_action()
             if action.w_prev and len(anim_blocks) > 0 and anim_blocks[-1].act() == action.act:
                 anim_blocks[-1].add_action_pair(action_pair)
             else:
-                anim_blocks.append(AnimationBlock([action_pair], i, i))
+                anim_blocks.append(AnimationBlock([action_pair], i, i, start_time))
+                start_time += anim_blocks[-1].runtime_val()
 
     def execute_action_pairs(self, action_pairs, anim_blocks):
         if len(action_pairs) > 0:

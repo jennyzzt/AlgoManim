@@ -11,7 +11,3 @@ class AnimChange:
 
     def get_value(self):
         return self.change_value
-
-    def apply(self):
-        for action_pair in self.anim['action_pairs']:
-            self.change_type.customise(action_pair)(self.change_value)
