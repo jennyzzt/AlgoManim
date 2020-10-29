@@ -13,12 +13,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
     @staticmethod
     def create_change_box(anim_change):
-        start_index = anim_change.anim.start_index
-        end_index = anim_change.anim.end_index
-        anim_desc = 'Animation ' + \
-                    (f'{start_index + 1}' \
-                     if start_index == end_index \
-                     else f'{start_index + 1} - {end_index + 1}')
+        anim_desc = anim_change.anim.desc()
         change_desc = f'Change {anim_change.change_type.name.lower()} to: '
 
         # Create box

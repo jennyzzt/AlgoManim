@@ -60,15 +60,7 @@ class AnimationBar(QWidget):
         """
         Create a single anim box from the properties of anim
         """
-        # Get all relevant animation information stored in the action pair metadata
-        # anim_infos = dict.fromkeys(map(lambda action: action.metadata, anim['action_pairs']))
-        # anim_info = [f'{info.metadata.name}' for info in anim_infos if info is not None]
-        # if anim_info:
-        #    desc = '\n'.join(anim_info)
-        # else:
-        #    # Lacks metadata, assume custom animation
-        #    desc = 'Custom Animation'
-        desc = 'Custom Animation'
+        desc = anim.desc()
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")

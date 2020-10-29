@@ -7,6 +7,20 @@ class AnimationBlock:
         self.start_time = start_time
         self.action_pairs = action_pairs
 
+    def desc(self):
+        # Get all relevant animation information stored in the action pair metadata
+        # anim_infos = dict.fromkeys(map(lambda action: action.metadata, anim['action_pairs']))
+        # anim_info = [f'{info.metadata.name}' for info in anim_infos if info is not None]
+        # if anim_info:
+        #    desc = '\n'.join(anim_info)
+        # else:
+        #    # Lacks metadata, assume custom animation
+        #    desc = 'Custom Animation'
+        return 'Animation ' + \
+            (f'{self.start_index + 1}' \
+                if self.start_index == self.end_index \
+                else f'{self.start_index + 1} - {self.end_index + 1}')
+
     def start_position(self):
         return self.start_time * 1000
 
