@@ -34,10 +34,16 @@ class GuiWindow(QDialog):
         super().__init__(parent)
         self.original_palette = QApplication.palette()
 
-        self.setWindowTitle("AlgoManimHelper")
+        self.setWindowTitle("AlgoManim GUI")
+
+        # ====================
+        #     Video render
+        # ====================
+
+        # ========= File options =========
 
         # Python file path field
-        pyfile_label = QLabel("Python File Relative Path:")
+        pyfile_label = QLabel("Python File:")
         self.pyfile_lineedit = QLineEdit()
         self.pyfile_lineedit.setPlaceholderText("Select a Python file")
         # Enforce file selection via dialog
@@ -62,6 +68,8 @@ class GuiWindow(QDialog):
         text_layout.addWidget(pyfile_select_button)
         text_layout.addWidget(scene_label)
         text_layout.addWidget(self.scene_combobox, stretch=1)
+
+        # ========= Quality options & action buttons =========
 
         # Quality radio buttons
         quality_label = QLabel("Video Quality:")
@@ -90,9 +98,26 @@ class GuiWindow(QDialog):
         quality_layout.addStretch(1)
         quality_layout.addWidget(render_button)
 
-        # Animation bar
+        # ========= Groupbox =========
+
+        options_layout = QVBoxLayout()
+        options_layout.addLayout(text_layout)
+        options_layout.addLayout(quality_layout)
+
+        options_groupbox = QGroupBox()
+        options_groupbox.setLayout(options_layout)
+        options_groupbox.setTitle("Render options")
+
+        # =====================
+        #     Animation bar
+        # =====================
+
         self.animation_bar = AnimationBar()
         self.animation_bar.link_gui_window(self)
+
+        # =====================
+        #       Side menu
+        # =====================
 
         # Panels for side menu
         self.customise_panel = CustomisePanel()
@@ -122,18 +147,23 @@ class GuiWindow(QDialog):
         self.tab_menu.addTab(self.change_history_panel, "Change History")
         self.tab_menu.hide()  # side menu hidden on gui initialisation
 
-        # Video player
+        # =====================
+        #      Video player
+        # =====================
+
         self.video_player = VideoPlayerWidget(position_changed_callback=
                                               self.animation_bar.media_position_changed,
                                               parent=self)
         self.animation_bar.link_video_player(video_player=self.video_player)
 
-        # Organise main window
+        # ==========================
+        #     Main window layout
+        # ==========================
+
         self.main_layout = QGridLayout()
-        self.main_layout.addLayout(text_layout, 0, 0)
-        self.main_layout.addLayout(quality_layout, 1, 0)
-        self.main_layout.addWidget(self.video_player, 2, 0)
-        self.main_layout.addWidget(self.animation_bar, 3, 0)
+        self.main_layout.addWidget(options_groupbox, 0, 0)
+        self.main_layout.addWidget(self.video_player, 1, 0)
+        self.main_layout.addWidget(self.animation_bar, 2, 0)
 
         self.main_layout.addWidget(self.menu_toggle, 0, 1, -1, -1)
         self.main_layout.addWidget(self.tab_menu, 0, 2, -1, -1)
