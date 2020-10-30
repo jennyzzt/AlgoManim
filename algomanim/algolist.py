@@ -88,7 +88,7 @@ class AlgoListNode:
             color_index=0
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=Metadata(AlgoListMetadata.HIGHLIGHT))
 
     def dehighlight(self, animated=True, w_prev=False, metadata=None):
         anim_action = self.scene.create_play_action(
@@ -105,7 +105,7 @@ class AlgoListNode:
             color_index=0
         )
 
-        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=Metadata(AlgoListMetadata.DEHIGHLIGHT))
 
     def static_swap(self, node):
         self_center = self.grp.get_center()
