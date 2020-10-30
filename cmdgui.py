@@ -87,8 +87,17 @@ class GuiWindow(QDialog):
             self.radio_btn_grp.addButton(radio_button, id=i)
 
         # Render button
-        render_button = QPushButton("Render")
-        render_button.clicked.connect(self.render_video)
+        self.render_button = QPushButton("Render")
+        self.render_button.clicked.connect(self.render_video)
+
+        # Show video in browser button
+        self.show_video_button = QPushButton("Show video in explorer")
+        self.show_video_button.clicked.connect(self.show_video_in_explorer)
+        self.show_video_button.hide()  # hide until a video is rendered
+
+        # These buttons should grow in height if more options are added later
+        self.render_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.show_video_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
         # Arrange radio buttons
         quality_layout = QHBoxLayout()
@@ -96,7 +105,8 @@ class GuiWindow(QDialog):
         for btn in radio_buttons:
             quality_layout.addWidget(btn)
         quality_layout.addStretch(1)
-        quality_layout.addWidget(render_button)
+        quality_layout.addWidget(self.show_video_button)
+        quality_layout.addWidget(self.render_button)
 
         # ========= Groupbox =========
 
@@ -192,22 +202,28 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
+    def show_video_in_explorer(self):
+        pass
+
     def toggle_sidemenu(self):
         if self.tab_menu.isHidden():
             # display menu and reverse icon
             self.tab_menu.show()
-            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_MediaSeekBackward))
         else:
             # hide menu and reverse icon
             self.tab_menu.hide()
-            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
 
     # opens side menu if it is not yet open
     def open_sidemenu(self):
         if self.tab_menu.isHidden():
             # display menu and reverse icon
             self.tab_menu.show()
-            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_MediaSeekBackward))
 
     def anim_clicked(self, anim):
         self.change_panel_anim(anim)
@@ -310,6 +326,9 @@ class GuiWindow(QDialog):
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
+
+        # Display button
+        self.show_video_button.show()
 
         # Display video
         video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
