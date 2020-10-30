@@ -4,6 +4,7 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
+from appscript import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 
@@ -94,7 +95,7 @@ class GuiWindow(QDialog):
 
         # Show video in browser button
         self.show_video_button = QPushButton("Show video in explorer")
-        self.show_video_button.clicked.connect(GuiWindow.show_video_in_explorer)
+        self.show_video_button.clicked.connect(self.show_video_in_explorer)
         self.show_video_button.hide()  # hide until a video is rendered
 
         # These buttons should grow in height if more options are added later
@@ -204,16 +205,13 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
-    @staticmethod
-    def show_video_in_explorer():
-        path = './media/algomanim/videos'
+    def show_video_in_explorer(self):
+        path = self.video_player.video_fp
         if platform.system() == "Windows":
-            os.startfile(path) # pylint: disable=E1101
-        elif platform.system() == "Darwin":
-            subprocess.Popen(["open", path])
+            subprocess.Popen(["explorer", "/select,", path])
         else:
-            subprocess.Popen(["xdg-open", path])
-
+            # MacOS or Linux
+            subprocess.Popen(["open", "-R", path])
 
     def toggle_sidemenu(self):
         if self.tab_menu.isHidden():
@@ -337,12 +335,12 @@ class GuiWindow(QDialog):
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
 
-        # Display button
-        self.show_video_button.show()
-
         # Display video
         video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
         self.video_player.open_video(video_fp=video_fp)
+
+        # Display button
+        self.show_video_button.show()
 
 
 if __name__ == '__main__':
