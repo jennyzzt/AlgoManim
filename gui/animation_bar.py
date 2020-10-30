@@ -112,6 +112,6 @@ class AnimationBar(QWidget):
             if (start_time <= position < end_time) or \
                 (start_time == position and end_time == start_time):
                 self.set_active_lbl(i)
-                self.gui_window.anim_clicked(anim)
+                self.gui_window.change_panel_anim(anim)
             else:
                 self.set_inactive_lbl(i)

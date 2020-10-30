@@ -109,10 +109,18 @@ class GuiWindow(QDialog):
         self.scene = None
         self.anims = None
 
+        # Side menu toggle button
+        self.menu_toggle = QToolButton()
+        self.menu_toggle.setIcon(self.style()
+                                 .standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
+        self.menu_toggle.setFixedSize(25, 150)
+        self.menu_toggle.clicked.connect(self.toggle_sidemenu)
+
         # Side menu
         self.tab_menu = QTabWidget(parent=self)
         self.tab_menu.addTab(self.customise_panel, "Customize")
         self.tab_menu.addTab(self.change_history_panel, "Change History")
+        self.tab_menu.hide()  # side menu hidden on gui initialisation
 
         # Video player
         self.video_player = VideoPlayerWidget(position_changed_callback=
@@ -127,7 +135,11 @@ class GuiWindow(QDialog):
         self.main_layout.addWidget(self.video_player, 2, 0)
         self.main_layout.addWidget(self.animation_bar, 3, 0)
 
-        self.main_layout.addWidget(self.tab_menu, 0, 1, -1, -1)
+        self.main_layout.addWidget(self.menu_toggle, 0, 1, -1, -1)
+        self.main_layout.addWidget(self.tab_menu, 0, 2, -1, -1)
+
+        # Set window to original size when side menu is closed
+        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
         self.setLayout(self.main_layout)
 
@@ -150,7 +162,30 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
+    def toggle_sidemenu(self):
+        if self.tab_menu.isHidden():
+            # display menu and reverse icon
+            self.tab_menu.show()
+            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
+        else:
+            # hide menu and reverse icon
+            self.tab_menu.hide()
+            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
+
+    # opens side menu if it is not yet open
+    def open_sidemenu(self):
+        if self.tab_menu.isHidden():
+            # display menu and reverse icon
+            self.tab_menu.show()
+            self.menu_toggle.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
+
     def anim_clicked(self, anim):
+        self.change_panel_anim(anim)
+        # also opens the side menu if it is not yet open
+        self.open_sidemenu()
+
+    # just updates the customisation options in the panel
+    def change_panel_anim(self, anim):
         change_vals = dict()
         for change_type in CustomisationType:
             anim_index = self.anims.index(anim)
