@@ -34,10 +34,16 @@ class GuiWindow(QDialog):
         super().__init__(parent)
         self.original_palette = QApplication.palette()
 
-        self.setWindowTitle("AlgoManimHelper")
+        self.setWindowTitle("AlgoManim GUI")
+
+        # ====================
+        #     Video render
+        # ====================
+
+        # ========= File options =========
 
         # Python file path field
-        pyfile_label = QLabel("Python File Relative Path:")
+        pyfile_label = QLabel("Python File:")
         self.pyfile_lineedit = QLineEdit()
         self.pyfile_lineedit.setPlaceholderText("Select a Python file")
         # Enforce file selection via dialog
@@ -63,6 +69,8 @@ class GuiWindow(QDialog):
         text_layout.addWidget(scene_label)
         text_layout.addWidget(self.scene_combobox, stretch=1)
 
+        # ========= Quality options & action buttons =========
+
         # Quality radio buttons
         quality_label = QLabel("Video Quality:")
 
@@ -79,8 +87,17 @@ class GuiWindow(QDialog):
             self.radio_btn_grp.addButton(radio_button, id=i)
 
         # Render button
-        render_button = QPushButton("Render")
-        render_button.clicked.connect(self.render_video)
+        self.render_button = QPushButton("Render")
+        self.render_button.clicked.connect(self.render_video)
+
+        # Show video in browser button
+        self.show_video_button = QPushButton("Show video in explorer")
+        self.show_video_button.clicked.connect(self.show_video_in_explorer)
+        self.show_video_button.hide()  # hide until a video is rendered
+
+        # These buttons should grow in height if more options are added later
+        self.render_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.show_video_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
         # Arrange radio buttons
         quality_layout = QHBoxLayout()
@@ -88,11 +105,29 @@ class GuiWindow(QDialog):
         for btn in radio_buttons:
             quality_layout.addWidget(btn)
         quality_layout.addStretch(1)
-        quality_layout.addWidget(render_button)
+        quality_layout.addWidget(self.show_video_button)
+        quality_layout.addWidget(self.render_button)
 
-        # Animation bar
+        # ========= Groupbox =========
+
+        options_layout = QVBoxLayout()
+        options_layout.addLayout(text_layout)
+        options_layout.addLayout(quality_layout)
+
+        options_groupbox = QGroupBox()
+        options_groupbox.setLayout(options_layout)
+        options_groupbox.setTitle("Render options")
+
+        # =====================
+        #     Animation bar
+        # =====================
+
         self.animation_bar = AnimationBar()
         self.animation_bar.link_gui_window(self)
+
+        # =====================
+        #       Side menu
+        # =====================
 
         # Panels for side menu
         self.customise_panel = CustomisePanel()
@@ -109,25 +144,42 @@ class GuiWindow(QDialog):
         self.scene = None
         self.anims = None
 
+        # Side menu toggle button
+        self.menu_toggle = QToolButton()
+        self.menu_toggle.setIcon(self.style()
+                                 .standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
+        self.menu_toggle.setFixedSize(25, 150)
+        self.menu_toggle.clicked.connect(self.toggle_sidemenu)
+
         # Side menu
         self.tab_menu = QTabWidget(parent=self)
         self.tab_menu.addTab(self.customise_panel, "Customize")
         self.tab_menu.addTab(self.change_history_panel, "Change History")
+        self.tab_menu.hide()  # side menu hidden on gui initialisation
 
-        # Video player
+        # =====================
+        #      Video player
+        # =====================
+
         self.video_player = VideoPlayerWidget(position_changed_callback=
                                               self.animation_bar.media_position_changed,
                                               parent=self)
         self.animation_bar.link_video_player(video_player=self.video_player)
 
-        # Organise main window
-        self.main_layout = QGridLayout()
-        self.main_layout.addLayout(text_layout, 0, 0)
-        self.main_layout.addLayout(quality_layout, 1, 0)
-        self.main_layout.addWidget(self.video_player, 2, 0)
-        self.main_layout.addWidget(self.animation_bar, 3, 0)
+        # ==========================
+        #     Main window layout
+        # ==========================
 
-        self.main_layout.addWidget(self.tab_menu, 0, 1, -1, -1)
+        self.main_layout = QGridLayout()
+        self.main_layout.addWidget(options_groupbox, 0, 0)
+        self.main_layout.addWidget(self.video_player, 1, 0)
+        self.main_layout.addWidget(self.animation_bar, 2, 0)
+
+        self.main_layout.addWidget(self.menu_toggle, 0, 1, -1, -1)
+        self.main_layout.addWidget(self.tab_menu, 0, 2, -1, -1)
+
+        # Set window to original size when side menu is closed
+        self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
         self.setLayout(self.main_layout)
 
@@ -150,7 +202,36 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
+    def show_video_in_explorer(self):
+        pass
+
+    def toggle_sidemenu(self):
+        if self.tab_menu.isHidden():
+            # display menu and reverse icon
+            self.tab_menu.show()
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_MediaSeekBackward))
+        else:
+            # hide menu and reverse icon
+            self.tab_menu.hide()
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
+
+    # opens side menu if it is not yet open
+    def open_sidemenu(self):
+        if self.tab_menu.isHidden():
+            # display menu and reverse icon
+            self.tab_menu.show()
+            self.menu_toggle.setIcon(self.style()
+                                     .standardIcon(QStyle.SP_MediaSeekBackward))
+
     def anim_clicked(self, anim):
+        self.change_panel_anim(anim)
+        # also opens the side menu if it is not yet open
+        self.open_sidemenu()
+
+    # just updates the customisation options in the panel
+    def change_panel_anim(self, anim):
         change_vals = dict()
         for change_type in CustomisationType:
             anim_index = self.anims.index(anim)
@@ -247,6 +328,9 @@ class GuiWindow(QDialog):
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
+
+        # Display button
+        self.show_video_button.show()
 
         # Display video
         video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'

@@ -5,7 +5,7 @@ from gui.video_player import VIDEO_BASE_WIDTH
 
 
 # Scrollbar base height
-BAR_BASE_HEIGHT = 150
+BAR_BASE_HEIGHT = 125
 
 
 class AnimationBar(QWidget):
@@ -73,7 +73,7 @@ class AnimationBar(QWidget):
         anim_lbl.setWordWrap(True)
 
         # Size box
-        anim_box.setFixedHeight(BAR_BASE_HEIGHT - 20)  # prevent height overflow
+        anim_box.setFixedHeight(BAR_BASE_HEIGHT - 15)  # prevent height overflow
         width = max(int(150 * anim.runtime_val()), 80)
         anim_box.setFixedWidth(width)
 
@@ -105,6 +105,6 @@ class AnimationBar(QWidget):
             if (start_position <= position < end_position) or \
                 (start_position == position and start_position == end_position):
                 self.set_active_lbl(i)
-                self.gui_window.anim_clicked(anim)
+                self.gui_window.change_panel_anim(anim)
             else:
                 self.set_inactive_lbl(i)
