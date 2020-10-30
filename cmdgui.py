@@ -4,7 +4,6 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
-from appscript import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 
