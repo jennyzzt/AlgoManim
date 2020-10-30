@@ -1,5 +1,7 @@
 import ast
 import os
+import platform
+import subprocess
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
@@ -92,7 +94,7 @@ class GuiWindow(QDialog):
 
         # Show video in browser button
         self.show_video_button = QPushButton("Show video in explorer")
-        self.show_video_button.clicked.connect(self.show_video_in_explorer)
+        self.show_video_button.clicked.connect(GuiWindow.show_video_in_explorer)
         self.show_video_button.hide()  # hide until a video is rendered
 
         # These buttons should grow in height if more options are added later
@@ -202,8 +204,16 @@ class GuiWindow(QDialog):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
-    def show_video_in_explorer(self):
-        pass
+    @staticmethod
+    def show_video_in_explorer():
+        path = './media/algomanim/videos'
+        if platform.system() == "Windows":
+            os.startfile(path) # pylint: disable=E1101
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
+        else:
+            subprocess.Popen(["xdg-open", path])
+
 
     def toggle_sidemenu(self):
         if self.tab_menu.isHidden():
