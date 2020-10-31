@@ -10,14 +10,14 @@ class AnimationBlock:
     def desc(self):
         # Get all relevant animation information stored in the action pair metadata
         desc = f'Animation {self.start_index + 1} - {self.end_index + 1}'
-        '''anim_infos = dict.fromkeys(map(lambda action: action.metadata, self.action_pairs))
-        anim_info = set(f'{info.metadata.name}' for info in anim_infos if info is not None)
+        #anim_infos = dict.fromkeys(map(lambda action: action.metadata, self.action_pairs))
+        #anim_info = set(f'{info.metadata.name}' for info in anim_infos if info is not None)
 
-        if anim_info:
-            desc = '\n'.join(anim_info)
-        else:
-            # Lacks metadata, assume custom animation
-            desc = 'Custom Animation'''
+        #if anim_info:
+        #    desc = '\n'.join(anim_info)
+        #else:
+        #    # Lacks metadata, assume custom animation
+        #    desc = 'Custom Animation'''
         return desc
 
     def start_position(self):

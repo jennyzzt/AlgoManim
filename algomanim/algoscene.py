@@ -147,7 +147,6 @@ class AlgoScene(Scene):
         if not hasattr(self, 'post_customize_fns'):
             # when rerendering, do not set this list back to []
             self.post_customize_fns = []
-        print(f'Post Customize Fns: {len(self.post_customize_fns)}')
 
         self.action_pairs = []
         self.anim_blocks = []
@@ -232,8 +231,6 @@ class AlgoScene(Scene):
                 # wait action is required at the end if last animation is not
                 # a play/wait, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
-
-        print(f'Executing Post Customize Fns: {len(self.post_customize_fns)}')
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:

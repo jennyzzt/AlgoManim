@@ -17,23 +17,23 @@ class TestAlgoList:
         AlgoList(algoscene, test_list)
         show.assert_called_once()
 
-    '''@patch("algomanim.algolist.AlgoSceneAction")
-    def test_swap_adds_two_action_pairs(self, algoscene_action):
-        algolist = AlgoList(algoscene, test_list)
-        algoscene.reset_mock()
+    #@patch("algomanim.algolist.AlgoSceneAction")
+    #def test_swap_adds_two_action_pairs(self, algoscene_action):
+    #    algolist = AlgoList(algoscene, test_list)
+    #    algoscene.reset_mock()
 
-        algolist.swap(0, 1)
-        algoscene.add_action_pair.assert_called_with(
-            algoscene.create_play_action(),
-            algoscene_action(),
-            animated=True
-        )
+    #    algolist.swap(0, 1)
+    #    algoscene.add_action_pair.assert_called_with(
+    #        algoscene.create_play_action(),
+    #        algoscene_action(),
+    #        animated=True
+    #    )
 
-        algoscene.add_action_pair.assert_called_with(
-            algoscene.create_play_action(),
-            algoscene_action(),
-            animated=True
-        )'''
+    #    algoscene.add_action_pair.assert_called_with(
+    #        algoscene.create_play_action(),
+    #        algoscene_action(),
+    #        animated=True
+    #    )
 
     @patch("algomanim.algolist.AlgoListNode.show")
     @patch("algomanim.algolist.AlgoListNode.set_right_of")
@@ -73,19 +73,19 @@ class TestAlgoList:
         assert sublist.len() == algolist.len()
         highlight.assert_called_once()
 
-    '''@patch("algomanim.algolist.AlgoSceneAction")
-    def test_concat_two_lists_together(self, algoscene_action):
-        algolist1 = AlgoList(algoscene, test_list)
-        algolist1_prevlen = algolist1.len()
-        algolist2 = AlgoList(algoscene, test_list)
-        algoscene.reset_mock()
-        algolist1.concat(algolist2)
-        assert algolist1.len() == algolist2.len() + algolist1_prevlen
-        algoscene.add_action_pair.assert_called_once_with(
-            algoscene.create_play_action(),
-            algoscene_action(),
-            animated=True
-        )
+    #@patch("algomanim.algolist.AlgoSceneAction")
+    #def test_concat_two_lists_together(self, algoscene_action):
+    #    algolist1 = AlgoList(algoscene, test_list)
+    #    algolist1_prevlen = algolist1.len()
+    #    algolist2 = AlgoList(algoscene, test_list)
+    #    algoscene.reset_mock()
+    #    algolist1.concat(algolist2)
+    #    assert algolist1.len() == algolist2.len() + algolist1_prevlen
+    #    algoscene.add_action_pair.assert_called_once_with(
+    #        algoscene.create_play_action(),
+    #        algoscene_action(),
+    #        animated=True
+    #    )
 
     def test_find_action_pairs_2nd_compare(self):
         test_algoscene = AlgoScene()
@@ -153,4 +153,4 @@ class TestAlgoList:
                                                   AlgoListMetadata.COMPARE,
                                                   AlgoListMetadata.SWAP)
 
-        assert len(action_pairs) == 0'''
+        assert len(action_pairs) == 0
