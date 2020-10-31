@@ -30,10 +30,8 @@ class ShortBubbleSortScene(AlgoScene):
     def customize(self, action_pairs):
         # demonstrating the allowed edits that can be made for animations
 
-        # 1) color of highlight is changed for first iteration of algorithm
-        highlight_indices = AlgoList.find_index(action_pairs, AlgoListMetadata.COMPARE, 2)
-        for index in highlight_indices:
-            action_pairs[index].set_color(GREEN) # pylint: disable=E0602
+        # 1) find the animations for your different functions
+        print(AlgoList.find_action_pairs(self, 2, AlgoListMetadata.COMPARE, AlgoListMetadata.SWAP))
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)

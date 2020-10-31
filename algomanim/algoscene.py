@@ -78,7 +78,7 @@ class AlgoSceneAction:
         return []
 
 class AlgoSceneActionPair:
-    def __init__(self, anim_action, static_action=None, run_time=None, metadata=None):
+    def __init__(self, anim_action, static_action=None, run_time=None):
         '''
         encodes a pair of AlgoSceneActions
         if run_time is None, anim_action is run
@@ -88,7 +88,6 @@ class AlgoSceneActionPair:
         self.anim_action = anim_action
         self.static_action = static_action if static_action is not None else anim_action
         self.run_time = run_time
-        self.metadata = metadata
 
     def can_set_runtime(self):
         return self.anim_action.can_set_runtime
@@ -148,9 +147,11 @@ class AlgoScene(Scene):
         if not hasattr(self, 'post_customize_fns'):
             # when rerendering, do not set this list back to []
             self.post_customize_fns = []
+        print(f'Post Customize Fns: {len(self.post_customize_fns)}')
 
         self.action_pairs = []
         self.anim_blocks = []
+        self.meta_trees = []
 
         Scene.__init__(self, **kwargs)
 
@@ -175,11 +176,14 @@ class AlgoScene(Scene):
             w_prev=w_prev, can_set_runtime=True
         )
 
-    def add_action_pair(self, anim_action, static_action, animated=True, metadata=None):
-        self.action_pairs.append(
-            AlgoSceneActionPair(anim_action, static_action,
-            run_time=None if animated else 0, metadata=metadata)
-        )
+    def add_action_pair(self, anim_action, static_action, animated=True):
+        pair = AlgoSceneActionPair(anim_action, static_action,
+                                   run_time=None if animated else 0)
+        self.action_pairs.append(pair)
+        return pair
+
+    def add_metadata(self, metadata):
+        self.meta_trees.append(metadata)
 
     def skip(self, start, end=None):
         if end is None:
@@ -228,6 +232,8 @@ class AlgoScene(Scene):
                 # wait action is required at the end if last animation is not
                 # a play/wait, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
+
+        print(f'Executing Post Customize Fns: {len(self.post_customize_fns)}')
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:

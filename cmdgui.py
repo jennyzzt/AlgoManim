@@ -268,8 +268,9 @@ class GuiWindow(QDialog):
         self.change_history_panel.reset()
 
     def apply_changes(self):
+        curr_changes = self.changes.copy()
         def post_customize(action_pairs):
-            for (anim_index, change_type), anim_change  in self.changes.items():
+            for (anim_index, change_type), anim_change in curr_changes.items():
                 anim = self.anims[anim_index]
                 for i in range(anim.start_index, anim.end_index + 1):
                     action_pair = action_pairs[i]
