@@ -52,18 +52,46 @@ class AlgoTreeNode(AlgoNode):
     def insert(self, val, animated=True):
         curr_node = self
         meta = Metadata(AlgoListMetadata.APPEND)
-        if val < self.val:
+        if val < curr_node.val:
             if curr_node.left is None:
-                new_node = AlgoTreeNode(self.scene, val)
+                new_node = AlgoTreeNode(curr_node.scene, val)
                 curr_node.put_left(new_node)
                 new_node.show(meta, animated)
                 return
             curr_node = curr_node.left
         else:
             if curr_node.right is None:
-                new_node = AlgoTreeNode(self.scene, val)
+                new_node = AlgoTreeNode(curr_node.scene, val)
                 curr_node.put_right(new_node)
                 new_node.show(meta, animated)
                 return
             curr_node = curr_node.right
         curr_node.insert(val, animated)
+
+    # Returns the minimum value node in the tree
+    def min_val_node(self):
+        curr_node = self
+        while curr_node.left:
+            curr_node = curr_node.left
+        return curr_node
+
+    def remove(self, val, animated=True):
+        if val < self.val:
+            self.put_left(self.left.remove(val, animated))
+        elif val > self.val:
+            self.put_right(self.right.remove(val, animated))
+        else:
+            # found node with val to be deleted
+            meta = Metadata(AlgoListMetadata.APPEND)
+            if self.left is None:
+                self.hide(meta, animated)
+                return self.right
+            if self.right is None:
+                self.hide(meta, animated)
+                return self.left
+            # node with two children, get the inorder successor
+            temp = self.right.min_val_node()
+            self.val = temp.val
+            # delete the inorder successor
+            self.right = self.right.remove(temp.val, animated)
+        return self
