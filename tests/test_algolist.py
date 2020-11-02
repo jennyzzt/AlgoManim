@@ -1,7 +1,8 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algolist import AlgoList, AlgoListMetadata
+from algomanim.algolist import AlgoList
 from algomanim.algoscene import AlgoScene
+from algomanim.metadata import AlgoListMetadata
 from algomanim.settings import DEFAULT_SETTINGS
 
 test_list = [1, 2, 3]
@@ -35,8 +36,8 @@ class TestAlgoList:
     #        animated=True
     #    )
 
-    @patch("algomanim.algolist.AlgoListNode.show")
-    @patch("algomanim.algolist.AlgoListNode.set_right_of")
+    @patch("algomanim.algonode.AlgoNode.show")
+    @patch("algomanim.algonode.AlgoNode.set_right_of")
     def test_append_to_right_of_list(self, show, set_right_of):
         algolist = AlgoList(algoscene, test_list)
         show.reset_mock()
@@ -48,7 +49,7 @@ class TestAlgoList:
         show.assert_called_once()
         set_right_of.assert_called_once()
 
-    @patch("algomanim.algolist.AlgoListNode.hide")
+    @patch("algomanim.algonode.AlgoNode.hide")
     def test_pop_last_element_when_no_given_index(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()
@@ -57,7 +58,7 @@ class TestAlgoList:
         assert old_length - 1 == new_length
         hide.assert_called_once()
 
-    @patch("algomanim.algolist.AlgoListNode.hide")
+    @patch("algomanim.algonode.AlgoNode.hide")
     def test_pop_invalid_index_does_nothing(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()

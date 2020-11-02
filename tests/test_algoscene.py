@@ -53,10 +53,10 @@ class TestAlgoScene:
         clear.assert_called_once_with()
 
 
-@patch("algomanim.algolist.VGroup", Mock())
-@patch("algomanim.algolist.TextMobject", Mock())
+@patch("algomanim.algonode.VGroup", Mock())
+@patch("algomanim.algonode.TextMobject", Mock())
 class TestAlgoScenePreconfig:
-    @patch("algomanim.algolist.Square")
+    @patch("algomanim.algonode.Square")
     def test_change_node_color(self, square):
         algoscene = AlgoSceneNodeColorHex()
         square.assert_any_call(
@@ -65,7 +65,7 @@ class TestAlgoScenePreconfig:
             side_length=DEFAULT_SETTINGS['node_size']
         )
 
-    @patch("algomanim.algolist.Circle")
+    @patch("algomanim.algonode.Circle")
     def test_change_node_shape(self, circle):
         AlgoSceneNodeCircle()
         circle.assert_any_call(
