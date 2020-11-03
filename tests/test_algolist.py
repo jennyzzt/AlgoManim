@@ -11,7 +11,8 @@ algoscene.settings = DEFAULT_SETTINGS
 
 
 @patch("algomanim.algolist.VGroup", Mock())
-@patch("algomanim.algolist.TextMobject", Mock())
+@patch("algomanim.algonode.VGroup", Mock())
+@patch("algomanim.algonode.TextMobject", Mock())
 class TestAlgoList:
     @patch("algomanim.algolist.AlgoList.show")
     def test_constructor_calls_show(self, show):
@@ -36,8 +37,13 @@ class TestAlgoList:
     #        animated=True
     #    )
 
+<<<<<<< HEAD
     @patch("algomanim.algolist.AlgoNode.show")
     @patch("algomanim.algolist.AlgoNode.set_right_of")
+=======
+    @patch("algomanim.algonode.AlgoNode.show")
+    @patch("algomanim.algonode.AlgoNode.set_right_of")
+>>>>>>> 0beaf9a5b6214a0ed7e7dd5a139078c3e1e0f4d8
     def test_append_to_right_of_list(self, show, set_right_of):
         algolist = AlgoList(algoscene, test_list)
         show.reset_mock()
@@ -49,7 +55,11 @@ class TestAlgoList:
         show.assert_called_once()
         set_right_of.assert_called_once()
 
+<<<<<<< HEAD
     @patch("algomanim.algolist.AlgoNode.hide")
+=======
+    @patch("algomanim.algonode.AlgoNode.hide")
+>>>>>>> 0beaf9a5b6214a0ed7e7dd5a139078c3e1e0f4d8
     def test_pop_last_element_when_no_given_index(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()
@@ -58,7 +68,11 @@ class TestAlgoList:
         assert old_length - 1 == new_length
         hide.assert_called_once()
 
+<<<<<<< HEAD
     @patch("algomanim.algolist.AlgoNode.hide")
+=======
+    @patch("algomanim.algonode.AlgoNode.hide")
+>>>>>>> 0beaf9a5b6214a0ed7e7dd5a139078c3e1e0f4d8
     def test_pop_invalid_index_does_nothing(self, hide):
         algolist = AlgoList(algoscene, test_list)
         old_length = algolist.len()
