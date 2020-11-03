@@ -2,6 +2,7 @@
 from collections import Counter
 from enum import Enum, auto
 
+
 class Metadata:
     counter = Counter()
 
@@ -28,6 +29,7 @@ class Metadata:
             strings.append(str(i) + ', ')
 
         return ''.join(strings)
+
 
 class LowerMetadata:
 
@@ -57,3 +59,6 @@ class AlgoListMetadata(Enum):
     SLICE = auto()
     CONCAT = auto()
     SET_RIGHT_OF = auto()
+
+    # default for things we don't need to explictly track
+    TEMP = auto()
