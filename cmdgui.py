@@ -14,6 +14,7 @@ from gui.animation_bar import AnimationBar
 from gui.panels.customisation_type import CustomisationType
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
+from gui.panels.preconfig_panel import PreconfigPanel
 from anim_change import AnimChange
 
 WORKING_DIR = Path().absolute()
@@ -138,6 +139,9 @@ class GuiWindow(QDialog):
         self.change_history_panel = ChangeHistoryPanel()
         self.change_history_panel.link_gui_window(self)
 
+        self.preconfig_panel = PreconfigPanel()
+        self.preconfig_panel.link_gui_window(self)
+
         # Keep track of animation changes to be applied
         self.changes = dict()
 
@@ -157,6 +161,7 @@ class GuiWindow(QDialog):
         self.tab_menu = QTabWidget(parent=self)
         self.tab_menu.addTab(self.customise_panel, "Customize")
         self.tab_menu.addTab(self.change_history_panel, "Change History")
+        self.tab_menu.addTab(self.preconfig_panel, "Preconfig")
         self.tab_menu.hide()  # side menu hidden on gui initialisation
 
         # =====================
@@ -336,6 +341,9 @@ class GuiWindow(QDialog):
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
+
+        # Add preconfig settings to panel
+        self.preconfig_panel.load_settings(self.scene.settings)
 
         # Display video
         video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'

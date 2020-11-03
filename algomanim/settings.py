@@ -1,12 +1,6 @@
 # pylint: disable=E0602
-from enum import Enum, auto
 from manimlib.imports import *
-
-class Shape(Enum):
-    SQUARE = auto()
-    CIRCLE = auto()
-    SQUIRCLE = auto()
-
+from algomanim.shape import Shape
 
 DEFAULT_SETTINGS = {
     'font_color': BLACK,

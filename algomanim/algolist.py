@@ -3,6 +3,125 @@ from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata, AlgoListMetadata
+from algomanim.shape import Shape
+
+class AlgoListMetadata(Enum):
+    SWAP = auto()
+    COMPARE = auto()
+    CENTER = auto()
+    SHOW = auto()
+    HIDE = auto()
+    HIGHLIGHT = auto()
+    DEHIGHLIGHT = auto()
+    GET_VAL = auto()
+    APPEND = auto()
+    POP = auto()
+    SLICE = auto()
+    CONCAT = auto()
+
+class Metadata:
+    global_uid = 0
+    def __init__(self, metadata):
+        self.metadata = metadata
+        self.uid = Metadata.global_uid
+        Metadata.global_uid += 1
+
+class AlgoListNode:
+    def __init__(self, scene, val):
+        self.scene = scene
+        self.node_color = scene.settings['node_color']
+        self.highlight_color = scene.settings['highlight_color']
+        self.node_length = scene.settings['node_size']
+        self.node = {
+            Shape.CIRCLE: Circle(
+                color=self.node_color,
+                fill_opacity=1,
+                radius=self.node_length / 2,
+            ),
+            Shape.SQUARE: Square(
+                fill_color=self.node_color,
+                fill_opacity=1,
+                side_length=self.node_length
+            ),
+            Shape.SQUIRCLE: RoundedRectangle(
+                height=self.node_length,
+                width=self.node_length,
+                fill_color=self.node_color,
+                fill_opacity=1
+            )
+        }[scene.settings['node_shape']]
+        self.val = val
+        self.txt = TextMobject(str(val))
+        self.txt.set_color(scene.settings['font_color'])
+
+        self.grp = VGroup(self.node, self.txt)
+
+    def set_right_of(self, node, metadata=None):
+        action = AlgoSceneAction(self.grp.next_to, AlgoTransform([node.grp, RIGHT]))
+        self.scene.add_action_pair(action, action, animated=False, metadata=metadata)
+
+    def show(self, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(self.scene.add, AlgoTransform([self.grp]), w_prev=w_prev)
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+
+    def hide(self, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.grp], transform=FadeOut),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(self.scene.remove,
+            AlgoTransform([self.grp]), w_prev=w_prev)
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+
+    def highlight(self, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.node.set_fill, self.highlight_color],
+                          transform=ApplyMethod, color_index=1),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(
+            self.node.set_fill,
+            AlgoTransform([self.highlight_color], color_index=0)
+        )
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+
+    def dehighlight(self, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [self.node.set_fill, self.node_color],
+                transform=ApplyMethod,
+                color_index=1
+            ),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(
+            self.node.set_fill,
+            AlgoTransform([self.node_color], color_index=0)
+        )
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
+
+    def static_swap(self, node):
+        self_center = self.grp.get_center()
+        node_center = node.grp.get_center()
+        self.grp.move_to(node_center)
+        node.grp.move_to(self_center)
+
+    def swap_with(self, node, animated=True, w_prev=False, metadata=None):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
+            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction(self.static_swap, AlgoTransform([node]))
+
+        self.scene.add_action_pair(anim_action, static_action, animated=animated, metadata=metadata)
 
 class AlgoList:
     def __init__(self, scene, arr):
