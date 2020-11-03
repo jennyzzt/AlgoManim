@@ -1,7 +1,7 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata, AlgoListMetadata
-from algomanim.settings import Shape
+from algomanim.shape import Shape
 
 class AlgoNode:
     def __init__(self, scene, val):
