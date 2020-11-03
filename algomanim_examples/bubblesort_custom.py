@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algolist import AlgoList
+from algomanim.algolist import AlgoList, AlgoListMetadata
 from algomanim.settings import Shape
 
 class CustomBubbleSortScene(AlgoScene):
@@ -15,15 +15,6 @@ class CustomBubbleSortScene(AlgoScene):
                     swaps_made = True
                     algolist.swap(i, j)
 
-    def custom_fade_out_transform(self):
-        self.save_mobjects = self.mobjects
-        return list(map(FadeOut, self.save_mobjects))
-
-    def custom_fade_in_transform(self):
-        result = list(map(FadeIn, self.save_mobjects))
-        self.save_mobjects = []
-        return result
-
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
         settings['node_size'] = 2.5
@@ -33,21 +24,30 @@ class CustomBubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
-        highlight_indices = [15, 16]
-        for index in highlight_indices:
-            # pink
-            action_pairs[index].set_color('#ff6666') # pylint: disable=E0602
+        highlight_pairs = AlgoList.find_action_pairs(
+            self,
+            1,
+            AlgoListMetadata.COMPARE,
+            AlgoListMetadata.HIGHLIGHT)
+
+        for action_pair in highlight_pairs:
+            action_pair.set_color('#ff6666') # pylint: disable=E0602
 
         # 2) all animations are fast forwarded (2x speed)
-        self.fast_forward(0, 75)
+        compare_pair = AlgoList.find_action_pairs(
+            self,
+            10,
+            AlgoListMetadata.COMPARE)[0]
+        compare_index = action_pairs.index(compare_pair)
+        self.fast_forward(0, compare_index - 1)
 
-        # 3) insert a wait between iterations
-        self.add_wait(45)
+        # 3) Add Custom Transforms into the list to be executed in runtime
+        self.add_fade_out_all(compare_index)
 
-        # 4) Add Custom Transforms into the list to be executed in runtime
-        self.add_transform(76, self.custom_fade_out_transform)
+        # 4) insert a wait between iterations
+        self.add_wait(compare_index + 1)
 
         # 5) skip remaining animations from third iteration till the end
-        self.skip(77)
+        self.skip(compare_index + 2)
 
-        self.add_transform(len(action_pairs), self.custom_fade_in_transform)
+        self.add_fade_in_all(len(action_pairs))

@@ -18,6 +18,9 @@ class Metadata:
     def get_all_action_pairs(self):
         return list(map(lambda lower: lower.action_pair, self.children))
 
+    def desc(self):
+        return f'{self.metadata.name}\n{self.fid}'
+
     def __str__(self):
         return f'Metadata(meta={self.metadata}, fid={self.fid}' + \
                                     f', children=[{self.__print_children()}])'
@@ -57,3 +60,7 @@ class AlgoListMetadata(Enum):
     SLICE = auto()
     CONCAT = auto()
     SET_RIGHT_OF = auto()
+    WAIT = auto()
+    CUSTOM = auto()
+    FADE_OUT = auto()
+    FADE_IN = auto()

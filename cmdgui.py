@@ -302,7 +302,7 @@ class GuiWindow(QDialog):
 
         if rerender:
             self.scene.rerender()
-            self.anims = self.scene.anim_blocks
+            self.anims = self.scene.metadata_blocks
         else:
             # Retrieve render parameters
             pyfile_relpath = self.pyfile_lineedit.text()
@@ -332,7 +332,7 @@ class GuiWindow(QDialog):
 
             # Render video programmatically
             self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality)
-            self.anims = self.scene.anim_blocks
+            self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
