@@ -27,7 +27,19 @@ class AlgoTreeNode(AlgoNode):
         self.x = -1
         self.y = depth
 
-    # ----- Positioning Helper Functions ----- #
+        # for visualisation
+        self.line = Line(ORIGIN, ORIGIN)
+
+
+    def static_set_line_with(self, parent):
+        self.line.set_start_and_end_attrs(self.grp, parent.grp)
+
+    # Set the line connecting the node to its parent
+    def set_line_with(self, parent):
+        action = AlgoSceneAction.create_static_action(self.static_set_line_with, [parent])
+        self.scene.add_action_pair(action, action, animated=False)
+
+    # ----- Visualization Positioning Helper Functions ----- #
 
     # Calculate the relative x, y coords of the nodes
     # (knuth algorithm)
@@ -45,23 +57,27 @@ class AlgoTreeNode(AlgoNode):
         return i
 
     # Fit the node's position to its x, y fields relative to the root
-    def fit_layout(self, root):
-        x_diff = self.x - root.x
-        y_diff = self.y - root.y
-        relative_vector = (RIGHT*x_diff+DOWN*y_diff)*self.node_length
-        self.set_relative_of(root, relative_vector)
+    def fit_layout(self, parent=None):
+        if parent is not None:
+            x_diff = self.x - parent.x
+            y_diff = self.y - parent.y
+            relative_vector = (RIGHT*x_diff+DOWN*y_diff)*self.node_length
+            # set node position
+            self.set_relative_of(parent, relative_vector)
+            # set node's line position
+            self.set_line_with(parent)
         if self.left:
-            self.left.fit_layout(root)
+            self.left.fit_layout(self)
         if self.right:
-            self.right.fit_layout(root)
+            self.right.fit_layout(self)
 
     # Recalculate and fit nodes to layout
     def adjust_layout(self):
         self.calc_layout()
-        self.fit_layout(self)
+        self.fit_layout()
         self.group()
 
-    # --------------------------------------- #
+    # ---------------------------------------------------- #
 
     # Get a list of all tree nodes with this node as the root
     def get_all_nodes(self):
@@ -98,6 +114,22 @@ class AlgoTreeNode(AlgoNode):
         if metadata is None:
             self.scene.add_metadata(curr_metadata)
 
+    # Show only the line connecting this node to the parent
+    def show_line(self, metadata, animated=True, w_prev=False):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.line], transform=FadeIn), w_prev=w_prev
+        )
+        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
+        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        if metadata:
+            pass
+
+    # Show both the node and the line connecting it
+    def show(self, metadata, animated=True, w_prev=False):
+        self.show_line(metadata, animated, w_prev)
+        super().show(metadata, animated, w_prev)
+
+    # Show entire tree with this node as the root
     def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
         meta = Metadata(AlgoListMetadata.SHOW)
         if order == TreeTraversalType.PREORDER:
@@ -111,6 +143,7 @@ class AlgoTreeNode(AlgoNode):
         if order == TreeTraversalType.POSTORDER:
             self.show(meta, animated)
 
+    # Hide entire tree with this node as the root
     def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
         meta = Metadata(AlgoListMetadata.HIDE)
         if order == TreeTraversalType.PREORDER:
@@ -126,19 +159,22 @@ class AlgoTreeNode(AlgoNode):
 
     def insert(self, val, animated=True):
         curr_node = self
+        # If value is less than curr_node, insert to the left
         if val < curr_node.val:
             if curr_node.left is None:
                 new_node = AlgoTreeNode(curr_node.scene, val)
                 curr_node.left = new_node
                 return
             curr_node = curr_node.left
+        # Else insert to the right
         else:
             if curr_node.right is None:
                 new_node = AlgoTreeNode(curr_node.scene, val)
                 curr_node.right = new_node
                 return
             curr_node = curr_node.right
-            curr_node.insert(val, animated)
+        # curr_node is filled, try next one
+        curr_node.insert(val, animated)
 
     # Returns the minimum value node in the tree
     def min_val_node(self):

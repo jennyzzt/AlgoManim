@@ -49,10 +49,9 @@ class AlgoNode:
 
     # Set this node a a position relative to the node by given vector
     def set_relative_of(self, node, vector, metadata=None):
-        static_action = AlgoSceneAction.create_static_action(self.static_set_relative_of,
+        action = AlgoSceneAction.create_static_action(self.static_set_relative_of,
                                                              [node, vector])
-        anim_action = static_action
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
+        action_pair = self.scene.add_action_pair(action, action, animated=False)
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
