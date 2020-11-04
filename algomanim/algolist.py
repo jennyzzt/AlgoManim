@@ -34,14 +34,13 @@ class AlgoList:
 
         self.scene.add_metadata(metadata)
 
-    # Returns true if list[i] < list[j]
-    def compare(self, i, j, animated=True):
+    def compare(self, i, j, animated=True, highlights=True):
         meta = Metadata(AlgoListMetadata.COMPARE)
-        self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
-        self.highlight(i, j, animated=animated, metadata=meta)
+        if highlights:
+            self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
+            self.highlight(i, j, animated=animated, metadata=meta)
 
         self.scene.add_metadata(meta)
-
         return self.get_val(i, metadata=meta) < self.get_val(j, metadata=meta)
 
     # Restores the internal VGroup of list nodes
