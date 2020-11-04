@@ -228,7 +228,7 @@ class AlgoList:
                 transform=ApplyMethod
             )
         )
-        action = AlgoSceneAction(sublist.grp.align_to, *[self.nodes[start].grp, LEFT])
+        action = AlgoSceneAction(sublist.grp.align_to, AlgoTransform([self.nodes[start].grp, LEFT]))
         action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
 
         # Create LowerMetaData
