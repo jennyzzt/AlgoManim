@@ -2,13 +2,13 @@
 from collections import Counter
 from enum import Enum, auto
 
+
 class Metadata:
     counter = Counter()
 
     def __init__(self, metadata):
         self.metadata = metadata
         Metadata.counter[metadata] += 1
-
         self.fid = Metadata.counter[metadata]
         self.children = []
 
@@ -20,14 +20,14 @@ class Metadata:
 
     def __str__(self):
         return f'Metadata(meta={self.metadata}, fid={self.fid}' + \
-                                    f', children=[{self.__print_children()}])'
+            f', children=[{self.__print_children()}])'
 
     def __print_children(self):
         strings = []
         for i in self.children:
             strings.append(str(i) + ', ')
-
         return ''.join(strings)
+
 
 class LowerMetadata:
 
@@ -40,7 +40,7 @@ class LowerMetadata:
 
     def __str__(self):
         return f'LowerMetadata(meta={self.metadata}, val={self.val}' + \
-                                        f', action_pair={self.action_pair})'
+            f', action_pair={self.action_pair})'
 
 
 class AlgoListMetadata(Enum):
@@ -57,3 +57,6 @@ class AlgoListMetadata(Enum):
     SLICE = auto()
     CONCAT = auto()
     SET_RIGHT_OF = auto()
+
+    # default for things we don't need to explictly track
+    TEMP = auto()
