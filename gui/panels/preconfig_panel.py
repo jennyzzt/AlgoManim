@@ -70,5 +70,5 @@ class PreconfigPanel(BaseChangesPanel):
 
     def save_changes(self):
         for label in self.change_widgets:
-            (_, change_widget) = self.change_widgets[label]
-            # self.gui_window.add_change(self.change_type, change_widget.get_value())
+            change_widget = self.change_widgets[label]
+            self.gui_window.set_settings(label, change_widget.get_value())

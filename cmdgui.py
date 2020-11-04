@@ -285,6 +285,10 @@ class GuiWindow(QDialog):
         # Do the rendering here
         self.reset_changes()
 
+    def set_settings(self, label, value):
+        # Catch cases that route to custom_renderer
+        self.scene.settings[label] = value
+
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod
     def get_scene_names(python_fp):
@@ -312,6 +316,8 @@ class GuiWindow(QDialog):
             # Retrieve render parameters
             pyfile_relpath = self.pyfile_lineedit.text()
             self.scene_name = self.scene_combobox.currentText()
+            background_color = self.scene.settings['background_color'] \
+                if self.scene else None
             video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
             # Check that the python file exists
@@ -336,7 +342,8 @@ class GuiWindow(QDialog):
                 return
 
             # Render video programmatically
-            self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality)
+            self.scene = custom_renderer(pyfile_relpath, self.scene_name,
+                                        video_quality, background_color)
             self.anims = self.scene.anim_blocks
 
         # Add animation boxes to scrollbar
