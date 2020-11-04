@@ -18,6 +18,7 @@ ignore=
     .idea,
     .pylintrc,
     .coverage,
-    .pytest_cache
+    .pytest_cache,
+    frame_layout.py
 [DESIGN]
 max-attributes=12

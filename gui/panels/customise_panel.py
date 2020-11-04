@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
 
-from .customisation_type import CustomisationType
 from .widgets.frame_layout import FrameLayout
 
 # pylint: disable=too-few-public-methods
@@ -65,7 +64,7 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_layout = QVBoxLayout()
         self.menu_frame.setLayout(self.menu_layout)
 
-    def set_animation(self, anim):
+    def set_animation(self, anim): # pylint: disable=too-many-locals
         self.reset_frame(title = anim.desc())
 
         change_possible = False

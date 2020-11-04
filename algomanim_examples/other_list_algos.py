@@ -2,7 +2,7 @@ from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 from algomanim.settings import Shape
-from algomanim.metadata import LowerMetadata, AlgoListMetadata
+from algomanim.metadata import AlgoListMetadata
 
 class FindMaxScene(AlgoScene):
     def algoconstruct(self):
@@ -27,22 +27,22 @@ class BinarySearchScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, list(range(0, 31, 3)))
         val = 27
-        mid = 0
+        mid_pt = 0
         first = 0
         last = algolist.len()-1
         index = -1
 
         while (first <= last) and (index == -1):
-            algolist.dehighlight(mid)
-            mid = (first+last)//2
-            algolist.highlight(mid)
-            if algolist.get_val(mid) == val:
-                index = mid
+            algolist.dehighlight(mid_pt)
+            mid_pt = (first+last)//2
+            algolist.highlight(mid_pt)
+            if algolist.get_val(mid_pt) == val:
+                index = mid_pt
             else:
-                if val < algolist.get_val(mid):
-                    last = mid -1
+                if val < algolist.get_val(mid_pt):
+                    last = mid_pt -1
                 else:
-                    first = mid +1
+                    first = mid_pt +1
 
         print(index)
 
