@@ -3,7 +3,6 @@ from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata, AlgoListMetadata
-from copy import deepcopy
 
 
 class AlgoList:
