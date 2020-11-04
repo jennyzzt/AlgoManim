@@ -2,6 +2,8 @@
 from enum import Enum, auto
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
+from algomanim.algoscene import AlgoTransform, AlgoSceneAction
+from algomanim.metadata import LowerMetadata
 from algomanim.metadata import Metadata, AlgoListMetadata
 
 class TreeTraversalType(Enum):
@@ -15,6 +17,8 @@ class AlgoTreeNode(AlgoNode):
         self.left = None
         self.right = None
 
+        self.treegrp = None
+
         # features used for positioning
         self.x = -1
         self.y = depth
@@ -24,13 +28,16 @@ class AlgoTreeNode(AlgoNode):
     # Calculate the relative x, y coords of the nodes
     # (knuth algorithm)
     def calc_layout(self, depth=0, i=0):
+        # Assign x and y coords to left children nodes
         if self.left:
             i = self.left.calc_layout(depth+1, i)
-            self.x = i
-            self.y = depth
-            i += 1
+        # Assign x and y coords to this node
+        self.x = i
+        self.y = depth
+        i += 1
+        # Assign x and y coords to right children nodes
         if self.right:
-            self.right.calc_layout(depth+1, i)
+            i = self.right.calc_layout(depth+1, i)
         return i
 
     # Fit the node's position to its x, y fields relative to the root
@@ -48,11 +55,46 @@ class AlgoTreeNode(AlgoNode):
     def adjust_layout(self):
         self.calc_layout()
         self.fit_layout(self)
+        self.group()
 
     # --------------------------------------- #
 
+    # Get a list of all tree nodes with this node as the root
+    def get_all_nodes(self):
+        nodes = []
+        nodes.append(self)
+        if self.left:
+            nodes += self.left.get_all_nodes()
+        if self.right:
+            nodes += self.right.get_all_nodes()
+        return nodes
+
+    # Group all tree nodes together
+    def group(self):
+        nodes = self.get_all_nodes()
+        self.treegrp = VGroup(*[n.grp for n in nodes])
+
+    # Center the tree on screen
+    def center(self, animated=True, metadata=None):
+        curr_metadata = metadata if metadata else Metadata(AlgoListMetadata.CENTER)
+
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.treegrp.center], transform=ApplyMethod)
+        )
+        static_action = AlgoSceneAction.create_static_action(self.treegrp.center)
+
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(curr_metadata)
+
     def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
-        self.adjust_layout()
         meta = Metadata(AlgoListMetadata.SHOW)
         if order == TreeTraversalType.PREORDER:
             self.show(meta, animated)
