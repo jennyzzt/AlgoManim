@@ -28,11 +28,14 @@ class AlgoTreeNode(AlgoNode):
         self.y = depth
 
         # for visualisation
-        self.line = Line(ORIGIN, ORIGIN)
+        #self.line = Line(ORIGIN, ORIGIN, stroke_width=10, color=WHITE)
+        self.line = None
 
 
     def static_set_line_with(self, parent):
-        self.line.set_start_and_end_attrs(self.grp, parent.grp)
+        #self.line.set_start_and_end_attrs(self.grp, parent.grp)
+        self.line = Line(self.grp.get_center(), parent.grp.get_center(),
+                         stroke_width=10, color=BLUE)
 
     # Set the line connecting the node to its parent
     def set_line_with(self, parent):
@@ -75,8 +78,7 @@ class AlgoTreeNode(AlgoNode):
     def adjust_layout(self):
         self.calc_layout()
         self.fit_layout()
-        self.group()
-
+        self.treegroup()
     # ---------------------------------------------------- #
 
     # Get a list of all tree nodes with this node as the root
@@ -89,8 +91,8 @@ class AlgoTreeNode(AlgoNode):
             nodes += self.right.get_all_nodes()
         return nodes
 
-    # Group all tree nodes together
-    def group(self):
+    # Treegroup all tree nodes together
+    def treegroup(self):
         nodes = self.get_all_nodes()
         self.treegrp = VGroup(*[n.grp for n in nodes])
 
@@ -114,8 +116,12 @@ class AlgoTreeNode(AlgoNode):
         if metadata is None:
             self.scene.add_metadata(curr_metadata)
 
+    # ------------- Show Helper Functions ------------- #
+
     # Show only the line connecting this node to the parent
     def show_line(self, metadata, animated=True, w_prev=False):
+        if self.line is None:
+            return
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.line], transform=FadeIn), w_prev=w_prev
         )
@@ -129,19 +135,25 @@ class AlgoTreeNode(AlgoNode):
         self.show_line(metadata, animated, w_prev)
         super().show(metadata, animated, w_prev)
 
-    # Show entire tree with this node as the root
-    def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
+    # Recursely show entire tree with this node as the root
+    def recurse_show_tree(self, order, animated=True):
         meta = Metadata(AlgoListMetadata.SHOW)
         if order == TreeTraversalType.PREORDER:
             self.show(meta, animated)
         if self.left:
-            self.left.show_tree(order, animated)
+            self.left.recurse_show_tree(order, animated)
         if order == TreeTraversalType.INORDER:
             self.show(meta, animated)
         if self.right:
-            self.right.show_tree(order, animated)
+            self.right.recurse_show_tree(order, animated)
         if order == TreeTraversalType.POSTORDER:
             self.show(meta, animated)
+    # ---------------------------------------------------- #
+
+    # Adjust tree structure and show
+    def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
+        self.adjust_layout()
+        self.recurse_show_tree(order, animated)
 
     # Hide entire tree with this node as the root
     def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
