@@ -172,9 +172,8 @@ class AlgoList(AlgoObject):
 
         self.scene.add_metadata(meta)
 
-    # metadata works but animation needs to be fixed
-    # ...
-    def slice(self, start, stop, step=1, animated=True):
+    # removed step parameter for now
+    def slice(self, start, stop, animated=True):
         if start < 0:
             start = 0
         if stop > self.len():
@@ -182,14 +181,26 @@ class AlgoList(AlgoObject):
 
         meta = Metadata.check_and_create()
 
-        # highlight the sublist we want to keep
-        self.highlight(*range(start, stop, step), animated=animated, metadata=meta)
+        # Highlight the sublist we want to keep
+        self.highlight(*range(start, stop), animated=animated, metadata=meta)
 
-        # throw away the old values
-        subvals = [n.val for n in self.nodes][start:stop:step]
-        sublist = AlgoList(self.scene, subvals)
+        # Dehighlight the sublist we want to keep
+        self.dehighlight(*range(start, stop), animated=animated, metadata=meta)
 
-        # Move sublist below original list
+        # Make a copy of the current list
+        # deepcopy doesn't work!
+        sublist = AlgoList(self.scene, [n.val for n in self.nodes])
+
+        # Remove the unsliced nodes in reverse order so the indices are still valid after popping
+        # This ensures the sliced nodes are in their original positions
+        rem_indices = []
+        for i, _ in enumerate(sublist.nodes):
+            if i not in range(start, stop):
+                rem_indices.append(i)
+        for i in sorted(rem_indices, reverse=True):
+            sublist.pop(i, animated=True)
+
+        # Shift sublist below original list
         anim_action = self.scene.create_play_action(
             AlgoTransform(
                 [sublist.grp.shift, DOWN * 1.1 * self.nodes[0].node_length],
@@ -206,20 +217,21 @@ class AlgoList(AlgoObject):
         lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
-        # Align the sublist to the left of the original list
+        # Center the two lists
+        grp = VGroup(self.grp, sublist.grp)
+
         anim_action = self.scene.create_play_action(
-            AlgoTransform(
-                [sublist.grp.align_to, self.nodes[start].grp, LEFT],
-                transform=ApplyMethod
-            )
+            AlgoTransform([grp.center], transform=ApplyMethod)
         )
-        action = AlgoSceneAction(sublist.grp.align_to, AlgoTransform([self.nodes[start].grp, LEFT]))
-        action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
+        static_action = AlgoSceneAction.create_static_action(grp.center)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,
+                                                 animated=animated)
 
         # Create LowerMetaData
         lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
+        # Add metadata to scene
         self.scene.add_metadata(meta)
 
         return sublist
