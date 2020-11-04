@@ -116,7 +116,7 @@ class AlgoNode:
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
+        lower_meta = LowerMetadata(AlgoListMetadata.HIDE, action_pair, val=[self.val])
 
         metadata.add_lower(lower_meta)
 
