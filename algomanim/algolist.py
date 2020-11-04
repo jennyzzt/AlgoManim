@@ -38,11 +38,6 @@ class AlgoList:
         self.scene.add_metadata(meta)
         return self.get_val(i, metadata=meta) < self.get_val(j, metadata=meta)
 
-    # def compare_value(self, i, val):
-    #     self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
-    #     self.highlight(i, animated=animated, metadata=meta)
-    #     # Add text
-
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
 
