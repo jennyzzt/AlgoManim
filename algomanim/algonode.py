@@ -36,13 +36,31 @@ class AlgoNode:
     def set_right_of(self, node, metadata=None):
         action = AlgoSceneAction.create_static_action(self.grp.next_to, [node.grp, RIGHT])
         action_pair = self.scene.add_action_pair(action, action, animated=False)
-
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
             lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF,
-                                            action_pair, val=[self.val, node.val])
+                                       action_pair, val=[self.val, node.val])
+            metadata.add_lower(lower_meta)
 
+    def set_down_left_of(self, node, metadata=None):
+        action = AlgoSceneAction.create_static_action(self.grp.next_to, [node.grp, DOWN+LEFT])
+        action_pair = self.scene.add_action_pair(action, action, animated=False)
+        # Only add to meta_trees if it comes from a high-level function and not initialisation
+        if metadata:
+            # Initialise a LowerMetadata class for this low level function
+            lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF,
+                                       action_pair, val=[self.val, node.val])
+            metadata.add_lower(lower_meta)
+
+    def set_down_right_of(self, node, metadata=None):
+        action = AlgoSceneAction.create_static_action(self.grp.next_to, [node.grp, DOWN+RIGHT])
+        action_pair = self.scene.add_action_pair(action, action, animated=False)
+        # Only add to meta_trees if it comes from a high-level function and not initialisation
+        if metadata:
+            # Initialise a LowerMetadata class for this low level function
+            lower_meta = LowerMetadata(AlgoListMetadata.SET_RIGHT_OF,
+                                       action_pair, val=[self.val, node.val])
             metadata.add_lower(lower_meta)
 
     def static_swap(self, node):
@@ -86,7 +104,6 @@ class AlgoNode:
 
         # Initialise a LowerMetadata class for this low level function
         lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
-
         metadata.add_lower(lower_meta)
 
     def hide(self, metadata, animated=True, w_prev=False):
@@ -99,7 +116,7 @@ class AlgoNode:
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata(AlgoListMetadata.SHOW, action_pair, val=[self.val])
+        lower_meta = LowerMetadata(AlgoListMetadata.HIDE, action_pair, val=[self.val])
 
         metadata.add_lower(lower_meta)
 
