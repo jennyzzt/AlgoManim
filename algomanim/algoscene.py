@@ -4,6 +4,7 @@ from algomanim.settings import DEFAULT_SETTINGS
 from .animation_block import AnimationBlock
 from .metadata_block import MetadataBlock
 from .metadata import Metadata, AlgoListMetadata, LowerMetadata
+from gui.panels.customisation_type import CustomisationType
 
 def do_nothing(*_):
     return
@@ -152,6 +153,16 @@ class AlgoSceneActionPair:
 
     def run(self):
         return self.curr_action().run()
+
+    def customizations(self):
+        customizations = dict()
+        if self.can_set_color():
+            customizations[CustomisationType.COLOR] = self.get_color()
+
+        if self.can_set_runtime():
+            customizations[CustomisationType.RUNTIME] = self.get_runtime_val()
+
+        return customizations
 
 class AlgoScene(Scene):
     def __init__(self, **kwargs):
