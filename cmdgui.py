@@ -287,7 +287,7 @@ class GuiWindow(QDialog):
 
     def set_settings(self, label, value):
         # Catch cases that route to custom_renderer
-        self.scene.settings[label] = value
+        self.scene.post_config_settings[label] = value
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod

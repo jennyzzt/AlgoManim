@@ -148,6 +148,9 @@ class AlgoScene(Scene):
             # when rerendering, do not set this list back to []
             self.post_customize_fns = []
 
+        if not hasattr(self, 'post_config_settings'):
+            self.post_config_settings = {}
+
         self.action_pairs = []
         self.anim_blocks = []
         self.meta_trees = []
@@ -163,8 +166,8 @@ class AlgoScene(Scene):
     def customize(self, action_pairs):
         pass
 
-    def post_config(self, settings):
-        pass
+    def post_config(self, settings, post_settings):
+        settings.update(post_settings)
 
     def rerender(self):
         self.__init__(**self.kwargs)
@@ -243,7 +246,7 @@ class AlgoScene(Scene):
 
     def construct(self):
         self.preconfig(self.settings)
-        self.post_config(self.settings)
+        self.post_config(self.settings, self.post_config_settings)
 
         self.algoconstruct()
         self.customize(self.action_pairs)
