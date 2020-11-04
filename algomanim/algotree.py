@@ -5,6 +5,7 @@ from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata
 from algomanim.metadata import Metadata, AlgoListMetadata
+from algomanim.settings import Shape
 
 class TreeTraversalType(Enum):
     PREORDER = auto()
@@ -13,10 +14,13 @@ class TreeTraversalType(Enum):
 
 class AlgoTreeNode(AlgoNode):
     def __init__(self, scene, val, depth=0):
+        # default node configs for treenodes
+        scene.settings['node_shape'] = Shape.CIRCLE
+
         super().__init__(scene, val)
+
         self.left = None
         self.right = None
-
         self.treegrp = None
 
         # features used for positioning
@@ -44,7 +48,7 @@ class AlgoTreeNode(AlgoNode):
     def fit_layout(self, root):
         x_diff = self.x - root.x
         y_diff = self.y - root.y
-        relative_vector = (RIGHT*x_diff+DOWN*y_diff)*self.node_length*1.1
+        relative_vector = (RIGHT*x_diff+DOWN*y_diff)*self.node_length
         self.set_relative_of(root, relative_vector)
         if self.left:
             self.left.fit_layout(root)
