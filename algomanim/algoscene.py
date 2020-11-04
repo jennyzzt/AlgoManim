@@ -82,7 +82,7 @@ class AlgoSceneAction:
 
     def set_color(self, color):
         if self.transform is not None:
-            return self.transform.set_color(color)
+            self.transform.set_color(color)
 
     def get_color(self):
         if self.transform is not None:
@@ -246,7 +246,12 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.skip()
 
+    def push_back_action_pair_indices(self, index):
+        for action_pair in self.action_pairs[index:]:
+            action_pair.attach_index(action_pair.get_index() + 1)
+
     def add_transform(self, index, transform, metadata=None):
+        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([], transform=transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
@@ -261,6 +266,7 @@ class AlgoScene(Scene):
             self.add_metadata(metadata)
 
     def add_fade_out_all(self, index):
+        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
@@ -272,6 +278,7 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_fade_in_all(self, index):
+        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_in_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
@@ -283,6 +290,7 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_wait(self, index, wait_time=1):
+        self.push_back_action_pair_indices(index)
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
@@ -296,6 +304,7 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_clear(self, index):
+        self.push_back_action_pair_indices(index)
         action = AlgoSceneAction.create_static_action(self.clear)
         self.action_pairs.insert(index, AlgoSceneActionPair(action))
 
@@ -373,6 +382,9 @@ class AlgoScene(Scene):
         self.post_config(self.settings)
 
         self.algoconstruct()
+        # attach indexes to action_pair to be used in customize fn
+        for (i, action_pair) in enumerate(self.action_pairs):
+            action_pair.attach_index(i)
         self.customize(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)

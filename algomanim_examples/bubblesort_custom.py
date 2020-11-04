@@ -38,7 +38,7 @@ class CustomBubbleSortScene(AlgoScene):
             self,
             10,
             AlgoListMetadata.COMPARE)[0]
-        compare_index = action_pairs.index(compare_pair)
+        compare_index = compare_pair.get_index()
         self.fast_forward(0, compare_index - 1)
 
         # 3) Add Custom Transforms into the list to be executed in runtime
