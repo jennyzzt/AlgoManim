@@ -13,17 +13,20 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
     @staticmethod
     def create_change_box(anim_change):
-        anim_desc = anim_change.anim.desc()
+        anim_desc = anim_change.change_name
         change_desc = f'Change {anim_change.change_type.name.lower()} to: '
 
         # Create box
-        change_box = QGroupBox(anim_desc)
+        change_box = QGroupBox()
         change_box.setStyleSheet("margin-top: 6px")
         # change_box.setCheckable(True) # not fully supported
 
         # Set layout
         change_box_layout = QHBoxLayout()
         change_box.setLayout(change_box_layout)
+
+        # Add title label
+        change_box_layout.addWidget(QLabel(anim_desc))
 
         # Add widgets
         change_box_layout.addWidget(QLabel(change_desc))
@@ -44,7 +47,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
     def update_change(self, anim_change):
         # delete previous change with this anim key
-        anim_key = (anim_change.anim.start_index,
+        anim_key = (anim_change.action_pair_index,
                     anim_change.change_type)
         prev_change_box_index = self.change_box_index[anim_key]
         self.change_box_list.takeAt(prev_change_box_index) \
@@ -60,7 +63,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
     def add_change(self, anim_change):
         change_box = self.create_change_box(anim_change)
-        key = (anim_change.anim.start_index, anim_change.change_type)
+        key = (anim_change.action_pair_index, anim_change.change_type)
         self.change_box_index[key] = self.change_box_list.count()
         self.change_box_list.addWidget(change_box)
         self.update_view()

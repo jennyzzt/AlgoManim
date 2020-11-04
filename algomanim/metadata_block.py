@@ -1,17 +1,15 @@
 from gui.panels.customisation_type import CustomisationType
 
 class MetadataBlock:
-    def __init__(self, metadata, action_pairs, start_index, end_index, start_time, runtime):
-        self.start_index = start_index
-        self.end_index = end_index
-        self.start_time = start_time
+    def __init__(self, metadata, action_pairs, start_time, runtime):
         self.metadata = metadata
         self.action_pairs = action_pairs
+        self.start_time = start_time
         self.runtime = runtime
 
-    def desc(self):
+    def desc(self, sep='\n'):
         # Get all relevant animation information stored in the action pair metadata
-        return self.metadata.desc()
+        return self.metadata.desc(sep=sep)
 
     def start_position(self):
         return self.start_time * 1000

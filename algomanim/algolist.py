@@ -22,6 +22,7 @@ class AlgoList:
     def swap(self, i, j, animated=True):
         metadata = Metadata(AlgoListMetadata.SWAP)
 
+        # swap nodes
         temp = self.nodes[i]
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
@@ -31,12 +32,15 @@ class AlgoList:
 
     def compare(self, i, j, animated=True):
         meta = Metadata(AlgoListMetadata.COMPARE)
+        # dehighlight all nodes first
         self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
+        # highlight the 2 nodes that need to be highlighted
         self.highlight(i, j, animated=animated, metadata=meta)
 
         self.scene.add_metadata(meta)
 
-        return self.get_val(i, metadata=meta) < self.get_val(j, metadata=meta)
+        # return result of comparing the 2 nodes
+        return self.get_val(i) < self.get_val(j)
 
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
@@ -80,9 +84,11 @@ class AlgoList:
         cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.HIGHLIGHT)
         for index in indexes:
             if first:
+                # first node should not be highlighted together with the previous action
                 self.nodes[index].highlight(animated, metadata=cur_metadata)
                 first = False
             else:
+                # subsequent nodes should be highlighted together with the first highlight
                 self.nodes[index].highlight(animated, w_prev=True, metadata=cur_metadata)
 
         # Only add if it is a higher level function
@@ -94,24 +100,18 @@ class AlgoList:
         cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.DEHIGHLIGHT)
         for index in indexes:
             if first:
+                # first node should not be dehighlighted together with the previous action
                 self.nodes[index].dehighlight(animated, metadata=cur_metadata)
                 first = False
             else:
+                # subsequent nodes should be highlighted together with the first dehighlight
                 self.nodes[index].dehighlight(animated, w_prev=True, metadata=cur_metadata)
 
         # Only add if it is a higher level function
         if metadata is None:
             self.scene.add_metadata(cur_metadata)
 
-    def get_val(self, index, animated=False, metadata=None):
-        cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.GET_VAL)
-        if animated:
-            self.highlight(index, metadata=metadata)
-
-        # Only add if it is a higher level function
-        if metadata is None:
-            self.scene.add_metadata(cur_metadata)
-
+    def get_val(self, index):
         return self.nodes[index].val
 
     def len(self):
@@ -126,7 +126,7 @@ class AlgoList:
 
         node.show(meta, animated)
         self.group()
-        self.center(animated=False, metadata=meta)
+        self.center(animated=animated, metadata=meta)
 
         self.scene.add_metadata(meta)
 

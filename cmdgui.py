@@ -11,7 +11,6 @@ from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar
-from gui.panels.customisation_type import CustomisationType
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from anim_change import AnimChange
@@ -131,15 +130,15 @@ class GuiWindow(QDialog):
         #       Side menu
         # =====================
 
+        # Keep track of animation changes to be applied
+        self.changes = dict()
+
         # Panels for side menu
-        self.customise_panel = CustomisePanel()
+        self.customise_panel = CustomisePanel(changes=self.changes)
         self.customise_panel.link_gui_window(self)
 
         self.change_history_panel = ChangeHistoryPanel()
         self.change_history_panel.link_gui_window(self)
-
-        # Keep track of animation changes to be applied
-        self.changes = dict()
 
         # Initialize scene vars set by render
         self.scene_name = ""
@@ -239,28 +238,18 @@ class GuiWindow(QDialog):
 
     # just updates the customisation options in the panel
     def change_panel_anim(self, anim):
-        change_vals = dict()
-        for change_type in CustomisationType:
-            anim_index = self.anims.index(anim)
-            key = (anim_index, change_type)
-            customizations = anim.customizations()
-            if key in self.changes:
-                change_vals[change_type] = self.changes[key].get_value()
-            elif change_type in customizations:
-                change_vals[change_type] = customizations[change_type]
+        self.customise_panel.set_animation(anim)
 
-        self.customise_panel.set_animation(anim, change_vals)
-
-    def add_change(self, anim, change_type, change_value):
-        anim_index = self.anims.index(anim)
-        key = (anim_index, change_type)
-        anim_change = AnimChange(anim, change_type, change_value)
-        if key not in self.changes:
-            # check if animchange has not already been added to list of changes
-            self.changes[key] = anim_change
+    def add_change(self, action_pair_index, change_name, change_type, change_value):
+        change_key = (action_pair_index, change_type)
+        anim_change = AnimChange(action_pair_index, change_name, change_type, change_value)
+        # if animchange has already been added to dictionary of changes, update value
+        # else add it to the dictionary
+        if change_key not in self.changes:
+            self.changes[change_key] = anim_change
             self.change_history_panel.add_change(anim_change)
         else:
-            self.changes[key].update_value(change_value)
+            self.changes[change_key].update_value(change_value)
             self.change_history_panel.update_change(anim_change)
 
     def reset_changes(self):
@@ -270,11 +259,8 @@ class GuiWindow(QDialog):
     def apply_changes(self):
         curr_changes = self.changes.copy()
         def post_customize(action_pairs):
-            for (anim_index, change_type), anim_change in curr_changes.items():
-                anim = self.anims[anim_index]
-                for i in range(anim.start_index, anim.end_index + 1):
-                    action_pair = action_pairs[i]
-                    change_type.customise(action_pair)(anim_change.get_value())
+            for (action_pair_index, change_type), anim_change in curr_changes.items():
+                change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
         self.scene.post_customize_fns.append(post_customize)
         self.render_video(rerender=True)
         # Do the rendering here
