@@ -1,14 +1,22 @@
 # pylint: disable=R0903
+import inspect
 from collections import Counter
 
 class Metadata:
     counter = Counter()
 
     def __init__(self, metadata):
+        # metadata is a string
         self.metadata = metadata
         Metadata.counter[metadata] += 1
         self.fid = Metadata.counter[metadata]
         self.children = []
+
+    @staticmethod
+    # Returns metadata with the name of the function that called this
+    def create_fn_metadata():
+        currframe = inspect.currentframe()
+        return Metadata(inspect.getouterframes(currframe, 2)[1][3])
 
     def add_lower(self, lowermeta):
         self.children.append(lowermeta)

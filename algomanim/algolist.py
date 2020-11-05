@@ -23,7 +23,7 @@ class AlgoList:
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
-        metadata = Metadata('swap')
+        metadata = Metadata.create_fn_metadata()
 
         # swap nodes
         temp = self.nodes[i]
@@ -34,7 +34,7 @@ class AlgoList:
         self.scene.add_metadata(metadata)
 
     def compare(self, i, j, animated=True, highlights=True):
-        meta = Metadata('compare')
+        meta = Metadata.create_fn_metadata()
         if highlights:
             self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
             self.highlight(i, j, animated=animated, metadata=meta)
@@ -49,7 +49,7 @@ class AlgoList:
 
     # Centre the list on screen
     def center(self, animated=True, metadata=None):
-        curr_metadata = metadata if metadata else Metadata('center')
+        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
 
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp.center], transform=ApplyMethod)
@@ -69,7 +69,7 @@ class AlgoList:
 
     # Display the list on screen
     def show(self, animated=True):
-        meta = Metadata('show')
+        meta = Metadata.create_fn_metadata()
         for node in self.nodes:
             node.show(meta, animated)
 
@@ -77,7 +77,7 @@ class AlgoList:
 
     # Hide the list on screen
     def hide(self, animated=True, metadata=None):
-        cur_metadata = metadata if metadata else Metadata('hide')
+        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
 
         for node in self.nodes:
             node.hide(cur_metadata, animated)
@@ -88,7 +88,7 @@ class AlgoList:
     # Highlight nodes at the specified indexes
     def highlight(self, *indexes, animated=True, metadata=None):
         first = True
-        cur_metadata = metadata if metadata else Metadata('highlight')
+        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
         for index in indexes:
             if first:
                 # first node should not be highlighted together with the previous action
@@ -105,7 +105,7 @@ class AlgoList:
     # Unhighlight nodes at the specified indexes
     def dehighlight(self, *indexes, animated=True, metadata=None):
         first = True
-        cur_metadata = metadata if metadata else Metadata('dehighlight')
+        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
         for index in indexes:
             if first:
                 # first node should not be dehighlighted together with the previous action
@@ -129,7 +129,7 @@ class AlgoList:
     # Appends a new node with the given value to the end of the list
     def append(self, val, animated=True):
         node = AlgoNode(self.scene, val)
-        meta = Metadata('append')
+        meta = Metadata.create_fn_metadata()
         if self.len() > 0:
             node.set_right_of(self.nodes[-1], metadata=meta)
         self.nodes.append(node)
@@ -153,7 +153,7 @@ class AlgoList:
         left_node = self.nodes[i - 1] if i != 0 else None
         right_nodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
-        meta = Metadata('pop')
+        meta = Metadata.create_fn_metadata()
 
         self.nodes[i].hide(meta, animated)
         self.nodes.remove(self.nodes[i])
@@ -188,7 +188,7 @@ class AlgoList:
         if stop > self.len():
             stop = self.len()
 
-        meta = Metadata('slice')
+        meta = Metadata.create_fn_metadata()
 
         # highlight the sublist we want to keep
         self.highlight(*range(start, stop, step), animated=animated, metadata=meta)
@@ -237,7 +237,7 @@ class AlgoList:
         # Join both lists in the backend
         self.nodes += other_list.nodes
 
-        meta = Metadata('concat')
+        meta = Metadata.create_fn_metadata()
 
         # Join the two lists visually
         anim_action = self.scene.create_play_action(
