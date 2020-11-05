@@ -2,7 +2,6 @@
 from unittest.mock import patch, Mock
 from algomanim.algolist import AlgoList
 from algomanim.algoscene import AlgoScene
-from algomanim.metadata import AlgoListMetadata
 from algomanim.settings import DEFAULT_SETTINGS
 
 test_list = [1, 2, 3]
@@ -99,12 +98,12 @@ class TestAlgoList:
         algolist.swap(1, 2)
 
         action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
-                                                         AlgoListMetadata.COMPARE))
+                                                          'compare'))
 
         sum_action_pairs = len(AlgoList.find_action_pairs(test_algoscene, 2,
-                            AlgoListMetadata.COMPARE, AlgoListMetadata.DEHIGHLIGHT)) + \
+                                                          'compare', 'dehighlight')) + \
                            len(AlgoList.find_action_pairs(test_algoscene, 2,
-                            AlgoListMetadata.COMPARE, AlgoListMetadata.HIGHLIGHT))
+                                                          'compare', 'highlight'))
 
         assert action_pairs_len == sum_action_pairs
 
@@ -118,13 +117,13 @@ class TestAlgoList:
         algolist.swap(1, 2)
 
         action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
-                                                         AlgoListMetadata.COMPARE,
-                                                          AlgoListMetadata.DEHIGHLIGHT))
+                                                         'compare',
+                                                          'dehighlight'))
 
         sum_action_pairs = len(AlgoList.find_action_pairs(test_algoscene, 2,
-                            AlgoListMetadata.COMPARE)) - \
+                                                          'compare')) - \
                            len(AlgoList.find_action_pairs(test_algoscene, 2,
-                            AlgoListMetadata.COMPARE, AlgoListMetadata.HIGHLIGHT))
+                                                          'compare', 'highlight'))
 
         assert action_pairs_len == sum_action_pairs
 
@@ -138,7 +137,7 @@ class TestAlgoList:
         algolist.swap(1, 2)
 
         action_pairs = AlgoList.find_action_pairs(test_algoscene, 2,
-                                                  AlgoListMetadata.HIGHLIGHT)
+                                                  'highlight')
 
         assert len(action_pairs) == 0
 
@@ -152,7 +151,7 @@ class TestAlgoList:
         algolist.swap(1, 2)
 
         action_pairs = AlgoList.find_action_pairs(test_algoscene, 2,
-                                                  AlgoListMetadata.COMPARE,
-                                                  AlgoListMetadata.SWAP)
+                                                  'comapre',
+                                                  'swap')
 
         assert len(action_pairs) == 0

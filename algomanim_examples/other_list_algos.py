@@ -2,7 +2,6 @@ from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 from algomanim.settings import Shape
-from algomanim.metadata import AlgoListMetadata
 
 class FindMaxScene(AlgoScene):
     def algoconstruct(self):
@@ -52,6 +51,6 @@ class BinarySearchScene(AlgoScene):
         settings['highlight_color'] = "#33cccc"  # teal
 
     def customize(self, action_pairs):
-        actions = AlgoList.find_action_pairs(self, 3, AlgoListMetadata.HIGHLIGHT)
+        actions = AlgoList.find_action_pairs(self, 3, 'highlight')
         for action in actions:
             action.set_color('#ff6666')

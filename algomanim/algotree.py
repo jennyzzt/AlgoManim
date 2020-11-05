@@ -3,8 +3,7 @@ from enum import Enum, auto
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import LowerMetadata
-from algomanim.metadata import Metadata, AlgoListMetadata
+from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.settings import Shape
 
 class TreeTraversalType(Enum):
@@ -35,7 +34,7 @@ class AlgoTreeNode(AlgoNode):
     def static_set_line_with(self, parent):
         #self.line.set_start_and_end_attrs(self.grp, parent.grp)
         self.line = Line(self.grp.get_center(), parent.grp.get_center(),
-                         stroke_width=10, color=BLUE)
+                         stroke_width=10)
 
     # Set the line connecting the node to its parent
     def set_line_with(self, parent):
@@ -98,7 +97,7 @@ class AlgoTreeNode(AlgoNode):
 
     # Center the tree on screen
     def center(self, animated=True, metadata=None):
-        curr_metadata = metadata if metadata else Metadata(AlgoListMetadata.CENTER)
+        curr_metadata = metadata if metadata else Metadata('center')
 
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.treegrp.center], transform=ApplyMethod)
@@ -109,7 +108,7 @@ class AlgoTreeNode(AlgoNode):
                                                  animated=animated)
 
         # Create LowerMetadata
-        lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+        lower_meta = LowerMetadata('center', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         # Only add if it is a higher level function
@@ -137,7 +136,7 @@ class AlgoTreeNode(AlgoNode):
 
     # Recursely show entire tree with this node as the root
     def recurse_show_tree(self, order, animated=True):
-        meta = Metadata(AlgoListMetadata.SHOW)
+        meta = Metadata('show')
         if order == TreeTraversalType.PREORDER:
             self.show(meta, animated)
         if self.left:
@@ -157,7 +156,7 @@ class AlgoTreeNode(AlgoNode):
 
     # Hide entire tree with this node as the root
     def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
-        meta = Metadata(AlgoListMetadata.HIDE)
+        meta = Metadata('hide')
         if order == TreeTraversalType.PREORDER:
             self.hide(meta, animated)
         if self.left:
@@ -202,7 +201,7 @@ class AlgoTreeNode(AlgoNode):
             self.right = self.right.remove(val, animated)
         else:
             # found node with val to be deleted
-            meta = Metadata(AlgoListMetadata.APPEND)
+            meta = Metadata('remove')
             if self.left is None:
                 self.hide(meta, animated)
                 return self.right

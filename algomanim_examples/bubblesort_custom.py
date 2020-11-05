@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algolist import AlgoList, AlgoListMetadata
+from algomanim.algolist import AlgoList
 from algomanim.settings import Shape
 
 class CustomBubbleSortScene(AlgoScene):
@@ -27,8 +27,8 @@ class CustomBubbleSortScene(AlgoScene):
         highlight_pairs = AlgoList.find_action_pairs(
             self,
             1,
-            AlgoListMetadata.COMPARE,
-            AlgoListMetadata.HIGHLIGHT)
+            'compare',
+            'highlight')
 
         for action_pair in highlight_pairs:
             action_pair.set_color('#ff6666') # pylint: disable=E0602
@@ -37,7 +37,7 @@ class CustomBubbleSortScene(AlgoScene):
         compare_pair = AlgoList.find_action_pairs(
             self,
             10,
-            AlgoListMetadata.COMPARE)[0]
+            'compare')[0]
         compare_index = compare_pair.get_index()
         self.fast_forward(0, compare_index - 1)
 

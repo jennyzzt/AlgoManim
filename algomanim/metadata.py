@@ -1,7 +1,5 @@
 # pylint: disable=R0903
 from collections import Counter
-from enum import Enum, auto
-
 
 class Metadata:
     counter = Counter()
@@ -19,7 +17,7 @@ class Metadata:
         return list(map(lambda lower: lower.action_pair, self.children))
 
     def desc(self, sep='\n'):
-        return f'{self.metadata.name}{sep}{self.fid}'
+        return f'{self.metadata}{sep}{self.fid}'
 
     @staticmethod
     def reset_counter():
@@ -48,26 +46,3 @@ class LowerMetadata:
     def __str__(self):
         return f'LowerMetadata(meta={self.metadata}, val={self.val}' + \
             f', action_pair={self.action_pair})'
-
-
-class AlgoListMetadata(Enum):
-    SWAP = auto()
-    COMPARE = auto()
-    CENTER = auto()
-    SHOW = auto()
-    HIDE = auto()
-    HIGHLIGHT = auto()
-    DEHIGHLIGHT = auto()
-    GET_VAL = auto()
-    APPEND = auto()
-    POP = auto()
-    SLICE = auto()
-    CONCAT = auto()
-    SET_RIGHT_OF = auto()
-    WAIT = auto()
-    CUSTOM = auto()
-    FADE_OUT = auto()
-    FADE_IN = auto()
-
-    # default for things we don't need to explictly track
-    TEMP = auto()

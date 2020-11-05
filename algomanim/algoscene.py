@@ -4,7 +4,7 @@ from algomanim.settings import DEFAULT_SETTINGS
 from gui.panels.customisation_type import CustomisationType
 from .animation_block import AnimationBlock
 from .metadata_block import MetadataBlock
-from .metadata import Metadata, AlgoListMetadata, LowerMetadata
+from .metadata import Metadata, LowerMetadata
 
 def do_nothing(*_):
     return
@@ -257,8 +257,8 @@ class AlgoScene(Scene):
         self.action_pairs.insert(index, action_pair)
 
         if metadata is None:
-            curr_metadata = Metadata(AlgoListMetadata.CUSTOM)
-            lower_meta = LowerMetadata(AlgoListMetadata.CUSTOM, action_pair)
+            curr_metadata = Metadata('custom')
+            lower_meta = LowerMetadata('custom', action_pair)
             curr_metadata.add_lower(lower_meta)
 
             self.add_metadata(curr_metadata)
@@ -271,8 +271,8 @@ class AlgoScene(Scene):
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
 
-        curr_metadata = Metadata(AlgoListMetadata.FADE_OUT)
-        lower_meta = LowerMetadata(AlgoListMetadata.FADE_OUT, action_pair)
+        curr_metadata = Metadata('fade_out')
+        lower_meta = LowerMetadata('fade_out', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         self.add_metadata(curr_metadata)
@@ -283,8 +283,8 @@ class AlgoScene(Scene):
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
 
-        curr_metadata = Metadata(AlgoListMetadata.FADE_IN)
-        lower_meta = LowerMetadata(AlgoListMetadata.FADE_IN, action_pair)
+        curr_metadata = Metadata('fade_in')
+        lower_meta = LowerMetadata('fade_in', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         self.add_metadata(curr_metadata)
@@ -297,8 +297,8 @@ class AlgoScene(Scene):
         action_pair = AlgoSceneActionPair(anim_action, static_action)
         self.action_pairs.insert(index, action_pair)
 
-        curr_metadata = Metadata(AlgoListMetadata.WAIT)
-        lower_meta = LowerMetadata(AlgoListMetadata.WAIT, action_pair)
+        curr_metadata = Metadata('wait')
+        lower_meta = LowerMetadata('wait', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         self.add_metadata(curr_metadata)

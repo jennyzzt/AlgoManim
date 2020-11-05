@@ -2,7 +2,7 @@
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata, AlgoListMetadata
+from algomanim.metadata import Metadata, LowerMetadata
 
 class AlgoList:
     def __init__(self, scene, arr):
@@ -23,7 +23,7 @@ class AlgoList:
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
-        metadata = Metadata(AlgoListMetadata.SWAP)
+        metadata = Metadata('swap')
 
         # swap nodes
         temp = self.nodes[i]
@@ -34,7 +34,7 @@ class AlgoList:
         self.scene.add_metadata(metadata)
 
     def compare(self, i, j, animated=True, highlights=True):
-        meta = Metadata(AlgoListMetadata.COMPARE)
+        meta = Metadata('compare')
         if highlights:
             self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
             self.highlight(i, j, animated=animated, metadata=meta)
@@ -49,7 +49,7 @@ class AlgoList:
 
     # Centre the list on screen
     def center(self, animated=True, metadata=None):
-        curr_metadata = metadata if metadata else Metadata(AlgoListMetadata.CENTER)
+        curr_metadata = metadata if metadata else Metadata('center')
 
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp.center], transform=ApplyMethod)
@@ -60,7 +60,7 @@ class AlgoList:
                                                  animated=animated)
 
         # Create LowerMetadata
-        lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+        lower_meta = LowerMetadata('center', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         # Only add if it is a higher level function
@@ -69,7 +69,7 @@ class AlgoList:
 
     # Display the list on screen
     def show(self, animated=True):
-        meta = Metadata(AlgoListMetadata.SHOW)
+        meta = Metadata('show')
         for node in self.nodes:
             node.show(meta, animated)
 
@@ -77,7 +77,7 @@ class AlgoList:
 
     # Hide the list on screen
     def hide(self, animated=True, metadata=None):
-        cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.HIDE)
+        cur_metadata = metadata if metadata else Metadata('hide')
 
         for node in self.nodes:
             node.hide(cur_metadata, animated)
@@ -88,7 +88,7 @@ class AlgoList:
     # Highlight nodes at the specified indexes
     def highlight(self, *indexes, animated=True, metadata=None):
         first = True
-        cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.HIGHLIGHT)
+        cur_metadata = metadata if metadata else Metadata('highlight')
         for index in indexes:
             if first:
                 # first node should not be highlighted together with the previous action
@@ -105,7 +105,7 @@ class AlgoList:
     # Unhighlight nodes at the specified indexes
     def dehighlight(self, *indexes, animated=True, metadata=None):
         first = True
-        cur_metadata = metadata if metadata else Metadata(AlgoListMetadata.DEHIGHLIGHT)
+        cur_metadata = metadata if metadata else Metadata('dehighlight')
         for index in indexes:
             if first:
                 # first node should not be dehighlighted together with the previous action
@@ -129,7 +129,7 @@ class AlgoList:
     # Appends a new node with the given value to the end of the list
     def append(self, val, animated=True):
         node = AlgoNode(self.scene, val)
-        meta = Metadata(AlgoListMetadata.APPEND)
+        meta = Metadata('append')
         if self.len() > 0:
             node.set_right_of(self.nodes[-1], metadata=meta)
         self.nodes.append(node)
@@ -153,7 +153,7 @@ class AlgoList:
         left_node = self.nodes[i - 1] if i != 0 else None
         right_nodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
-        meta = Metadata(AlgoListMetadata.POP)
+        meta = Metadata('pop')
 
         self.nodes[i].hide(meta, animated)
         self.nodes.remove(self.nodes[i])
@@ -175,7 +175,7 @@ class AlgoList:
             action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
+            lower_meta = LowerMetadata('temp', action_pair)
             meta.add_lower(lower_meta)
 
         self.scene.add_metadata(meta)
@@ -188,7 +188,7 @@ class AlgoList:
         if stop > self.len():
             stop = self.len()
 
-        meta = Metadata(AlgoListMetadata.SLICE)
+        meta = Metadata('slice')
 
         # highlight the sublist we want to keep
         self.highlight(*range(start, stop, step), animated=animated, metadata=meta)
@@ -211,7 +211,7 @@ class AlgoList:
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Create LowerMetaData
-        lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
+        lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
         # Align the sublist to the left of the original list
@@ -225,7 +225,7 @@ class AlgoList:
         action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
 
         # Create LowerMetaData
-        lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
+        lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
         self.scene.add_metadata(meta)
@@ -237,7 +237,7 @@ class AlgoList:
         # Join both lists in the backend
         self.nodes += other_list.nodes
 
-        meta = Metadata(AlgoListMetadata.CONCAT)
+        meta = Metadata('concat')
 
         # Join the two lists visually
         anim_action = self.scene.create_play_action(
@@ -253,7 +253,7 @@ class AlgoList:
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Create LowerMetadata
-        lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
+        lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
         # Update the VGroup of list nodes
@@ -268,7 +268,7 @@ class AlgoList:
                                                  animated=animated)
 
         # Create LowerMetadata
-        lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+        lower_meta = LowerMetadata('center', action_pair)
         meta.add_lower(lower_meta)
 
         self.scene.add_metadata(meta)

@@ -71,7 +71,7 @@ class CustomisePanel(BaseChangesPanel):
         for lower_meta in anim.metadata.children:
             action_pair = lower_meta.action_pair
             action_pair_index = action_pair.get_index()
-            lower_meta_name = lower_meta.metadata.name
+            lower_meta_name = lower_meta.metadata
             change_name = f'{anim.desc(sep=" ")} > {lower_meta_name}'
 
             collapsible_box = FrameLayout(title=lower_meta_name)

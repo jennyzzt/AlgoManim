@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algolist import AlgoList, AlgoListMetadata
+from algomanim.algolist import AlgoList
 
 class ShortBubbleSortScene(AlgoScene):
     def algoconstruct(self):
@@ -31,7 +31,7 @@ class ShortBubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) find the animations for your different functions
-        print(AlgoList.find_action_pairs(self, 2, AlgoListMetadata.COMPARE, AlgoListMetadata.SWAP))
+        print(AlgoList.find_action_pairs(self, 2, 'compare', 'swap'))
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)
