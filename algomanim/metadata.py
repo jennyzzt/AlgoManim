@@ -54,3 +54,10 @@ class LowerMetadata:
     def __str__(self):
         return f'LowerMetadata(meta={self.metadata}, val={self.val}' + \
             f', action_pair={self.action_pair})'
+
+    @staticmethod
+    # Returns LowerMetadata with the name of the function that called this
+    def create_fn_lmetadata(action_pair, val=None):
+        currframe = inspect.currentframe()
+        return LowerMetadata(inspect.getouterframes(currframe, 2)[1][3],
+                           action_pair, val)

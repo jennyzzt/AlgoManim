@@ -39,8 +39,8 @@ class AlgoNode:
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata('set_right_of',
-                                       action_pair, val=[self.val, node.val])
+            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,
+                                                           val=[self.val, node.val])
             metadata.add_lower(lower_meta)
 
     # Static function of set_relative_of to be executed later
@@ -49,14 +49,12 @@ class AlgoNode:
 
     # Set this node a a position relative to the node by given vector
     def set_relative_of(self, node, vector, metadata=None):
-        action = AlgoSceneAction.create_static_action(self.static_set_relative_of,
-                                                      [node, vector])
+        action = AlgoSceneAction.create_static_action(self.static_set_relative_of,[node, vector])
         action_pair = self.scene.add_action_pair(action, action, animated=False)
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata('set_relative_of',
-                                       action_pair, val=[self.val, node.val])
+            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val, node.val])
             metadata.add_lower(lower_meta)
 
     def static_swap(self, node):
@@ -77,7 +75,6 @@ class AlgoNode:
 
         static_action = AlgoSceneAction.create_static_action(self.static_swap, [node])
         static_action2 = AlgoSceneAction.create_empty_action()
-
         action_pair1 = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         action_pair2 = self.scene.add_action_pair(anim_action2, static_action2, animated=animated)
 
@@ -94,12 +91,10 @@ class AlgoNode:
             AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
-
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action,animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata('show', action_pair, val=[self.val])
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
         metadata.add_lower(lower_meta)
 
     def hide(self, metadata, animated=True, w_prev=False):
@@ -108,12 +103,10 @@ class AlgoNode:
             w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
-
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata('hide', action_pair, val=[self.val])
-
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
         metadata.add_lower(lower_meta)
 
     def highlight(self, animated=True, w_prev=False, metadata=None):
@@ -127,13 +120,11 @@ class AlgoNode:
             [self.highlight_color],
             color_index=0
         )
-
         action_pair = self.scene.add_action_pair(anim_action, static_action,
                                                  animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata('highlight', action_pair, val=[self.val])
-
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
         assert metadata is not None
         metadata.add_lower(lower_meta)
 
@@ -156,6 +147,6 @@ class AlgoNode:
                                                  animated=animated)
 
         # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata('dehighlight', action_pair, val=[self.val])
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
         assert metadata is not None
         metadata.add_lower(lower_meta)
