@@ -20,6 +20,54 @@ class AlgoList:
 
         self.center(animated=False)
         self.show(animated=False)
+        self.text = TextMobject("")
+
+    def add_text(self, text, metadata=None):
+        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
+
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.text], transform=FadeOut)
+        )
+
+        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.text])
+        action_pair = self.scene.add_action_pair(anim_action, static_action)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata('remove_text', action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        # Only add if it is a higher level function
+
+        self.text = TextMobject(text)
+
+        anim_action = self.scene.create_play_action(
+                AlgoTransform([self.text.next_to, self.grp, UP], transform=ApplyMethod)
+            )
+
+        static_action = AlgoSceneAction.create_static_action(
+                self.text.next_to,
+                [self.grp, UP]
+            )
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata('next_to', action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.text], transform=Write)
+        )
+
+        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text])
+        action_pair = self.scene.add_action_pair(anim_action, static_action)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata('add_text', action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        # Only add if it is a higher level function
+        if metadata is None:
+            self.scene.add_metadata(curr_metadata)
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
@@ -38,8 +86,8 @@ class AlgoList:
         if highlights:
             self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
             self.highlight(i, j, animated=animated, metadata=meta)
+            self.scene.add_metadata(meta)
 
-        self.scene.add_metadata(meta)
         return self.get_val(i) < self.get_val(j)
 
     # Restores the internal VGroup of list nodes
