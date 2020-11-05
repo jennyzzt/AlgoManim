@@ -12,8 +12,9 @@ from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_
 from gui.video_quality import VideoQuality
 
 # Modification of internal manim function using algomanim API
-def custom_renderer(file_path, scene_name, video_quality, color):
-    args = Namespace(color=color,
+def custom_renderer(file_path, scene_name, video_quality,
+                    post_customize_fns, post_config_settings):
+    args = Namespace(color=post_config_settings.get('background_color'),
                      file=file_path,
                      file_name=None,
                      high_quality=video_quality == VideoQuality.high,
@@ -53,5 +54,10 @@ def custom_renderer(file_path, scene_name, video_quality, color):
                                      "leave_progress_bars",
                                      ]
     }
+
+    scene_kwargs.update({
+        'post_customize_fns': post_customize_fns,
+        'post_config_settings': post_config_settings
+    })
 
     return scene_class(**scene_kwargs)

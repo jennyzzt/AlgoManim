@@ -10,7 +10,7 @@ from gui.panels.widgets.qcolor_button import QColorButton
 from algomanim.shape import Shape
 
 
-SETTINGS = ([ 
+SETTINGS = ([
     ('background_color', InputColorButton, QColorButton),
     ('node_color', InputColorButton, QColorButton),
     ('node_shape', InputDropdown, QComboBox),
@@ -71,5 +71,6 @@ class PreconfigPanel(BaseChangesPanel):
     def save_changes(self):
         for label in self.change_widgets:
             change_widget = self.change_widgets[label]
-            value = Shape[change_widget.get_value()] if label == 'node_shape' else change_widget.get_value()
+            value = Shape[change_widget.get_value()] \
+                if label == 'node_shape' else change_widget.get_value()
             self.gui_window.set_settings(label, value)

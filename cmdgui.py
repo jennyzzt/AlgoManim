@@ -133,6 +133,8 @@ class GuiWindow(QDialog):
 
         # Keep track of animation changes to be applied
         self.changes = dict()
+        self.post_customize_fns = []
+        self.post_config_settings = dict()
 
         # Panels for side menu
         self.customise_panel = CustomisePanel(changes=self.changes)
@@ -266,14 +268,14 @@ class GuiWindow(QDialog):
         def post_customize(action_pairs):
             for (action_pair_index, change_type), anim_change in curr_changes.items():
                 change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
-        self.scene.post_customize_fns.append(post_customize)
-        self.render_video(rerender=True)
+        self.post_customize_fns.append(post_customize)
+        self.render_video()
         # Do the rendering here
         self.reset_changes()
 
     def set_settings(self, label, value):
         # Catch cases that route to custom_renderer
-        self.scene.post_config_settings[label] = value
+        self.post_config_settings[label] = value
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod
@@ -289,48 +291,42 @@ class GuiWindow(QDialog):
 
         return scene_names
 
-    def render_video(self, rerender=False):
+    def render_video(self):
         if TEST_VIDEO_ONLY:
             self.video_player.open_video(WORKING_DIR /
                                          "media/algomanim/videos/BubbleSortScene.mp4")
             return
 
-        if rerender:
-            self.scene.rerender()
-            self.anims = self.scene.metadata_blocks
-        else:
-            # Retrieve render parameters
-            pyfile_relpath = self.pyfile_lineedit.text()
-            self.scene_name = self.scene_combobox.currentText()
-            background_color = self.scene.settings['background_color'] \
-                if self.scene else None
-            video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
+        # Retrieve render parameters
+        pyfile_relpath = self.pyfile_lineedit.text()
+        self.scene_name = self.scene_combobox.currentText()
+        video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
 
-            # Check that the python file exists
-            if not os.path.exists(pyfile_relpath):
-                err = QMessageBox(icon=QMessageBox.Critical,
-                                    text="File does not exist")
-                err.setInformativeText('The python file no longer exists at the given location. '
-                                        'Select another file to proceed.')
-                err.setStandardButtons(QMessageBox.Close)
-                err.setStyleSheet(ERROR_MSG_STYLESHEET)
-                err.exec_()
-                return
+        # Check that the python file exists
+        if not os.path.exists(pyfile_relpath):
+            err = QMessageBox(icon=QMessageBox.Critical,
+                                text="File does not exist")
+            err.setInformativeText('The python file no longer exists at the given location. '
+                                    'Select another file to proceed.')
+            err.setStandardButtons(QMessageBox.Close)
+            err.setStyleSheet(ERROR_MSG_STYLESHEET)
+            err.exec_()
+            return
 
-            # Check that a scene has been selected
-            if self.scene_combobox.currentIndex() < 0:
-                err = QMessageBox(icon=QMessageBox.Critical,
-                                    text="No scene selected")
-                err.setInformativeText('You must select a scene to render')
-                err.setStandardButtons(QMessageBox.Close)
-                err.setStyleSheet(ERROR_MSG_STYLESHEET)
-                err.exec_()
-                return
+        # Check that a scene has been selected
+        if self.scene_combobox.currentIndex() < 0:
+            err = QMessageBox(icon=QMessageBox.Critical,
+                                text="No scene selected")
+            err.setInformativeText('You must select a scene to render')
+            err.setStandardButtons(QMessageBox.Close)
+            err.setStyleSheet(ERROR_MSG_STYLESHEET)
+            err.exec_()
+            return
 
-            # Render video programmatically
-            self.scene = custom_renderer(pyfile_relpath, self.scene_name,
-                                        video_quality, background_color)
-            self.anims = self.scene.metadata_blocks
+        # Render video programmatically
+        self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality,
+            self.post_customize_fns, self.post_config_settings)
+        self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
         self.animation_bar.fill_bar(self.anims)
