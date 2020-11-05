@@ -289,6 +289,8 @@ class AlgoList:
 
         self.scene.add_metadata(meta)
 
+        return self
+
     @staticmethod
     def find_action_pairs(scene, occurence, method, lower_level=None):
         for meta_tree in scene.meta_trees:
