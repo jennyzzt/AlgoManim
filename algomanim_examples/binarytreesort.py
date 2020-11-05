@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
-from algomanim.algotree import AlgoTreeNode
+from algomanim.algotree import AlgoTreeNode, TreeTraversalType
 
 class BinaryTreeSortScene(AlgoScene):
     def algoconstruct(self):
@@ -8,3 +8,6 @@ class BinaryTreeSortScene(AlgoScene):
         root = AlgoTreeNode(self, numlist[0])
         for i in range(1, len(numlist)):
             root.insert(numlist[i], animated=False)
+
+        root.show_tree(order=TreeTraversalType.INORDER, animated=False)
+        root.center(animated=False)
