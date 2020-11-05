@@ -20,33 +20,33 @@ class AlgoList:
 
         self.center(animated=False)
         self.show(animated=False)
-        self.text = TextMobject("")
+        self.text = {"": TextMobject("")}
 
-    def add_text(self, text, metadata=None):
+    def add_text(self, text, key="", vector=UP, metadata=None):
         curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
+        if key in self.text:
+            anim_action = self.scene.create_play_action(
+                AlgoTransform([self.text[key]], transform=FadeOut)
+            )
 
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.text], transform=FadeOut)
-        )
+            static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.text[key]])
+            action_pair = self.scene.add_action_pair(anim_action, static_action)
 
-        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.text])
-        action_pair = self.scene.add_action_pair(anim_action, static_action)
-
-        # Create LowerMetadata
-        lower_meta = LowerMetadata('remove_text', action_pair)
-        curr_metadata.add_lower(lower_meta)
+            # Create LowerMetadata
+            lower_meta = LowerMetadata('remove_text', action_pair)
+            curr_metadata.add_lower(lower_meta)
 
         # Only add if it is a higher level function
 
-        self.text = TextMobject(text)
+        self.text[key] = TextMobject(text)
 
         anim_action = self.scene.create_play_action(
-                AlgoTransform([self.text.next_to, self.grp, UP], transform=ApplyMethod)
+                AlgoTransform([self.text[key].next_to, self.grp, vector], transform=ApplyMethod)
             )
 
         static_action = AlgoSceneAction.create_static_action(
-                self.text.next_to,
-                [self.grp, UP]
+                self.text[key].next_to,
+                [self.grp, vector]
             )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
 
@@ -55,10 +55,10 @@ class AlgoList:
         curr_metadata.add_lower(lower_meta)
 
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.text], transform=Write)
+            AlgoTransform([self.text[key]], transform=Write)
         )
 
-        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text])
+        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text[key]])
         action_pair = self.scene.add_action_pair(anim_action, static_action)
 
         # Create LowerMetadata
@@ -86,9 +86,12 @@ class AlgoList:
         if highlights:
             self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
             self.highlight(i, j, animated=animated, metadata=meta)
-            self.scene.add_metadata(meta)
-
-        return self.get_val(i) < self.get_val(j)
+        
+        val1 = self.get_val(i)
+        val2 = self.get_val(j)
+        self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP, meta)
+        self.scene.add_metadata(meta)
+        return val1 < val2
 
     # Restores the internal VGroup of list nodes
     # especially if the list has been edited
