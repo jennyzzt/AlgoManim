@@ -20,26 +20,33 @@ class AlgoList:
 
         self.center(animated=False)
         self.show(animated=False)
+
+        # The various text objects will be stored in a dictionary
         self.text = {"": TextMobject("")}
 
     def add_text(self, text, key="", vector=UP, metadata=None):
         curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
+
+        # If the key (for a specific text object you are looking for) exists,
+        # fade it out
         if key in self.text:
             anim_action = self.scene.create_play_action(
-                AlgoTransform([self.text[key]], transform=FadeOut)
+                AlgoTransform([self.text[key]], transform=FadeOut),
+                w_prev=True
             )
 
-            static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.text[key]])
+            static_action = AlgoSceneAction.create_static_action(self.scene.remove,
+                                                                 [self.text[key]])
             action_pair = self.scene.add_action_pair(anim_action, static_action)
 
             # Create LowerMetadata
             lower_meta = LowerMetadata('remove_text', action_pair)
             curr_metadata.add_lower(lower_meta)
 
-        # Only add if it is a higher level function
-
+        # Add new text object to text dictionary
         self.text[key] = TextMobject(text)
 
+        # Move it next to the list on the given vector (e.g. UP, DOWN, LEFT, RIGHT)
         anim_action = self.scene.create_play_action(
                 AlgoTransform([self.text[key].next_to, self.grp, vector], transform=ApplyMethod)
             )
@@ -54,6 +61,7 @@ class AlgoList:
         lower_meta = LowerMetadata('next_to', action_pair)
         curr_metadata.add_lower(lower_meta)
 
+        # Add the text to the scene with a Write
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.text[key]], transform=Write)
         )
@@ -61,13 +69,56 @@ class AlgoList:
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text[key]])
         action_pair = self.scene.add_action_pair(anim_action, static_action)
 
-        # Create LowerMetadata
         lower_meta = LowerMetadata('add_text', action_pair)
         curr_metadata.add_lower(lower_meta)
 
         # Only add if it is a higher level function
         if metadata is None:
             self.scene.add_metadata(curr_metadata)
+
+    def remove_text(self, key=None, metadata=None):
+        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
+
+        # If no key is given, remove all text
+        if not key:
+            for k in list(self.text):
+                anim_action = self.scene.create_play_action(
+                    AlgoTransform([self.text[k]], transform=FadeOut),
+                    w_prev=True
+                )
+
+                static_action = AlgoSceneAction.create_static_action(self.scene.remove,
+                                                                    [self.text[k]])
+                action_pair = self.scene.add_action_pair(anim_action, static_action)
+
+                # Create LowerMetadata
+                lower_meta = LowerMetadata('remove_text', action_pair)
+                curr_metadata.add_lower(lower_meta)
+
+                del self.text[k]
+
+            if metadata is None:
+                self.scene.add_metadata(curr_metadata)
+
+            self.text = {"": TextMobject("")}
+        elif key in self.text:
+            anim_action = self.scene.create_play_action(
+                AlgoTransform([self.text[key]], transform=FadeOut),
+                w_prev=True
+            )
+
+            static_action = AlgoSceneAction.create_static_action(self.scene.remove,
+                                                                 [self.text[key]])
+            action_pair = self.scene.add_action_pair(anim_action, static_action)
+
+            # Create LowerMetadata
+            lower_meta = LowerMetadata('remove_text', action_pair)
+            curr_metadata.add_lower(lower_meta)
+
+            del self.text[key]
+
+            if metadata is None:
+                self.scene.add_metadata(curr_metadata)
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
@@ -81,16 +132,20 @@ class AlgoList:
 
         self.scene.add_metadata(metadata)
 
-    def compare(self, i, j, animated=True, highlights=True):
+    def compare(self, i, j, animated=True, highlights=True, text=True):
         meta = Metadata.create_fn_metadata()
         if highlights:
             self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
             self.highlight(i, j, animated=animated, metadata=meta)
-        
+
         val1 = self.get_val(i)
         val2 = self.get_val(j)
-        self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP, meta)
-        self.scene.add_metadata(meta)
+
+        if text:
+            self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP, meta)
+
+        if highlights or text:
+            self.scene.add_metadata(meta)
         return val1 < val2
 
     # Restores the internal VGroup of list nodes

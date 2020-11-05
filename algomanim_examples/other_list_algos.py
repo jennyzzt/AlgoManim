@@ -8,8 +8,8 @@ class FindMaxScene(AlgoScene):
         algolist = AlgoList(self, [25, 40, 5, 60, 50, 80])
 
         cur_max_idx = 0
-        algolist.add_text("max value: " + str(algolist.get_val(cur_max_idx)), "max", DOWN)
-
+        algolist.add_text(f"max value: {str(algolist.get_val(cur_max_idx))}", "max", DOWN)
+        algolist.add_text("this is a text", "test", LEFT)
         for i in range(algolist.len()):
             algolist.highlight(cur_max_idx, i)
             if algolist.compare(cur_max_idx, i, highlights=False):
@@ -18,7 +18,7 @@ class FindMaxScene(AlgoScene):
                 algolist.add_text("max value: " + str(algolist.get_val(cur_max_idx)), "max", DOWN)
             else:
                 algolist.dehighlight(i)
-
+        algolist.remove_text()
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
         settings['node_size'] = 1.5
