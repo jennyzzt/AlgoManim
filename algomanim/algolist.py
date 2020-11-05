@@ -198,18 +198,18 @@ class AlgoList(AlgoObject):
             if i not in range(start, stop):
                 rem_indices.append(i)
         for i in sorted(rem_indices, reverse=True):
-            sublist.pop(i, animated=True)
+            sublist.pop(i, animated=False)
 
         # Shift sublist below original list
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [sublist.grp.shift, DOWN * 1.1 * self.nodes[0].node_length],
+                [sublist.grp.next_to, self.nodes[start].grp, DOWN],
                 transform=ApplyMethod
             )
         )
         static_action = AlgoSceneAction.create_static_action(
-            sublist.grp.shift,
-            [DOWN * 1.1 * self.nodes[0].node_length]
+            sublist.grp.next_to,
+            [self.nodes[start].grp, DOWN]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
@@ -217,19 +217,35 @@ class AlgoList(AlgoObject):
         lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
+
+
+        # anim_action = self.scene.create_play_action(
+        #     AlgoTransform(
+        #         [sublist.grp.shift, DOWN * 1.1 * self.nodes[0].node_length],
+        #         transform=ApplyMethod
+        #     )
+        # )
+        # static_action = AlgoSceneAction.create_static_action(
+        #     sublist.grp.shift,
+        #     [DOWN * 1.1 * self.nodes[0].node_length]
+        # )
+        # action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        #
+        # lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
+        # meta.add_lower(lower_meta)
+
         # Center the two lists
-        grp = VGroup(self.grp, sublist.grp)
-
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([grp.center], transform=ApplyMethod)
-        )
-        static_action = AlgoSceneAction.create_static_action(grp.center)
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
-
-        # Create LowerMetaData
-        lower_meta = LowerMetadata('temp', action_pair)
-        meta.add_lower(lower_meta)
+        # grp = VGroup(self.grp, sublist.grp)
+        #
+        # anim_action = self.scene.create_play_action(
+        #     AlgoTransform([grp.center], transform=ApplyMethod)
+        # )
+        # static_action = AlgoSceneAction.create_static_action(grp.center)
+        # action_pair = self.scene.add_action_pair(anim_action, static_action,
+        #                                          animated=animated)
+        #
+        # lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+        # meta.add_lower(lower_meta)
 
         # Add metadata to scene
         self.scene.add_metadata(meta)

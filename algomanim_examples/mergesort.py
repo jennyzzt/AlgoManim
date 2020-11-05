@@ -7,7 +7,7 @@ from algomanim.algolist import AlgoList
 
 class MergeSortScene(AlgoScene):
     def algoconstruct(self):
-        algolist = AlgoList(self, [4, 3, 1])
+        algolist = AlgoList(self, [4, 3, 1, 4])
 
         self.mergesort(algolist)
 
