@@ -8,7 +8,7 @@ class AlgoNode:
         self.scene = scene
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
-        self.node_length = scene.settings['node_size']
+        self.node_length = float(scene.settings['node_size'])
         self.node = {
             Shape.CIRCLE: Circle(
                 color=self.node_color,
