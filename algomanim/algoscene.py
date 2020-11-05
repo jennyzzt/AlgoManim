@@ -1,10 +1,22 @@
 # pylint: disable=R0903
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
+from gui.panels.customisation_type import CustomisationType
 from .animation_block import AnimationBlock
+from .metadata_block import MetadataBlock
+from .metadata import Metadata, AlgoListMetadata, LowerMetadata
 
 def do_nothing(*_):
     return
+
+def fade_out_transform(scene):
+    scene.save_mobjects = scene.mobjects
+    return list(map(FadeOut, scene.save_mobjects))
+
+def fade_in_transform(scene):
+    result = list(map(FadeIn, scene.save_mobjects))
+    scene.save_mobjects = []
+    return result
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
@@ -44,6 +56,7 @@ class AlgoTransform:
 class AlgoSceneAction:
     @staticmethod
     def create_static_action(function, args=[], color_index=None): # pylint: disable=W0102
+        # w_prev flag does not matter for static actions
         return AlgoSceneAction(
             do_nothing,
             transform=AlgoTransform(args, transform=function, color_index=color_index),
@@ -52,6 +65,7 @@ class AlgoSceneAction:
 
     @staticmethod
     def create_empty_action():
+        # empty filler action
         return AlgoSceneAction.create_static_action(do_nothing, [])
 
     def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
@@ -67,10 +81,14 @@ class AlgoSceneAction:
         return False
 
     def set_color(self, color):
-        self.transform.set_color(color)
+        if self.transform is not None:
+            self.transform.set_color(color)
 
     def get_color(self):
-        return self.transform.get_color()
+        if self.transform is not None:
+            return self.transform.get_color()
+
+        return None
 
     def run(self):
         if self.transform is not None:
@@ -88,6 +106,20 @@ class AlgoSceneActionPair:
         self.anim_action = anim_action
         self.static_action = static_action if static_action is not None else anim_action
         self.run_time = run_time
+        self.anim_block = None # anim_block this action_pair ends up in
+        self.index = None # index of action pair in action_pairs list
+
+    def attach_block(self, anim_block):
+        self.anim_block = anim_block
+
+    def attach_index(self, index):
+        self.index = index
+
+    def get_index(self):
+        return self.index
+
+    def get_block(self):
+        return self.anim_block
 
     def can_set_runtime(self):
         return self.anim_action.can_set_runtime
@@ -96,11 +128,23 @@ class AlgoSceneActionPair:
         return self.run_time
 
     def get_runtime_val(self):
+        if not self.can_set_runtime():
+            return 0
+
         return 1 if self.run_time is None else self.run_time
 
     def set_runtime(self, run_time):
+        if not self.can_set_runtime() and run_time != 0:
+            print('WARNING: ActionPair does not have runtime property')
+            return
+
+        if self.anim_action == self.static_action and run_time == 0:
+            print('WARNING: ActionPair cannot be skipped')
+            return
+
         if not isinstance(run_time, float) or not isinstance(run_time, int):
             run_time = float(run_time)
+
         self.run_time = run_time
 
     def can_set_color(self):
@@ -135,6 +179,16 @@ class AlgoSceneActionPair:
     def run(self):
         return self.curr_action().run()
 
+    def customizations(self):
+        customizations = dict()
+        if self.can_set_color():
+            customizations[CustomisationType.COLOR] = self.get_color()
+
+        if self.can_set_runtime():
+            customizations[CustomisationType.RUNTIME] = self.get_runtime_val()
+
+        return customizations
+
 class AlgoScene(Scene):
     def __init__(self, **kwargs):
         # Default settings
@@ -154,6 +208,7 @@ class AlgoScene(Scene):
         self.action_pairs = []
         self.anim_blocks = []
         self.meta_trees = []
+        self.metadata_blocks = []
 
         Scene.__init__(self, **kwargs)
 
@@ -194,17 +249,65 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.skip()
 
-    def add_transform(self, index, transform):
+    def push_back_action_pair_indices(self, index):
+        for action_pair in self.action_pairs[index:]:
+            action_pair.attach_index(action_pair.get_index() + 1)
+
+    def add_transform(self, index, transform, metadata=None):
+        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([], transform=transform))
-        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, anim_action))
+        action_pair = AlgoSceneActionPair(anim_action, anim_action)
+        self.action_pairs.insert(index, action_pair)
+
+        if metadata is None:
+            curr_metadata = Metadata(AlgoListMetadata.CUSTOM)
+            lower_meta = LowerMetadata(AlgoListMetadata.CUSTOM, action_pair)
+            curr_metadata.add_lower(lower_meta)
+
+            self.add_metadata(curr_metadata)
+        else:
+            self.add_metadata(metadata)
+
+    def add_fade_out_all(self, index):
+        self.push_back_action_pair_indices(index)
+        anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
+        action_pair = AlgoSceneActionPair(anim_action, anim_action)
+        self.action_pairs.insert(index, action_pair)
+
+        curr_metadata = Metadata(AlgoListMetadata.FADE_OUT)
+        lower_meta = LowerMetadata(AlgoListMetadata.FADE_OUT, action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        self.add_metadata(curr_metadata)
+
+    def add_fade_in_all(self, index):
+        self.push_back_action_pair_indices(index)
+        anim_action = self.create_play_action(AlgoTransform([self], transform=fade_in_transform))
+        action_pair = AlgoSceneActionPair(anim_action, anim_action)
+        self.action_pairs.insert(index, action_pair)
+
+        curr_metadata = Metadata(AlgoListMetadata.FADE_IN)
+        lower_meta = LowerMetadata(AlgoListMetadata.FADE_IN, action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        self.add_metadata(curr_metadata)
 
     def add_wait(self, index, wait_time=1):
+        self.push_back_action_pair_indices(index)
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
-        self.action_pairs.insert(index, AlgoSceneActionPair(anim_action, static_action))
+        action_pair = AlgoSceneActionPair(anim_action, static_action)
+        self.action_pairs.insert(index, action_pair)
+
+        curr_metadata = Metadata(AlgoListMetadata.WAIT)
+        lower_meta = LowerMetadata(AlgoListMetadata.WAIT, action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        self.add_metadata(curr_metadata)
 
     def add_clear(self, index):
+        self.push_back_action_pair_indices(index)
         action = AlgoSceneAction.create_static_action(self.clear)
         self.action_pairs.insert(index, AlgoSceneActionPair(action))
 
@@ -218,37 +321,74 @@ class AlgoScene(Scene):
     def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
         # convert action_pairs into anim_blocks
         start_time = 0
-        for (i, action_pair) in enumerate(action_pairs):
+        for action_pair in action_pairs:
             action = action_pair.curr_action()
             if action.w_prev and len(anim_blocks) > 0 and anim_blocks[-1].act() == action.act:
+                # if action is supposed to be executed with previous action and
+                # act function is the same as that of current block, bundle actions
+                # together
                 anim_blocks[-1].add_action_pair(action_pair)
             else:
-                anim_blocks.append(AnimationBlock([action_pair], i, i, start_time))
+                # else, create new Animation Block
+                anim_blocks.append(AnimationBlock([action_pair], start_time))
                 start_time += anim_blocks[-1].runtime_val()
 
+            # attach block to action pair so that time data can be
+            # extracted later to be used in GUI
+            action_pair.attach_block(anim_blocks[-1])
+
     def execute_action_pairs(self, action_pairs, anim_blocks):
+        # wait action is required at the end if last animation is not
+        # a play/wait, else the last animation will not be rendered
         if len(action_pairs) > 0:
             last_action_pair = action_pairs[-1]
             last_act = last_action_pair.act()
             if last_act != self.play or last_act != self.wait: # pylint: disable=W0143
-                # wait action is required at the end if last animation is not
-                # a play/wait, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
+
+        # attach indexes to action_pair to be used in GUI
+        # customizations
+        for (i, action_pair) in enumerate(action_pairs):
+            action_pair.attach_index(i)
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:
             post_customize(self.action_pairs)
 
+        # bundle animations together according to time
         self.create_animation_blocks(action_pairs, anim_blocks)
 
+        # and run them
         for anim_block in self.anim_blocks:
             anim_block.run()
 
+    def create_metadata_blocks(self):
+        self.metadata_blocks = []
+
+        for tree in self.meta_trees:
+            action_pairs = tree.get_all_action_pairs()
+
+            blocks = list({action_pair.get_block() for action_pair in action_pairs})
+            start_time = blocks[0].start_time
+            end_time = blocks[-1].start_time + blocks[-1].runtime_val()
+            runtime = end_time - start_time
+
+            self.metadata_blocks.append(
+                MetadataBlock(tree, action_pairs, start_time, runtime)
+            )
+        # some metadata might be added out of order, sort the blocks by start_time
+        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+
     def construct(self):
+        Metadata.reset_counter()
         self.preconfig(self.settings)
         self.post_config(self.settings, self.post_config_settings)
 
         self.algoconstruct()
+        # attach indexes to action_pair to be used in customize fn
+        for (i, action_pair) in enumerate(self.action_pairs):
+            action_pair.attach_index(i)
         self.customize(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)
+        self.create_metadata_blocks()

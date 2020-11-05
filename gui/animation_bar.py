@@ -74,7 +74,7 @@ class AnimationBar(QWidget):
 
         # Size box
         anim_box.setFixedHeight(BAR_BASE_HEIGHT - 15)  # prevent height overflow
-        width = max(int(150 * anim.runtime_val()), 80)
+        width = max(int(150 * anim.runtime), 80)
         anim_box.setFixedWidth(width)
 
         # Layout anim box
