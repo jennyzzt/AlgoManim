@@ -17,9 +17,11 @@ class AlgoTreeNode(AlgoNode):
         scene.settings['node_shape'] = Shape.CIRCLE
 
         super().__init__(scene, val)
-
         self.left = None
         self.right = None
+
+        self.nodesgrp = None
+        self.linesgrp = None
         self.treegrp = None
 
         # features used for positioning
@@ -27,14 +29,12 @@ class AlgoTreeNode(AlgoNode):
         self.y = depth
 
         # for visualisation
-        #self.line = Line(ORIGIN, ORIGIN, stroke_width=10, color=WHITE)
-        self.line = None
+        self.line = Line(ORIGIN, ORIGIN, stroke_width=10, color=WHITE)
 
 
     def static_set_line_with(self, parent):
-        #self.line.set_start_and_end_attrs(self.grp, parent.grp)
-        self.line = Line(self.grp.get_center(), parent.grp.get_center(),
-                         stroke_width=10)
+        self.line.put_start_and_end_on(self.grp.get_center(), parent.grp.get_center())
+        # self.line.set_start_and_end_attrs(self.grp, parent.grp)
 
     # Set the line connecting the node to its parent
     def set_line_with(self, parent):
@@ -90,10 +90,12 @@ class AlgoTreeNode(AlgoNode):
             nodes += self.right.get_all_nodes()
         return nodes
 
-    # Treegroup all tree nodes together
+    # Treegroup all tree nodes and lines together
     def treegroup(self):
         nodes = self.get_all_nodes()
-        self.treegrp = VGroup(*[n.grp for n in nodes])
+        self.nodesgrp = VGroup(*[n.grp for n in nodes])
+        self.linesgrp = VGroup(*[n.line for n in nodes])
+        self.treegrp = VGroup(*[self.nodesgrp, self.linesgrp])
 
     # Center the tree on screen
     def center(self, animated=True, metadata=None):
@@ -103,7 +105,6 @@ class AlgoTreeNode(AlgoNode):
             AlgoTransform([self.treegrp.center], transform=ApplyMethod)
         )
         static_action = AlgoSceneAction.create_static_action(self.treegrp.center)
-
         action_pair = self.scene.add_action_pair(anim_action, static_action,
                                                  animated=animated)
 
@@ -119,13 +120,17 @@ class AlgoTreeNode(AlgoNode):
 
     # Show only the line connecting this node to the parent
     def show_line(self, metadata, animated=True, w_prev=False):
-        if self.line is None:
-            return
+        # Add show line action_pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.line], transform=FadeIn), w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
         self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Send line to back
+        action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
+        self.scene.add_action_pair(action, action, animated=animated)
+
         if metadata:
             pass
 

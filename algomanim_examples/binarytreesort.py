@@ -9,5 +9,4 @@ class BinaryTreeSortScene(AlgoScene):
         for i in range(1, len(numlist)):
             root.insert(numlist[i], animated=False)
 
-        root.show_tree(order=TreeTraversalType.INORDER, animated=False)
-        root.center(animated=False)
+        root.show_tree(order=TreeTraversalType.PREORDER)
