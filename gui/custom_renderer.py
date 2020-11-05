@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Functions for rendering manim animation into a video using algomanim API
-and constructing anim dicts for AnimationBar widget
+Interface to render default or customized manim animations
+created via the Algomanim API into videos
 """
 
 from argparse import Namespace
@@ -12,8 +12,9 @@ from manimlib.extract_scene import get_scene_classes_from_module, get_scenes_to_
 from gui.video_quality import VideoQuality
 
 # Modification of internal manim function using algomanim API
-def extract_scene(file_path, scene_name, video_quality):
-    args = Namespace(color=None,
+def custom_renderer(file_path, scene_name, video_quality,
+                    post_customize_fns, post_config_settings):
+    args = Namespace(color=post_config_settings.get('background_color'),
                      file=file_path,
                      file_name=None,
                      high_quality=video_quality == VideoQuality.high,
@@ -54,9 +55,9 @@ def extract_scene(file_path, scene_name, video_quality):
                                      ]
     }
 
-    return scene_class(**scene_kwargs)
+    scene_kwargs.update({
+        'post_customize_fns': post_customize_fns,
+        'post_config_settings': post_config_settings
+    })
 
-# Renders video and returns scene
-def custom_renderer(file_path, scene_name, video_quality):
-    # animation block information is inside scene
-    return extract_scene(file_path, scene_name, video_quality)
+    return scene_class(**scene_kwargs)

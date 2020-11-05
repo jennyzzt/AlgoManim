@@ -1,7 +1,7 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList, AlgoListMetadata
-from algomanim.settings import Shape
+from algomanim.shape import Shape
 
 class CustomBubbleSortScene(AlgoScene):
     def algoconstruct(self):

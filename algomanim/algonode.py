@@ -1,14 +1,14 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata, AlgoListMetadata
-from algomanim.settings import Shape
+from algomanim.shape import Shape
 
 class AlgoNode:
     def __init__(self, scene, val):
         self.scene = scene
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
-        self.node_length = scene.settings['node_size']
+        self.node_length = float(scene.settings['node_size'])
         self.node = {
             Shape.CIRCLE: Circle(
                 color=self.node_color,
