@@ -249,3 +249,5 @@ class AlgoList(AlgoObject):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
+
+        return self
