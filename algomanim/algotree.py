@@ -178,7 +178,7 @@ class AlgoTreeNode(AlgoNode):
     # Hide both the node and the line connecting it
     def hide(self, metadata, animated=True, w_prev=False):
         self.hide_line(metadata, animated=animated, w_prev=w_prev)
-        super().hide(metadata, animated=animated, w_prev=w_prev)
+        super().hide(metadata, animated=animated, w_prev=True)
 
     # Recursely hide entire tree with this node as the root
     def recurse_hide_tree(self, order, metadata, animated=True):
@@ -205,15 +205,13 @@ class AlgoTreeNode(AlgoNode):
         # If value is less than curr_node, insert to the left
         if val < curr_node.val:
             if curr_node.left is None:
-                new_node = AlgoTreeNode(curr_node.scene, val)
-                curr_node.left = new_node
+                curr_node.left = AlgoTreeNode(curr_node.scene, val)
                 return
             curr_node = curr_node.left
         # Else insert to the right
         else:
             if curr_node.right is None:
-                new_node = AlgoTreeNode(curr_node.scene, val)
-                curr_node.right = new_node
+                curr_node.right = AlgoTreeNode(curr_node.scene, val)
                 return
             curr_node = curr_node.right
         # curr_node is filled, try next one
@@ -233,12 +231,14 @@ class AlgoTreeNode(AlgoNode):
             self.right = self.right.remove(val, animated)
         else:
             # found node with val to be deleted
-            meta = Metadata('remove')
+            meta = Metadata.create_fn_metadata()
             if self.left is None:
                 self.hide(meta, animated)
+                self.scene.add_metadata(meta)
                 return self.right
             if self.right is None:
                 self.hide(meta, animated)
+                self.scene.add_metadata(meta)
                 return self.left
             # node with two children, get the inorder successor
             temp = self.right.min_val_node()
