@@ -20,12 +20,12 @@ def fade_in_transform(scene):
 
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
-        '''
+        """
         if transform is None, this class encapsulates a list of arguments
         else, the arguments are to be consumed by the transform function
         if color_index is None, this transform does not have a color property
         else, color can be changed by changing args[color_index]
-        '''
+        """
         self.transform = transform
         self.args = args
         self.color_index = color_index
@@ -205,6 +205,9 @@ class AlgoScene(Scene):
         # Used to reobtain objects that are removed by certain animations
         self.save_mobjects = None
 
+        # Tracker for all items in the Scene
+        self.algo_items = []
+
         self.kwargs = kwargs
         self.post_customize_fns = kwargs.get('post_customize_fns', [])
         self.post_config_settings = kwargs.get('post_config_settings', {})
@@ -242,6 +245,25 @@ class AlgoScene(Scene):
 
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)
+
+    # Add item so they can subscribe themselves scene transformations like Shifts
+    def track_algoitem(self, algo_item):
+        self.algo_items.append(algo_item)
+
+    def shift_up(self):
+        for algo_item in self.algo_items:
+            # Shift sublist to position of hidden_sublist
+            anim_action = self.create_play_action(
+                AlgoTransform(
+                    [algo_item.grp.move_to, algo_item.grp.get_center() + UP],
+                    transform=ApplyMethod
+                )
+            )
+            static_action = AlgoSceneAction.create_static_action(
+                algo_item.grp.move_to,
+                [algo_item.grp.get_center() + UP]
+            )
+            self.add_action_pair(anim_action, static_action, animated=True)
 
     def skip(self, start, end=None):
         if end is None:
@@ -345,6 +367,8 @@ class AlgoScene(Scene):
             last_action_pair = action_pairs[-1]
             last_act = last_action_pair.act()
             if last_act != self.play or last_act != self.wait: # pylint: disable=W0143
+                # wait action is required at the end if last animation is not
+                # a play/wait, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
 
         # attach indexes to action_pair to be used in GUI

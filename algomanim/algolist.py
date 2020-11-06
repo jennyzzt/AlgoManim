@@ -209,6 +209,9 @@ class AlgoList(AlgoObject):
         Both slices are hidden from the screen during this process.
         """
 
+        # Shift the Scene up so that that we make space for the new list
+        self.scene.shift_up()
+
         # Create sliced list in background
         sublist = AlgoList(self.scene,
                            [n.val for n in self.nodes][start:stop], show=False)
