@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=C0103, R0904
 from enum import Enum, auto
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
@@ -12,13 +12,14 @@ class TreeTraversalType(Enum):
     POSTORDER = auto()
 
 class AlgoTreeNode(AlgoNode):
-    def __init__(self, scene, val, depth=0):
+    def __init__(self, scene, val, parent=None):
         # default node configs for treenodes
         scene.settings['node_shape'] = Shape.CIRCLE
 
         super().__init__(scene, val)
         self.left = None
         self.right = None
+        self.parent = parent
 
         self.nodesgrp = None
         self.linesgrp = None
@@ -26,7 +27,7 @@ class AlgoTreeNode(AlgoNode):
 
         # features used for positioning
         self.x = -1
-        self.y = depth
+        self.y = -1
 
         # for visualisation
         self.line = Line(ORIGIN, ORIGIN, stroke_width=10, color=WHITE)
@@ -178,7 +179,7 @@ class AlgoTreeNode(AlgoNode):
     # Hide both the node and the line connecting it
     def hide(self, metadata, animated=True, w_prev=False):
         self.hide_line(metadata, animated=animated, w_prev=w_prev)
-        super().hide(metadata, animated=animated, w_prev=True)
+        super().hide(metadata, animated=animated, w_prev=w_prev)
 
     # Recursely hide entire tree with this node as the root
     def recurse_hide_tree(self, order, metadata, animated=True):
@@ -205,13 +206,13 @@ class AlgoTreeNode(AlgoNode):
         # If value is less than curr_node, insert to the left
         if val < curr_node.val:
             if curr_node.left is None:
-                curr_node.left = AlgoTreeNode(curr_node.scene, val)
+                curr_node.left = AlgoTreeNode(curr_node.scene, val, curr_node)
                 return
             curr_node = curr_node.left
         # Else insert to the right
         else:
             if curr_node.right is None:
-                curr_node.right = AlgoTreeNode(curr_node.scene, val)
+                curr_node.right = AlgoTreeNode(curr_node.scene, val, curr_node)
                 return
             curr_node = curr_node.right
         # curr_node is filled, try next one
@@ -224,6 +225,60 @@ class AlgoTreeNode(AlgoNode):
             curr_node = curr_node.left
         return curr_node
 
+    def is_child(self):
+        return self.parent is not None
+
+    def is_left(self):
+        return self.parent.left == self
+
+    def swap(self, node, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # update parents' children
+        if self.is_child():
+            if self.is_left():
+                self.parent.left = node
+            else:
+                self.parent.right = node
+        if node.is_child():
+            if node.is_left():
+                node.parent.left = self
+            else:
+                node.parent.right = self
+        # update parents
+        ptemp = self.parent
+        self.parent = node.parent
+        node.parent = ptemp
+        # update children
+        ltemp = self.left
+        rtemp = self.right
+        self.left = node.left
+        self.right = node.right
+        node.left = ltemp
+        node.right = rtemp
+        # swap connecting lines
+        temp = self.line
+        self.line = node.line
+        node.line = temp
+        # add swap animation
+        self.swap_with(node, animated=animated, w_prev=w_prev, metadata=meta)
+        if metadata is None:
+            self.scene.add_metadata(meta)
+
+    def delete(self, metadata=None, animated=True):
+        # remove parent's connection to it
+        if self.is_child():
+            if self.is_left():
+                self.parent.left = None
+            else:
+                self.parent.right = None
+        # remove children's connection to it
+        if self.left:
+            self.left.parent = None
+        if self.right:
+            self.right.parent = None
+        # add animation
+        self.hide(metadata, animated)
+
     def remove(self, val, animated=True):
         if val < self.val:
             self.left = self.left.remove(val, animated)
@@ -233,16 +288,17 @@ class AlgoTreeNode(AlgoNode):
             # found node with val to be deleted
             meta = Metadata.create_fn_metadata()
             if self.left is None:
-                self.hide(meta, animated)
+                self.delete(meta, animated)
                 self.scene.add_metadata(meta)
                 return self.right
             if self.right is None:
-                self.hide(meta, animated)
+                self.delete(meta, animated)
                 self.scene.add_metadata(meta)
                 return self.left
             # node with two children, get the inorder successor
             temp = self.right.min_val_node()
-            self.val = temp.val
-            # delete the inorder successor
-            self.right = self.right.remove(temp.val, animated)
+            self.swap(temp, animated=animated, w_prev=False, metadata=meta)
+            self.delete(meta, animated=animated)
+            self.scene.add_metadata(meta)
+            return temp
         return self
