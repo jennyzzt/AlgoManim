@@ -363,9 +363,10 @@ class AlgoScene(Scene):
         for tree in self.meta_trees:
             action_pairs = tree.get_all_action_pairs()
 
-            blocks = list({action_pair.get_block() for action_pair in action_pairs})
-            start_time = blocks[0].start_time
-            end_time = blocks[-1].start_time + blocks[-1].runtime_val()
+            blocks = {action_pair.get_block() for action_pair in action_pairs}
+            start_time = min(map(lambda block: block.start_time, blocks))
+            end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
+
             runtime = end_time - start_time
 
             self.metadata_blocks.append(

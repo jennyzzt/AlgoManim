@@ -88,6 +88,7 @@ class AnimationBar(QWidget):
         return anim_box
 
     def set_mouse_clicked(self, anim):
+        # print(f'Animation Clicked. Setting media position to {anim.start_position()}')
         self.video_player.set_media_position(anim.start_position())
         self.gui_window.anim_clicked(anim)
 
@@ -99,6 +100,7 @@ class AnimationBar(QWidget):
         self.anim_boxes[index].setStyleSheet("background-color: white; color: black")
 
     def media_position_changed(self, position):
+        # print(f'Media position changed to {position}')
         for (i, anim) in enumerate(self.anims):
             start_position = anim.start_position()
             end_position = anim.end_position()
