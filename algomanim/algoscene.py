@@ -6,14 +6,31 @@ from .animation_block import AnimationBlock
 def do_nothing(*_):
     return
 
+class AlogoArgs:
+    def __init__(self, arg, executable=False):
+        """
+        A wrapper for AlgoTransform arguments. Delay execution of `arg`
+        as is it might be runetime dependent such as mobject.get_center()
+        or other mobject attributes that COULD be influenced by a previous animation.
+        A solved edged case is to add dynamic relative positioning.
+        """
+        self.arg = arg
+        self.executable = executable
+
+    def execute_args(self):
+        if self.executable:
+            return self.arg()
+        else:
+            return self.arg
+
 class AlgoTransform:
     def __init__(self, args, transform=None, color_index=None):
-        '''
+        """
         if transform is None, this class encapsulates a list of arguments
         else, the arguments are to be consumed by the transform function
         if color_index is None, this transform does not have a color property
         else, color can be changed by changing args[color_index]
-        '''
+        """
         self.transform = transform
         self.args = args
         self.color_index = color_index
@@ -143,6 +160,9 @@ class AlgoScene(Scene):
         # Used to reobtain objects that are removed by certain animations
         self.save_mobjects = None
 
+        # Tracker for all items in the Scene
+        self.algo_items = []
+
         self.kwargs = kwargs
         if not hasattr(self, 'post_customize_fns'):
             # when rerendering, do not set this list back to []
@@ -183,6 +203,25 @@ class AlgoScene(Scene):
 
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)
+
+    # Add item so they can subscribe themselves scene transformations like Shifts
+    def track_algoitem(self, algo_item):
+        self.algo_items.append(algo_item)
+
+    def shift_up(self):
+        for algo_item in self.algo_items:
+            # Shift sublist to position of hidden_sublist
+            anim_action = self.create_play_action(
+                AlgoTransform(
+                    [algo_item.grp.move_to, algo_item.grp.get_center() + UP],
+                    transform=ApplyMethod
+                )
+            )
+            static_action = AlgoSceneAction.create_static_action(
+                algo_item.grp.move_to,
+                [algo_item.grp.get_center() + UP]
+            )
+            self.add_action_pair(anim_action, static_action, animated=True)
 
     def skip(self, start, end=None):
         if end is None:
