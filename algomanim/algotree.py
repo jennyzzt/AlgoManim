@@ -75,9 +75,12 @@ class AlgoTreeNode(AlgoNode):
 
     # Recalculate and fit nodes to layout
     def adjust_layout(self):
-        self.calc_layout()
-        self.fit_layout()
-        self.treegroup()
+        root = self
+        while root.parent:
+            root = root.parent
+        root.calc_layout()
+        root.fit_layout()
+        root.treegroup()
     # ---------------------------------------------------- #
 
     # Get a list of all tree nodes with this node as the root
@@ -257,8 +260,8 @@ class AlgoTreeNode(AlgoNode):
         node.left = ltemp
         node.right = rtemp
         # swap connecting lines
-        temp = self.line
-        self.line = node.line
+        temp = self.line.deepcopy()
+        self.line = node.line.deepcopy()
         node.line = temp
         # add swap animation
         self.swap_with(node, animated=animated, w_prev=w_prev, metadata=meta)
@@ -296,15 +299,19 @@ class AlgoTreeNode(AlgoNode):
             if self.left is None:
                 self.delete(meta, animated)
                 self.scene.add_metadata(meta)
+                self.right.adjust_layout()
                 return self.right
             if self.right is None:
                 self.delete(meta, animated)
                 self.scene.add_metadata(meta)
+                self.left.adjust_layout()
                 return self.left
             # node with two children, get the inorder successor
             temp = self.right.min_val_node()
             self.swap(temp, animated=animated, w_prev=False, metadata=meta)
             self.delete(meta, animated=animated)
             self.scene.add_metadata(meta)
+            temp.adjust_layout()
             return temp
+        self.adjust_layout()
         return self
