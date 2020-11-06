@@ -34,7 +34,6 @@ class AlgoTreeNode(AlgoNode):
 
     def static_set_line_with(self, parent):
         self.line.put_start_and_end_on(self.grp.get_center(), parent.grp.get_center())
-        # self.line.set_start_and_end_attrs(self.grp, parent.grp)
 
     # Set the line connecting the node to its parent
     def set_line_with(self, parent):
@@ -125,39 +124,41 @@ class AlgoTreeNode(AlgoNode):
             AlgoTransform([self.line], transform=FadeIn), w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
-        self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Send line to back
-        action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
-        self.scene.add_action_pair(action, action, animated=animated)
+        pos_action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
+        self.scene.add_action_pair(pos_action, pos_action, animated=animated)
 
-        if metadata:
-            pass
+        # Initialise a LowerMetadata class for this low level function
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val])
+        metadata.add_lower(lower_meta)
 
     # Show both the node and the line connecting it
     def show(self, metadata, animated=True, w_prev=False):
-        self.show_line(metadata, animated, w_prev)
-        super().show(metadata, animated, w_prev)
+        self.show_line(metadata, animated=animated, w_prev=w_prev)
+        super().show(metadata, animated=animated, w_prev=w_prev)
 
     # Recursely show entire tree with this node as the root
-    def recurse_show_tree(self, order, animated=True):
-        meta = Metadata('show')
+    def recurse_show_tree(self, order, metadata, animated=True):
         if order == TreeTraversalType.PREORDER:
-            self.show(meta, animated)
+            self.show(metadata, animated=animated)
         if self.left:
-            self.left.recurse_show_tree(order, animated)
+            self.left.recurse_show_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.INORDER:
-            self.show(meta, animated)
+            self.show(metadata, animated=animated)
         if self.right:
-            self.right.recurse_show_tree(order, animated)
+            self.right.recurse_show_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.POSTORDER:
-            self.show(meta, animated)
+            self.show(metadata, animated=animated)
     # ---------------------------------------------------- #
 
     # Adjust tree structure and show
     def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
+        meta = Metadata.create_fn_metadata()
         self.adjust_layout()
-        self.recurse_show_tree(order, animated)
+        self.recurse_show_tree(order, meta, animated=animated)
+        self.scene.add_metadata(meta)
 
     # Hide entire tree with this node as the root
     def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
