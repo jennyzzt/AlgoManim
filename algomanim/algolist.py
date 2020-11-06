@@ -25,6 +25,9 @@ class AlgoList:
         if show:
             self.show(animated=False)
 
+        # Subscribe to the scene for scene transformations like Shifts
+        scene.track_algoitem(self)
+
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
         metadata = Metadata.create_fn_metadata()
@@ -218,6 +221,9 @@ class AlgoList:
         
         Both slices are hidden from the screen during this process.
         """
+
+        # Shift the Scene up so that that we make space for the new list
+        self.scene.shift_up()
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
