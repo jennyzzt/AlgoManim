@@ -6,21 +6,24 @@ from algomanim.metadata import Metadata, LowerMetadata, AlgoListMetadata
 
 
 class AlgoList:
-    def __init__(self, scene, arr):
+    def __init__(self, scene, arr, show=True):
         # Make nodes
         self.scene = scene
         self.nodes = [AlgoNode(scene, val) for val in arr]
 
         # Arrange nodes in order
         for i in range(1, len(self.nodes)):
-            self.nodes[i].set_right_of(self.nodes[i - 1])
+            self.nodes[i].grp.next_to(self.nodes[i - 1].grp, RIGHT)
 
         # Group nodes together
         self.grp = None
         self.group()
 
-        self.center(animated=False)
-        self.show(animated=False)
+        self.grp.center()
+        # self.center(animated=False)
+
+        if show:
+            self.show(animated=False)
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
@@ -186,8 +189,20 @@ class AlgoList:
 
         self.scene.add_metadata(meta)
 
-    # removed step parameter for now
-    def slice(self, start, stop, animated=True):
+    @staticmethod
+    def align_nodes_from_first_node(algolist):
+        for i in range(1, algolist.len()):
+            algolist.nodes[i].grp.next_to(algolist.nodes[i - 1].grp, RIGHT)
+
+    @staticmethod
+    def align_nodes_from_last_node(algolist):
+        for i in reversed(range(0, algolist.len() - 1)):
+            algolist.nodes[i].grp.next_to(algolist.nodes[i + 1].grp, LEFT)
+
+    # enforced contiguous slices
+    # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
+    def slice(self, start, stop, move=LEFT, animated=True):
+        # Fix indices if needed
         if start < 0:
             start = 0
         if stop > self.len():
@@ -201,64 +216,48 @@ class AlgoList:
         # Dehighlight the sublist we want to keep
         self.dehighlight(*range(start, stop), animated=animated, metadata=meta)
 
-        # Make a copy of the current list
-        # deepcopy doesn't work!
-        sublist = AlgoList(self.scene, [n.val for n in self.nodes])
+        """
+        The sliced list is first aligned to its original position in the list.
+        The hidden list is positioned where the sliced list will end up,
+        and its center is used to define the movement of the sliced list.
+        
+        Both slices are hidden from the screen during this process.
+        """
 
-        # Remove the unsliced nodes in reverse order so the indices are still valid after popping
-        # This ensures the sliced nodes are in their original positions
-        rem_indices = []
-        for i, _ in enumerate(sublist.nodes):
-            if i not in range(start, stop):
-                rem_indices.append(i)
-        for i in sorted(rem_indices, reverse=True):
-            sublist.pop(i, animated=False)
+        # Create sliced list in background
+        sublist = AlgoList(self.scene,
+                           [n.val for n in self.nodes][start:stop], show=False)
 
-        # Shift sublist below original list
+        # Align to its original position in the list
+        sublist.nodes[0].grp.align_to(self.nodes[start].grp, LEFT)
+        AlgoList.align_nodes_from_first_node(sublist)
+
+        hidden_sublist = AlgoList(self.scene,
+                                  [n.val for n in self.nodes][start:stop], show=False)
+
+        # Position hidden sliced list by taking reference from last element
+        hidden_sublist.nodes[-1].grp.next_to(self.nodes[stop - 1].grp, DOWN + move)
+        AlgoList.align_nodes_from_last_node(hidden_sublist)
+
+        move_pt = hidden_sublist.grp.get_center()
+
+        # Shift sublist to position of hidden_sublist
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [sublist.grp.next_to, self.nodes[start].grp, DOWN],
+                [sublist.grp.move_to, move_pt],
                 transform=ApplyMethod
             )
         )
         static_action = AlgoSceneAction.create_static_action(
-            sublist.grp.next_to,
-            [self.nodes[start].grp, DOWN]
+            sublist.grp.move_to,
+            [move_pt]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-
         lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
         meta.add_lower(lower_meta)
 
-
-
-        # anim_action = self.scene.create_play_action(
-        #     AlgoTransform(
-        #         [sublist.grp.shift, DOWN * 1.1 * self.nodes[0].node_length],
-        #         transform=ApplyMethod
-        #     )
-        # )
-        # static_action = AlgoSceneAction.create_static_action(
-        #     sublist.grp.shift,
-        #     [DOWN * 1.1 * self.nodes[0].node_length]
-        # )
-        # action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        #
-        # lower_meta = LowerMetadata(AlgoListMetadata.TEMP, action_pair)
-        # meta.add_lower(lower_meta)
-
-        # Center the two lists
-        # grp = VGroup(self.grp, sublist.grp)
-        #
-        # anim_action = self.scene.create_play_action(
-        #     AlgoTransform([grp.center], transform=ApplyMethod)
-        # )
-        # static_action = AlgoSceneAction.create_static_action(grp.center)
-        # action_pair = self.scene.add_action_pair(anim_action, static_action,
-        #                                          animated=animated)
-        #
-        # lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
-        # meta.add_lower(lower_meta)
+        # Get rid of hidden_sublist
+        self.scene.remove(hidden_sublist)
 
         # Add metadata to scene
         self.scene.add_metadata(meta)
