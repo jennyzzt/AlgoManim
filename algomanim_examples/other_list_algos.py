@@ -9,20 +9,20 @@ class FindMaxScene(AlgoScene):
 
         cur_max_idx = 0
         algolist.add_text(f"max value: {str(algolist.get_val(cur_max_idx))}", "max", DOWN)
-        algolist.add_text("this is a text", "test", LEFT)
+
         for i in range(algolist.len()):
-            algolist.highlight(cur_max_idx, i)
-            if algolist.compare(cur_max_idx, i, highlights=False):
-                algolist.dehighlight(cur_max_idx)
+            if algolist.compare(cur_max_idx, i, highlights=True):
                 cur_max_idx = i
                 algolist.add_text("max value: " + str(algolist.get_val(cur_max_idx)), "max", DOWN)
-            else:
-                algolist.dehighlight(i)
-        algolist.remove_text()
+
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
         settings['node_size'] = 1.5
         settings['highlight_color'] = "#33cccc"  # teal
+
+
+
+
 
 class BinarySearchScene(AlgoScene):
     def algoconstruct(self):
@@ -40,7 +40,7 @@ class BinarySearchScene(AlgoScene):
             if algolist.get_val(mid_pt) == val:
                 index = mid_pt
             else:
-                if val < algolist.get_val(mid_pt):
+                if val < algolist.get_val(mid_pt): # Need compare node to value function
                     last = mid_pt -1
                 else:
                     first = mid_pt +1
