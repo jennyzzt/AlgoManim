@@ -254,6 +254,7 @@ class AlgoList:
             [move_pt]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
         lower_meta = LowerMetadata('temp', action_pair)
         meta.add_lower(lower_meta)
 
