@@ -10,3 +10,4 @@ class BinaryTreeSortScene(AlgoScene):
             root.insert(numlist[i], animated=False)
 
         root.show_tree(order=TreeTraversalType.PREORDER)
+        root.hide_tree()

@@ -160,19 +160,45 @@ class AlgoTreeNode(AlgoNode):
         self.recurse_show_tree(order, meta, animated=animated)
         self.scene.add_metadata(meta)
 
-    # Hide entire tree with this node as the root
-    def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
-        meta = Metadata('hide')
+    # ------------- Hide Helper Functions ------------- #
+
+    # Hide only the line connecting this node to the parent
+    def hide_line(self, metadata, animated=True, w_prev=False):
+        # Add hide line action_pair
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([self.line], transform=FadeOut), w_prev=w_prev
+        )
+        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.line])
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Initialise a LowerMetadata class for this low level function
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val])
+        metadata.add_lower(lower_meta)
+
+    # Hide both the node and the line connecting it
+    def hide(self, metadata, animated=True, w_prev=False):
+        self.hide_line(metadata, animated=animated, w_prev=w_prev)
+        super().hide(metadata, animated=animated, w_prev=w_prev)
+
+    # Recursely hide entire tree with this node as the root
+    def recurse_hide_tree(self, order, metadata, animated=True):
         if order == TreeTraversalType.PREORDER:
-            self.hide(meta, animated)
+            self.hide(metadata, animated=animated)
         if self.left:
-            self.left.hide_tree(order, animated)
+            self.left.recurse_hide_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.INORDER:
-            self.hide(meta, animated)
+            self.hide(metadata, animated=animated)
         if self.right:
-            self.right.hide_tree(order, animated)
+            self.right.recurse_hide_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.POSTORDER:
-            self.hide(meta, animated)
+            self.hide(metadata, animated=animated)
+    # ---------------------------------------------------- #
+
+    # Hide entire tree with this node as root
+    def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
+        meta = Metadata.create_fn_metadata()
+        self.recurse_hide_tree(order, meta, animated=animated)
+        self.scene.add_metadata(meta)
 
     def insert(self, val, animated=True):
         curr_node = self
