@@ -34,10 +34,14 @@ class AlgoTreeNode(AlgoNode):
 
 
     def static_set_line_with(self, parent):
-        self.line.put_start_and_end_on(self.grp.get_center(), parent.grp.get_center())
+        if parent is None:
+            # reset line
+            self.line.put_start_and_end_on(ORIGIN, ORIGIN+[0.1, 0, 0])
+        else:
+            self.line.put_start_and_end_on(self.grp.get_center(), parent.grp.get_center())
 
     # Set the line connecting the node to its parent
-    def set_line_with(self, parent):
+    def set_line_with(self, parent=None):
         action = AlgoSceneAction.create_static_action(self.static_set_line_with, [parent])
         self.scene.add_action_pair(action, action, animated=False)
 
@@ -60,7 +64,11 @@ class AlgoTreeNode(AlgoNode):
 
     # Fit the node's position to its x, y fields relative to the root
     def fit_layout(self, parent=None):
-        if parent is not None:
+        # If node now has no parent, reset connecting line
+        if parent is None:
+            self.set_line_with()
+        # Else set node with relative to parent
+        else:
             x_diff = self.x - parent.x
             y_diff = self.y - parent.y
             relative_vector = (RIGHT*x_diff+DOWN*y_diff)*self.node_length
@@ -155,7 +163,6 @@ class AlgoTreeNode(AlgoNode):
             self.right.recurse_show_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.POSTORDER:
             self.show(metadata, animated=animated)
-    # ---------------------------------------------------- #
 
     # Adjust tree structure and show
     def show_tree(self, order=TreeTraversalType.PREORDER, animated=True):
@@ -163,6 +170,7 @@ class AlgoTreeNode(AlgoNode):
         self.adjust_layout()
         self.recurse_show_tree(order, meta, animated=animated)
         self.scene.add_metadata(meta)
+    # ---------------------------------------------------- #
 
     # ------------- Hide Helper Functions ------------- #
 
@@ -196,13 +204,13 @@ class AlgoTreeNode(AlgoNode):
             self.right.recurse_hide_tree(order, metadata, animated=animated)
         if order == TreeTraversalType.POSTORDER:
             self.hide(metadata, animated=animated)
-    # ---------------------------------------------------- #
 
     # Hide entire tree with this node as root
     def hide_tree(self, order=TreeTraversalType.PREORDER, animated=True):
         meta = Metadata.create_fn_metadata()
         self.recurse_hide_tree(order, meta, animated=animated)
         self.scene.add_metadata(meta)
+    # ---------------------------------------------------- #
 
     def insert(self, val, animated=True):
         curr_node = self
@@ -259,10 +267,6 @@ class AlgoTreeNode(AlgoNode):
         self.right = node.right
         node.left = ltemp
         node.right = rtemp
-        # swap connecting lines
-        temp = self.line.deepcopy()
-        self.line = node.line.deepcopy()
-        node.line = temp
         # add swap animation
         self.swap_with(node, animated=animated, w_prev=w_prev, metadata=meta)
         if metadata is None:
@@ -282,8 +286,8 @@ class AlgoTreeNode(AlgoNode):
             self.left.parent = None
         if self.right:
             self.right.parent = None
-        # add animation
-        self.hide(meta, animated)
+        # add animation to hide node only
+        super().hide(meta, animated)
         if metadata is None:
             self.scene.add_metadata(meta)
 
