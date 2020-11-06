@@ -184,7 +184,9 @@ class AlgoSceneActionPair:
         if self.can_set_color():
             customizations[CustomisationType.COLOR] = self.get_color()
 
-        if self.can_set_runtime():
+        if self.can_set_runtime() and self.anim_block.first_pair() == self:
+            # runtime argument is only used when the runtime argument can be set
+            # and action_pair is the first pair in block
             customizations[CustomisationType.RUNTIME] = self.get_runtime_val()
 
         return customizations

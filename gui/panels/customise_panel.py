@@ -91,7 +91,7 @@ class CustomisePanel(BaseChangesPanel):
                 else:
                     wrapped_widget.set_value(original_val)
 
-                form_layout.addRow(QLabel(change_type.name.title()), widget)
+                form_layout.addRow(QLabel(change_type.desc), widget)
 
                 widget_key = (action_pair_index, change_name, change_type)
                 self.change_widgets[widget_key] = wrapped_widget, wrapped_widget.get_value()

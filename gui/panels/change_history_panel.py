@@ -14,7 +14,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
     @staticmethod
     def create_change_box(anim_change):
         anim_desc = anim_change.change_name
-        change_desc = f'Change {anim_change.change_type.name.lower()} to: '
+        change_desc = f'Change {anim_change.change_type.desc.lower()} to: '
 
         # Create box
         change_box = QGroupBox()
