@@ -219,6 +219,7 @@ class AlgoTreeNode(AlgoNode):
         curr_node.insert(val, animated)
 
     # Returns the minimum value node in the tree
+    # which is the left most node in this case
     def min_val_node(self):
         curr_node = self
         while curr_node.left:
@@ -264,7 +265,9 @@ class AlgoTreeNode(AlgoNode):
         if metadata is None:
             self.scene.add_metadata(meta)
 
+    # Delete a tree node
     def delete(self, metadata=None, animated=True):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
         # remove parent's connection to it
         if self.is_child():
             if self.is_left():
@@ -277,8 +280,11 @@ class AlgoTreeNode(AlgoNode):
         if self.right:
             self.right.parent = None
         # add animation
-        self.hide(metadata, animated)
+        self.hide(meta, animated)
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
+    # Remove a value from the tree
     def remove(self, val, animated=True):
         if val < self.val:
             self.left = self.left.remove(val, animated)
