@@ -64,15 +64,18 @@ class AlgoSceneAction:
             can_set_runtime=False)
 
     @staticmethod
-    def create_empty_action():
+    def create_empty_action(args=[]): # pylint: disable=W0102
         # empty filler action
-        return AlgoSceneAction.create_static_action(do_nothing, [])
+        return AlgoSceneAction.create_static_action(do_nothing, args)
 
     def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
         self.act = act
         self.transform = transform
         self.w_prev = w_prev
         self.can_set_runtime = can_set_runtime
+
+    def get_args(self):
+        return self.transform.args
 
     def can_set_color(self):
         if self.transform is not None:
@@ -108,6 +111,9 @@ class AlgoSceneActionPair:
         self.run_time = run_time
         self.anim_block = None # anim_block this action_pair ends up in
         self.index = None # index of action pair in action_pairs list
+
+    def get_args(self):
+        return self.curr_action().get_args()
 
     def attach_block(self, anim_block):
         self.anim_block = anim_block
@@ -226,7 +232,7 @@ class AlgoScene(Scene):
             w_prev=w_prev, can_set_runtime=True
         )
 
-    def add_action_pair(self, anim_action, static_action, animated=True):
+    def add_action_pair(self, anim_action, static_action=None, animated=True):
         pair = AlgoSceneActionPair(anim_action, static_action,
                                    run_time=None if animated else 0)
         self.action_pairs.append(pair)
@@ -246,9 +252,9 @@ class AlgoScene(Scene):
         for action_pair in self.action_pairs[index:]:
             action_pair.attach_index(action_pair.get_index() + 1)
 
-    def add_transform(self, index, transform, metadata=None):
+    def add_transform(self, index, transform, args=[], metadata=None): # pylint: disable=W0102
         self.push_back_action_pair_indices(index)
-        anim_action = self.create_play_action(AlgoTransform([], transform=transform))
+        anim_action = self.create_play_action(AlgoTransform(args, transform=transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.action_pairs.insert(index, action_pair)
 
@@ -371,6 +377,32 @@ class AlgoScene(Scene):
             )
         # some metadata might be added out of order, sort the blocks by start_time
         self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+
+    def insert_pin(self, desc, *args):
+        empty_action = AlgoSceneAction.create_empty_action(list(args))
+        empty_pair = self.add_action_pair(empty_action)
+
+        lower_meta = LowerMetadata(desc, empty_pair)
+        metadata = Metadata(desc)
+        metadata.add_lower(lower_meta)
+
+        self.add_metadata(metadata)
+
+    def find_pin(self, desc):
+        action_pairs = self.find_action_pairs(desc)
+        return action_pairs
+
+    def find_action_pairs(self, method, occurence=None, lower_level=None):
+        action_pairs = []
+        for meta_tree in self.meta_trees:
+            if method == meta_tree.metadata and (occurence is None or occurence == meta_tree.fid):
+                if lower_level:
+                    for lower in meta_tree.children:
+                        if lower_level == lower.metadata:
+                            action_pairs.append(lower.action_pair)
+                else:
+                    action_pairs.append(*meta_tree.get_all_action_pairs())
+        return action_pairs
 
     def construct(self):
         Metadata.reset_counter()
