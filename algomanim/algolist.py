@@ -22,9 +22,9 @@ class AlgoList:
         self.show(animated=False)
 
         # The various text objects will be stored in a dictionary
-        self.text = {"": TextMobject("")}
+        self.text = {" ": TexMobject(" ")}
 
-    def add_text(self, text, key="", vector=UP, metadata=None):
+    def add_text(self, text, key=" ", vector=UP, metadata=None):
         curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
 
         # If the key (for a specific text object you are looking for) exists,
@@ -44,7 +44,7 @@ class AlgoList:
             curr_metadata.add_lower(lower_meta)
 
         # Add new text object to text dictionary
-        self.text[key] = TextMobject(text)
+        self.text[key] = TexMobject(text)
 
         # Move it next to the list on the given vector (e.g. UP, DOWN, LEFT, RIGHT)
         anim_action = self.scene.create_play_action(
@@ -100,7 +100,7 @@ class AlgoList:
             if metadata is None:
                 self.scene.add_metadata(curr_metadata)
 
-            self.text = {"": TextMobject("")}
+            self.text = {" ": TexMobject(" ")}
         elif key in self.text:
             anim_action = self.scene.create_play_action(
                 AlgoTransform([self.text[key]], transform=FadeOut),
