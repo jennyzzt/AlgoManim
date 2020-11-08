@@ -3,17 +3,15 @@ from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
+from algomanim.algoobject import AlgoObject
 
-class AlgoList:
+class AlgoList(AlgoObject):
     def __init__(self, scene, arr):
-        # Make nodes
-        self.scene = scene
+        super().__init__(scene)
+        # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
-
-        # Arrange nodes in order
         for i in range(1, len(self.nodes)):
             self.nodes[i].set_right_of(self.nodes[i - 1])
-
         # Group nodes together
         self.grp = None
         self.group()
@@ -24,102 +22,6 @@ class AlgoList:
         # The various text objects will be stored in a dictionary
         self.text = {" ": TexMobject(" ")}
 
-    def add_text(self, text, key=" ", vector=UP, metadata=None):
-        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
-
-        # If the key (for a specific text object you are looking for) exists,
-        # fade it out
-        if key in self.text:
-            anim_action = self.scene.create_play_action(
-                AlgoTransform([self.text[key]], transform=FadeOut),
-                w_prev=True
-            )
-
-            static_action = AlgoSceneAction.create_static_action(self.scene.remove,
-                                                                 [self.text[key]])
-            action_pair = self.scene.add_action_pair(anim_action, static_action)
-
-            # Create LowerMetadata
-            lower_meta = LowerMetadata('remove_text', action_pair)
-            curr_metadata.add_lower(lower_meta)
-
-        # Add new text object to text dictionary
-        self.text[key] = TexMobject(text)
-
-        # Move it next to the list on the given vector (e.g. UP, DOWN, LEFT, RIGHT)
-        anim_action = self.scene.create_play_action(
-                AlgoTransform([self.text[key].next_to, self.grp, vector], transform=ApplyMethod)
-            )
-
-        static_action = AlgoSceneAction.create_static_action(
-                self.text[key].next_to,
-                [self.grp, vector]
-            )
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
-
-        # Create LowerMetadata
-        lower_meta = LowerMetadata('next_to', action_pair)
-        curr_metadata.add_lower(lower_meta)
-
-        # Add the text to the scene with a Write
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.text[key]], transform=Write)
-        )
-
-        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text[key]])
-        action_pair = self.scene.add_action_pair(anim_action, static_action)
-
-        lower_meta = LowerMetadata('add_text', action_pair)
-        curr_metadata.add_lower(lower_meta)
-
-        # Only add if it is a higher level function
-        if metadata is None:
-            self.scene.add_metadata(curr_metadata)
-
-    def remove_text(self, key=None, metadata=None):
-        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
-
-        # If no key is given, remove all text
-        if not key:
-            for k in list(self.text):
-                anim_action = self.scene.create_play_action(
-                    AlgoTransform([self.text[k]], transform=FadeOut),
-                    w_prev=True
-                )
-
-                static_action = AlgoSceneAction.create_static_action(self.scene.remove,
-                                                                    [self.text[k]])
-                action_pair = self.scene.add_action_pair(anim_action, static_action)
-
-                # Create LowerMetadata
-                lower_meta = LowerMetadata('remove_text', action_pair)
-                curr_metadata.add_lower(lower_meta)
-
-                del self.text[k]
-
-            if metadata is None:
-                self.scene.add_metadata(curr_metadata)
-
-            self.text = {" ": TexMobject(" ")}
-        elif key in self.text:
-            anim_action = self.scene.create_play_action(
-                AlgoTransform([self.text[key]], transform=FadeOut),
-                w_prev=True
-            )
-
-            static_action = AlgoSceneAction.create_static_action(self.scene.remove,
-                                                                 [self.text[key]])
-            action_pair = self.scene.add_action_pair(anim_action, static_action)
-
-            # Create LowerMetadata
-            lower_meta = LowerMetadata('remove_text', action_pair)
-            curr_metadata.add_lower(lower_meta)
-
-            del self.text[key]
-
-            if metadata is None:
-                self.scene.add_metadata(curr_metadata)
-
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
         metadata = Metadata.create_fn_metadata()
@@ -128,7 +30,7 @@ class AlgoList:
         temp = self.nodes[i]
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
-        self.nodes[i].swap_with(self.nodes[j], animated, metadata=metadata)
+        self.nodes[i].swap_with(self.nodes[j], metadata=metadata, animated=animated)
 
         self.scene.add_metadata(metadata)
 
@@ -153,28 +55,8 @@ class AlgoList:
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
 
-    # Centre the list on screen
-    def center(self, animated=True, metadata=None):
-        curr_metadata = metadata if metadata else Metadata.create_fn_metadata()
-
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp.center], transform=ApplyMethod)
-        )
-        static_action = AlgoSceneAction.create_static_action(self.grp.center)
-
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
-
-        # Create LowerMetadata
-        lower_meta = LowerMetadata('center', action_pair)
-        curr_metadata.add_lower(lower_meta)
-
-        # Only add if it is a higher level function
-        if metadata is None:
-            self.scene.add_metadata(curr_metadata)
-
     # Display the list on screen
-    def show(self, animated=True):
+    def show_list(self, animated=True):
         meta = Metadata.create_fn_metadata()
         for node in self.nodes:
             node.show(meta, animated)
@@ -182,7 +64,7 @@ class AlgoList:
         self.scene.add_metadata(meta)
 
     # Hide the list on screen
-    def hide(self, animated=True, metadata=None):
+    def hide_list(self, animated=True, metadata=None):
         cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
 
         for node in self.nodes:

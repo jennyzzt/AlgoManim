@@ -109,7 +109,7 @@ class AlgoTreeNode(AlgoNode):
         self.treegrp = VGroup(*[self.nodesgrp, self.linesgrp])
 
     # Center the tree on screen
-    def center(self, animated=True, metadata=None):
+    def center(self, metadata=None, animated=True, w_prev=False):
         curr_metadata = metadata if metadata else Metadata('center')
 
         anim_action = self.scene.create_play_action(
@@ -147,7 +147,7 @@ class AlgoTreeNode(AlgoNode):
         metadata.add_lower(lower_meta)
 
     # Show both the node and the line connecting it
-    def show(self, metadata, animated=True, w_prev=False):
+    def show(self, metadata=None, animated=True, w_prev=False):
         self.show_line(metadata, animated=animated, w_prev=w_prev)
         super().show(metadata, animated=animated, w_prev=w_prev)
 
@@ -188,7 +188,7 @@ class AlgoTreeNode(AlgoNode):
         metadata.add_lower(lower_meta)
 
     # Hide both the node and the line connecting it
-    def hide(self, metadata, animated=True, w_prev=False):
+    def hide(self, metadata=None, animated=True, w_prev=False):
         self.hide_line(metadata, animated=animated, w_prev=w_prev)
         super().hide(metadata, animated=animated, w_prev=w_prev)
 
