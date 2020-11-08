@@ -45,8 +45,8 @@ class Metadata:
 class LowerMetadata:
 
     def __init__(self, metadata, action_pair, val=None):
-        if val is None:
-            val = []
+        val = [] if val is None \
+            else filter(lambda v : v is not None, val)
         self.metadata = metadata
         self.action_pair = action_pair
         self.val = val  # list of values affected by function

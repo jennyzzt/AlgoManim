@@ -1,4 +1,4 @@
-# pylint: disable=R0903
+# pylint: disable=R0903, R0904
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
 from gui.panels.customisation_type import CustomisationType
