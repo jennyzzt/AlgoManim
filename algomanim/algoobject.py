@@ -20,7 +20,7 @@ class AlgoObject(ABC):
         self.scene = scene
         # Every object has a grp
         self.grp = None
-        # Texts associated with this obj
+        # Custom texts associated with this obj
         self.text = {' ': TexMobject(' ')}
         # Optional to have a val
         self.val = None

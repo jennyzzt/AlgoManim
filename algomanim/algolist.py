@@ -11,7 +11,7 @@ class AlgoList(AlgoObject):
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
         for i in range(1, len(self.nodes)):
-            self.nodes[i].set_right_of(self.nodes[i - 1])
+            self.nodes[i].set_next_to(self.nodes[i-1], RIGHT)
         # Group nodes together
         self.grp = None
         self.group()
@@ -119,7 +119,7 @@ class AlgoList(AlgoObject):
         node = AlgoNode(self.scene, val)
         meta = Metadata.create_fn_metadata()
         if self.len() > 0:
-            node.set_right_of(self.nodes[-1], metadata=meta)
+            node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
         self.nodes.append(node)
 
         node.show(meta, animated)

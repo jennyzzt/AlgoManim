@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import LowerMetadata
+from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.settings import Shape
 from algomanim.algoobject import AlgoObject
 
@@ -35,47 +35,38 @@ class AlgoNode(AlgoObject):
         self.txt.set_color(scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
-    def set_right_of(self, node, metadata=None):
-        self.set_next_to(node, RIGHT, metadata=metadata)
-
-    def highlight(self, animated=True, w_prev=False, metadata=None):
+    def highlight(self, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.node.set_fill, self.highlight_color],
-                          transform=ApplyMethod, color_index=1),
-            w_prev=w_prev
+            AlgoTransform([self.node.set_fill, self.highlight_color], transform=ApplyMethod,
+                          color_index=1), w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(
-            self.node.set_fill,
-            [self.highlight_color],
-            color_index=0
+            self.node.set_fill, [self.highlight_color], color_index=0
         )
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
-
-        # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
-        assert metadata is not None
-        metadata.add_lower(lower_meta)
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        # Create LowerMetadata
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        meta.add_lower(lower_meta)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     def dehighlight(self, animated=True, w_prev=False, metadata=None):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform(
-                [self.node.set_fill, self.node_color],
-                transform=ApplyMethod,
-                color_index=1
-            ),
-            w_prev=w_prev
+            AlgoTransform([self.node.set_fill, self.node_color], transform=ApplyMethod,
+                          color_index=1), w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(
-            self.node.set_fill,
-            [self.node_color],
-            color_index=0
+            self.node.set_fill, [self.node_color], color_index=0
         )
-
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
-
-        # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
-        assert metadata is not None
-        metadata.add_lower(lower_meta)
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        # Create LowerMetadata
+        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        meta.add_lower(lower_meta)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
