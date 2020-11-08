@@ -144,6 +144,8 @@ class AlgoSceneClear(AlgoScene):
 class AlgoSceneMockList(AlgoScene):
     test_list =  [1]
 
+
+    @patch("algomanim.algolist.TexMobject", Mock())
     @patch("algomanim.algolist.AlgoList.group", Mock())
     @patch("algomanim.algolist.AlgoList.center", Mock())
     @patch("algomanim.algolist.AlgoList.show", Mock())
