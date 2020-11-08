@@ -15,12 +15,9 @@ class AlgoList(AlgoObject):
         # Group nodes together
         self.grp = None
         self.group()
-
+        # Initial positioning
         self.center(animated=False)
         self.show(animated=False)
-
-        # The various text objects will be stored in a dictionary
-        self.text = {" ": TexMobject(" ")}
 
     # Swaps the nodes at indexes i and j
     def swap(self, i, j, animated=True):
@@ -34,11 +31,12 @@ class AlgoList(AlgoObject):
 
         self.scene.add_metadata(metadata)
 
-    def compare(self, i, j, animated=True, highlights=True, text=True):
+    def compare(self, i, j, animated=True, w_prev=False, highlights=True, text=True):
         meta = Metadata.create_fn_metadata()
         if highlights:
-            self.dehighlight(*list(range(len(self.nodes))), animated=animated, metadata=meta)
-            self.highlight(i, j, animated=animated, metadata=meta)
+            self.dehighlight(*list(range(len(self.nodes))),
+                             metadata=meta, animated=animated)
+            self.highlight(i, j, metadata=meta, animated=animated)
 
         val1 = self.get_val(i)
         val2 = self.get_val(j)
@@ -59,7 +57,7 @@ class AlgoList(AlgoObject):
     def show_list(self, animated=True):
         meta = Metadata.create_fn_metadata()
         for node in self.nodes:
-            node.show(meta, animated)
+            node.show(metadata=meta, animated=animated)
 
         self.scene.add_metadata(meta)
 
@@ -68,7 +66,7 @@ class AlgoList(AlgoObject):
         cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
 
         for node in self.nodes:
-            node.hide(cur_metadata, animated)
+            node.hide(metadata=cur_metadata, animated=animated)
 
         if metadata is None:
             self.scene.add_metadata(cur_metadata)
@@ -80,11 +78,11 @@ class AlgoList(AlgoObject):
         for index in indexes:
             if first:
                 # first node should not be highlighted together with the previous action
-                self.nodes[index].highlight(animated, metadata=cur_metadata)
+                self.nodes[index].highlight(metadata=cur_metadata, animated=animated, w_prev=False)
                 first = False
             else:
                 # subsequent nodes should be highlighted together with the first highlight
-                self.nodes[index].highlight(animated, w_prev=True, metadata=cur_metadata)
+                self.nodes[index].highlight(metadata=cur_metadata, animated=animated, w_prev=True)
 
         # Only add if it is a higher level function
         if metadata is None:
@@ -97,11 +95,11 @@ class AlgoList(AlgoObject):
         for index in indexes:
             if first:
                 # first node should not be dehighlighted together with the previous action
-                self.nodes[index].dehighlight(animated, metadata=cur_metadata)
+                self.nodes[index].dehighlight(metadata=cur_metadata, animated=animated, w_prev=False)
                 first = False
             else:
                 # subsequent nodes should be highlighted together with the first dehighlight
-                self.nodes[index].dehighlight(animated, w_prev=True, metadata=cur_metadata)
+                self.nodes[index].dehighlight(metadata=cur_metadata, animated=animated, w_prev=True)
 
         # Only add if it is a higher level function
         if metadata is None:
