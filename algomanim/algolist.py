@@ -2,7 +2,7 @@
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata, AlgoListMetadata
+from algomanim.metadata import Metadata, LowerMetadata
 
 
 class AlgoList:
@@ -223,7 +223,7 @@ class AlgoList:
         """
 
         # Shift the Scene up so that that we make space for the new list
-        self.scene.shift_up()
+        self.scene.shift_scene(UP)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
@@ -303,12 +303,17 @@ class AlgoList:
                                                      animated=animated)
 
             # Create LowerMetadata
-            lower_meta = LowerMetadata(AlgoListMetadata.CENTER, action_pair)
+            lower_meta = LowerMetadata('center', action_pair)
             meta.add_lower(lower_meta)
 
         self.scene.add_metadata(meta)
 
         return self
+
+    def shift_item(self, vector, animated=False, w_prev=False):
+        for node in self.nodes:
+            node.set_relative_of(node, vector, animated=animated, w_prev=w_prev)
+
 
     @staticmethod
     def find_action_pairs(scene, occurence, method, lower_level=None):

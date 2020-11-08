@@ -48,13 +48,20 @@ class AlgoNode:
         self.grp.move_to(node.grp.get_center() + vector)
 
     # Set this node a a position relative to the node by given vector
-    def set_relative_of(self, node, vector, metadata=None):
-        action = AlgoSceneAction.create_static_action(self.static_set_relative_of,[node, vector])
-        action_pair = self.scene.add_action_pair(action, action, animated=False)
+    def set_relative_of(self, node, vector, metadata=None, animated=False, w_prev=False):
+        static_action = AlgoSceneAction.create_static_action(self.static_set_relative_of, [node, vector])
+
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [self.grp.move_to, node.grp.get_center(), vector],
+                transform=ApplyMethod), w_prev=w_prev
+        )
+
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Only add to meta_trees if it comes from a high-level function and not initialisation
         if metadata:
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val, node.val])
+            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val, node.val])
             metadata.add_lower(lower_meta)
 
     def static_swap(self, node):
