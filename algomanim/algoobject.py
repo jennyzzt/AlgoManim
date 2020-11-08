@@ -27,12 +27,12 @@ class AlgoObject(ABC):
 
     ''' Set obj position next to the given obj at vector side '''
     def set_next_to(self, obj, vector, metadata=None):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         action = AlgoSceneAction.create_static_action(self.grp.next_to, [obj.grp, vector])
         action_pair = self.scene.add_action_pair(action, action, animated=False)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val, obj.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -44,12 +44,12 @@ class AlgoObject(ABC):
 
     ''' Set obj position relative to the given obj by a vector '''
     def set_relative_of(self, obj, vector, metadata=None):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         action = AlgoSceneAction.create_static_action(self.static_set_relative_of, [obj, vector])
         action_pair = self.scene.add_action_pair(action, action, animated=False)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val, obj.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -64,7 +64,7 @@ class AlgoObject(ABC):
 
     ''' Swap the positions of this obj and the given one '''
     def swap_with(self, obj, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action1 = self.scene.create_play_action(
             AlgoTransform([self.grp, obj.grp], transform=CyclicReplace), w_prev=w_prev
@@ -77,8 +77,8 @@ class AlgoObject(ABC):
         action_pair1 = self.scene.add_action_pair(anim_action1, static_action1, animated=animated)
         action_pair2 = self.scene.add_action_pair(anim_action2, static_action2, animated=animated)
         # Create LowerMetadata
-        lower_meta1 = LowerMetadata.create_fn_lmetadata(action_pair1, [self.val, obj.val])
-        lower_meta2 = LowerMetadata.create_fn_lmetadata(action_pair2, [self.val, obj.val])
+        lower_meta1 = LowerMetadata.create(action_pair1, [self.val, obj.val])
+        lower_meta2 = LowerMetadata.create(action_pair2, [self.val, obj.val])
         meta.add_lower(lower_meta1)
         meta.add_lower(lower_meta2)
         # Add metadata if meta is created in this fn
@@ -87,7 +87,7 @@ class AlgoObject(ABC):
 
     ''' Center object on screen '''
     def center(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp.center], transform=ApplyMethod), w_prev=w_prev
@@ -95,7 +95,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.grp.center)
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -103,7 +103,7 @@ class AlgoObject(ABC):
 
     ''' Show object on screen '''
     def show(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
@@ -111,7 +111,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -119,7 +119,7 @@ class AlgoObject(ABC):
 
     ''' Hide object from screen '''
     def hide(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.grp], transform=FadeOut), w_prev=w_prev
@@ -127,7 +127,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -135,7 +135,7 @@ class AlgoObject(ABC):
 
     ''' Add custom text associated to this obj '''
     def add_text(self, text, key=' ', vector=UP, metadata=None, animated=False, w_prev=True):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # If key exists, hide it
         if key in self.text:
             # Create hide action pair
@@ -167,7 +167,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.text[key]])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create add_text LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair)
+        lower_meta = LowerMetadata.create(action_pair)
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -175,7 +175,7 @@ class AlgoObject(ABC):
 
     ''' Remove text associated to this obj '''
     def remove_text(self, key=None, metadata=None, animated=False, w_prev=True):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # If no key is given, remove all text
         if not key:
             for k in list(self.text):

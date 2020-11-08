@@ -110,7 +110,7 @@ class AlgoTreeNode(AlgoNode):
 
     ''' Center the tree on screen '''
     def center_tree(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.treegrp.center], transform=ApplyMethod), w_prev=w_prev
@@ -118,7 +118,7 @@ class AlgoTreeNode(AlgoNode):
         static_action = AlgoSceneAction.create_static_action(self.treegrp.center)
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -128,7 +128,7 @@ class AlgoTreeNode(AlgoNode):
 
     # Show only the line connecting this node to the parent
     def show_line(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Add show line action_pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.line], transform=FadeIn), w_prev=w_prev
@@ -139,7 +139,7 @@ class AlgoTreeNode(AlgoNode):
         pos_action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
         self.scene.add_action_pair(pos_action, pos_action, animated=animated)
         # Initialise a LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val])
+        lower_meta = LowerMetadata.create(action_pair, val=[self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -166,7 +166,7 @@ class AlgoTreeNode(AlgoNode):
     ''' Adjust tree structure and show '''
     def show_tree(self, order=TreeTraversalType.PREORDER,
                   metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         self.adjust_layout()
         self.recurse_show_tree(order, meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
@@ -178,7 +178,7 @@ class AlgoTreeNode(AlgoNode):
 
     # Hide only the line connecting this node to the parent
     def hide_line(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Add hide line action_pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.line], transform=FadeOut), w_prev=w_prev
@@ -186,7 +186,7 @@ class AlgoTreeNode(AlgoNode):
         static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.line])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Initialise LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val])
+        lower_meta = LowerMetadata.create(action_pair, val=[self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -213,7 +213,7 @@ class AlgoTreeNode(AlgoNode):
     ''' Hide entire tree with this node as root '''
     def hide_tree(self, order=TreeTraversalType.PREORDER,
                   metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         self.adjust_layout()
         self.recurse_hide_tree(order, meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
@@ -259,7 +259,7 @@ class AlgoTreeNode(AlgoNode):
         if not isinstance(node, AlgoTreeNode):
             raise ValueError('Inappropriate type: {} for node whereas a  \
             AlgoTreeNode is expected'.format(type(node)))
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # update parents' children
         if self.is_child():
             if self.is_left():
@@ -290,7 +290,7 @@ class AlgoTreeNode(AlgoNode):
 
     ''' Delete a tree node '''
     def delete(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # remove parent's connection to it
         if self.is_child():
             if self.is_left():
@@ -326,7 +326,7 @@ class AlgoTreeNode(AlgoNode):
 
     ''' Finds and remove a value from the tree '''
     def remove(self, val, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         new_root = self
         if val < self.val:
             # If value is lesser, look in left subtree

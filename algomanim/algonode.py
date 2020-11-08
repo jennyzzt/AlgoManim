@@ -36,7 +36,7 @@ class AlgoNode(AlgoObject):
         self.grp = VGroup(self.node, self.txt)
 
     def highlight(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.highlight_color], transform=ApplyMethod,
@@ -47,14 +47,14 @@ class AlgoNode(AlgoObject):
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
 
     def dehighlight(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.node_color], transform=ApplyMethod,
@@ -65,7 +65,7 @@ class AlgoNode(AlgoObject):
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
         meta.add_lower(lower_meta)
         # Add metadata if meta is created in this fn
         if metadata is None:

@@ -21,7 +21,7 @@ class AlgoList(AlgoObject):
 
     ''' Swaps the nodes at indexes i and j '''
     def swap(self, i, j, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # swap nodes
         temp = self.nodes[i]
         self.nodes[i] = self.nodes[j]
@@ -34,7 +34,7 @@ class AlgoList(AlgoObject):
     ''' Compare two nodes at indexes i and j '''
     def compare(self, i, j, metadata=None, animated=True, w_prev=False,
                 highlights=True, text=True):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         if highlights:
             # Add highlight animations
             self.dehighlight(*list(range(len(self.nodes))),
@@ -58,7 +58,7 @@ class AlgoList(AlgoObject):
 
     ''' Display the list on screen '''
     def show_list(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Show all nodes in the list
         for node in self.nodes:
             node.show(metadata=meta, animated=animated, w_prev=w_prev)
@@ -68,7 +68,7 @@ class AlgoList(AlgoObject):
 
     ''' Hide the list from screen '''
     def hide_list(self, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Hide all nodes in list
         for node in self.nodes:
             node.hide(metadata=meta, animated=animated, w_prev=w_prev)
@@ -78,7 +78,7 @@ class AlgoList(AlgoObject):
 
     ''' Highlight nodes at the specified indexes '''
     def highlight(self, *indexes, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         first = True
         for index in indexes:
             if first:
@@ -94,7 +94,7 @@ class AlgoList(AlgoObject):
 
     ''' Dehighlight nodes at the specified indexes '''
     def dehighlight(self, *indexes, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         first = True
         for index in indexes:
             if first:
@@ -118,7 +118,7 @@ class AlgoList(AlgoObject):
 
     ''' Appends a new node with the given value to the end of the list '''
     def append(self, val, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Create new node and add to the right of the list
         node = AlgoNode(self.scene, val)
         if self.len() > 0:
@@ -145,7 +145,7 @@ class AlgoList(AlgoObject):
         left_node = self.nodes[i - 1] if i != 0 else None
         right_nodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
-        meta = Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create()
 
         self.nodes[i].hide(meta, animated)
         self.nodes.remove(self.nodes[i])
@@ -180,7 +180,7 @@ class AlgoList(AlgoObject):
         if stop > self.len():
             stop = self.len()
 
-        meta = Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create()
 
         # highlight the sublist we want to keep
         self.highlight(*range(start, stop, step), animated=animated, metadata=meta)
@@ -226,7 +226,7 @@ class AlgoList(AlgoObject):
 
     ''' Concatenates this list and other_list, then centres them '''
     def concat(self, other_list, metadata=None, animated=True, w_prev=False):
-        meta = metadata if metadata else Metadata.create_fn_metadata()
+        meta = Metadata.check_and_create(metadata)
         # Add lists together
         self.nodes += other_list.nodes
         # Set other list to the right of this list

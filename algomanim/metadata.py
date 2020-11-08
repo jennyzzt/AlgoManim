@@ -14,7 +14,10 @@ class Metadata:
 
     @staticmethod
     # Returns metadata with the name of the function that called this
-    def create_fn_metadata():
+    def check_and_create(metadata=None):
+        if metadata is not None:
+            # If given metadata is not None, return it
+            return metadata
         currframe = inspect.currentframe()
         return Metadata(inspect.getouterframes(currframe, 2)[1][3])
 
@@ -57,7 +60,7 @@ class LowerMetadata:
 
     @staticmethod
     # Returns LowerMetadata with the name of the function that called this
-    def create_fn_lmetadata(action_pair, val=None):
+    def create(action_pair, val=None):
         currframe = inspect.currentframe()
         return LowerMetadata(inspect.getouterframes(currframe, 2)[1][3],
                            action_pair, val)
