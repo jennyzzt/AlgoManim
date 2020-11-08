@@ -35,91 +35,9 @@ class AlgoNode(AlgoObject):
         self.txt.set_color(scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
-    def set_right_of(self, node, metadata=None):
-        action = AlgoSceneAction.create_static_action(self.grp.next_to, [node.grp, RIGHT])
-        action_pair = self.scene.add_action_pair(action, action, animated=False)
-        # Only add to meta_trees if it comes from a high-level function and not initialisation
-        if metadata:
-            # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,
-                                                           val=[self.val, node.val])
-            metadata.add_lower(lower_meta)
-
-    # Static function of set_relative_of to be executed later
-    def static_set_relative_of(self, node, vector):
-        self.grp.move_to(node.grp.get_center() + vector)
-
-    # Set this node a a position relative to the node by given vector
-    def set_relative_of(self, node, vector, metadata=None, animated=False, w_prev=False):
-        static_action = AlgoSceneAction.create_static_action(self.static_set_relative_of, [node, vector])
-
-        anim_action = self.scene.create_play_action(
-            AlgoTransform(
-                [self.grp.move_to, node.grp.get_center(), vector],
-                transform=ApplyMethod), w_prev=w_prev
-        )
-
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        # Only add to meta_trees if it comes from a high-level function and not initialisation
-        if metadata:
-            # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata.create_fn_lmetadata(action_pair, val=[self.val, node.val])
-            metadata.add_lower(lower_meta)
-
-    def static_swap(self, node):
-        self_center = self.grp.get_center()
-        node_center = node.grp.get_center()
-        self.grp.move_to(node_center)
-        node.grp.move_to(self_center)
-
-    def swap_with(self, node, animated=True, w_prev=False, metadata=None):
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp, node.grp], transform=CyclicReplace),
-            w_prev=w_prev
-        )
-        anim_action2 = self.scene.create_play_action(
-            AlgoTransform([node.grp, self.grp], transform=CyclicReplace),
-            w_prev=True
-        )
-
-        static_action = AlgoSceneAction.create_static_action(self.static_swap, [node])
-        static_action2 = AlgoSceneAction.create_empty_action()
-        action_pair1 = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        action_pair2 = self.scene.add_action_pair(anim_action2, static_action2, animated=animated)
-
-        # Initialise a LowerMetadata class for this low level function
-        lower_meta1 = LowerMetadata('swap', action_pair1, val=[self.val, node.val])
-        lower_meta2 = LowerMetadata('swap', action_pair2, val=[node.val, self.val])
-
-        assert metadata is not None
-        metadata.add_lower(lower_meta1)
-        metadata.add_lower(lower_meta2)
-
-    def show(self, metadata, animated=True, w_prev=False):
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
-        )
-        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
-        action_pair = self.scene.add_action_pair(anim_action, static_action,animated=animated)
-
-        # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
-        metadata.add_lower(lower_meta)
-
-    def hide(self, metadata, animated=True, w_prev=False):
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp], transform=FadeOut),
-            w_prev=w_prev
-        )
-        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-
-        # Initialise a LowerMetadata class for this low level function
-        lower_meta = LowerMetadata.create_fn_lmetadata(action_pair,val=[self.val])
-        metadata.add_lower(lower_meta)
-
-    def highlight(self, animated=True, w_prev=False, metadata=None):
+    def highlight(self, metadata=None, animated=True, w_prev=False):
         meta = Metadata.check_and_create(metadata)
+        # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.highlight_color], transform=ApplyMethod,
                           color_index=1), w_prev=w_prev

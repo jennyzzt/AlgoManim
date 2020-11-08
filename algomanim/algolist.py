@@ -5,6 +5,7 @@ from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.algoobject import AlgoObject
 
+
 class AlgoList(AlgoObject):
     def __init__(self, scene, arr, show=True):
         super().__init__(scene)
@@ -181,14 +182,16 @@ class AlgoList(AlgoObject):
         self.scene.add_metadata(meta)
 
     @staticmethod
-    def align_nodes_from_first_node(algolist):
+    def align_nodes_from_first_node(algolist, metadata):
         for i in range(1, algolist.len()):
-            algolist.nodes[i].grp.next_to(algolist.nodes[i - 1].grp, RIGHT)
+            # algolist.nodes[i].grp.next_to(algolist.nodes[i - 1].grp, RIGHT)
+            algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT, metadata)
 
     @staticmethod
-    def align_nodes_from_last_node(algolist):
+    def align_nodes_from_last_node(algolist, metadata):
         for i in reversed(range(0, algolist.len() - 1)):
-            algolist.nodes[i].grp.next_to(algolist.nodes[i + 1].grp, LEFT)
+            # algolist.nodes[i].grp.next_to(algolist.nodes[i + 1].grp, LEFT)
+            algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT, metadata)
 
     # enforced contiguous slices
     # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
@@ -216,35 +219,37 @@ class AlgoList(AlgoObject):
         """
 
         # Shift the Scene up so that that we make space for the new list
-        self.scene.shift_scene(UP)
+        self.scene.shift_scene(UP, meta)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
                            [n.val for n in self.nodes][start:stop], show=False)
 
         # Align to its original position in the list
-        sublist.nodes[0].grp.align_to(self.nodes[start].grp, LEFT)
-        AlgoList.align_nodes_from_first_node(sublist)
+        sublist.nodes[0].set_next_to(self.nodes[start], LEFT, metadata=meta)
+        # sublist.nodes[0].grp.align_to(self.nodes[start].grp, LEFT)
+        AlgoList.align_nodes_from_first_node(sublist, metadata=meta)
 
         hidden_sublist = AlgoList(self.scene,
                                   [n.val for n in self.nodes][start:stop], show=False)
 
         # Position hidden sliced list by taking reference from last element
-        hidden_sublist.nodes[-1].grp.next_to(self.nodes[stop - 1].grp, DOWN + move)
-        AlgoList.align_nodes_from_last_node(hidden_sublist)
+        # hidden_sublist.nodes[-1].grp.next_to(self.nodes[stop - 1].grp, DOWN + move)
+        hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move, metadata=meta)
+        AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=meta)
 
-        move_pt = hidden_sublist.grp.get_center()
+        move_pt = hidden_sublist.grp.get_center
 
-        # Shift sublist to position of hidden_sublist
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [sublist.grp.move_to, move_pt],
-                transform=ApplyMethod
+                [sublist],
+                transform=lambda obj: ApplyMethod(obj.grp.move_to, move_pt())
             )
         )
+
         static_action = AlgoSceneAction.create_static_action(
-            sublist.grp.move_to,
-            [move_pt]
+            function=lambda obj: ApplyMethod(obj.grp.move_to, move_pt()),
+            args=[sublist]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         lower_meta = LowerMetadata('temp', action_pair)
@@ -256,6 +261,7 @@ class AlgoList(AlgoObject):
         # Add metadata to scene
         self.scene.add_metadata(meta)
 
+        return sublist
 
     ''' Concatenates this list and other_list, then centres them '''
     def concat(self, other_list, metadata=None, animated=True, w_prev=False, center=False):
@@ -274,20 +280,6 @@ class AlgoList(AlgoObject):
 
         return self
 
-    def shift_item(self, vector, animated=False, w_prev=False):
-        for node in self.nodes:
-            node.set_relative_of(node, vector, animated=animated, w_prev=w_prev)
-
-
-    @staticmethod
-    def find_action_pairs(scene, occurence, method, lower_level=None):
-        for meta_tree in scene.meta_trees:
-            if method == meta_tree.metadata and occurence == meta_tree.fid:
-                if lower_level:
-                    pairs = []
-                    for lower in meta_tree.children:
-                        if lower_level == lower.metadata:
-                            pairs.append(lower.action_pair)
-                    return pairs
-                return meta_tree.get_all_action_pairs()
-        return []
+    # def shift_item(self, vector, animated=False, w_prev=False):
+    #     for node in self.nodes:
+    #         node.set_relative_of(node, vector, animated=animated, w_prev=w_prev)

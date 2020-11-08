@@ -17,8 +17,8 @@ class MergeSortScene(AlgoScene):
             mid_pt = algolist.len() // 2  # 2
 
             # slice list into two
-            left = algolist.slice(0, mid_pt, animated=True)
-            right = algolist.slice(mid_pt, algolist.len(), animated=True)
+            left = algolist.slice(0, mid_pt, move=LEFT)
+            right = algolist.slice(mid_pt, algolist.len(), move=RIGHT)
 
             left = self.mergesort(left)
             right = self.mergesort(right)

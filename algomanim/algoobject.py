@@ -26,11 +26,19 @@ class AlgoObject(ABC):
         self.val = None
 
     ''' Set obj position next to the given obj at vector side '''
-    def set_next_to(self, obj, vector, metadata=None):
+    def set_next_to(self, obj, vector, metadata=None, animated=False, w_prev=False):
         meta = Metadata.check_and_create(metadata)
         # Create action pair
         action = AlgoSceneAction.create_static_action(self.grp.next_to, [obj.grp, vector])
-        action_pair = self.scene.add_action_pair(action, action, animated=False)
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [obj],
+                transform=lambda o: ApplyMethod(self.grp.next_to, o.grp, vector)
+            ),
+            w_prev=w_prev
+        )
+
+        action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
         meta.add_lower(lower_meta)
@@ -43,11 +51,19 @@ class AlgoObject(ABC):
         self.grp.move_to(obj.grp.get_center() + vector)
 
     ''' Set obj position relative to the given obj by a vector '''
-    def set_relative_of(self, obj, vector, metadata=None):
+    def set_relative_of(self, obj, vector, metadata=None, animated=False, w_prev=False):
         meta = Metadata.check_and_create(metadata)
         # Create action pair
         action = AlgoSceneAction.create_static_action(self.static_set_relative_of, [obj, vector])
-        action_pair = self.scene.add_action_pair(action, action, animated=False)
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [obj],
+                transform=lambda o: ApplyMethod(self.grp.move_to, o.grp.get_center(), vector)
+            ),
+            w_prev=w_prev
+        )
+
+        action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
         meta.add_lower(lower_meta)

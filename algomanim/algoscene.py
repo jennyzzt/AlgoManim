@@ -207,7 +207,7 @@ class AlgoScene(Scene):
         self.save_mobjects = None
 
         # Tracker for all items in the Scene
-        self.algo_items = []
+        self.algo_objs = []
 
         self.kwargs = kwargs
         self.post_customize_fns = kwargs.get('post_customize_fns', [])
@@ -247,21 +247,20 @@ class AlgoScene(Scene):
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)
 
-    # Add item so they can subscribe themselves scene transformations like Shifts
+    # Add item so they can subscribe themselves to scene transformations like Shifts
     def track_algoitem(self, algo_item):
-        self.algo_items.append(algo_item)
+        self.algo_objs.append(algo_item)
 
-    def shift_scene(self, vector):
+    def shift_scene(self, vector, metadata=None):
         first = True
 
-        for algo_item in self.algo_items:
+        for algo_obj in self.algo_objs:
             # Shift all items UP
             if first:
-                algo_item.shift_item(vector, animated=True)
+                algo_obj.set_next_to(algo_obj, vector, metadata, animated=True, w_prev=False)
                 first = False
             else:
-                algo_item.shift_item(vector, animated=True, w_prev=True)
-
+                algo_obj.set_next_to(algo_obj, vector, metadata, animated=True, w_prev=True)
 
     def skip(self, start, end=None):
         if end is None:
