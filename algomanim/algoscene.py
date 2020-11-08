@@ -51,6 +51,7 @@ class AlgoTransform:
         if self.transform is None:
             return self.args
 
+        print(self.transform, self.args)
         return self.transform(*self.args)
 
 class AlgoSceneAction:
@@ -250,20 +251,17 @@ class AlgoScene(Scene):
     def track_algoitem(self, algo_item):
         self.algo_items.append(algo_item)
 
-    def shift_up(self):
+    def shift_scene(self, vector):
+        first = True
+
         for algo_item in self.algo_items:
-            # Shift sublist to position of hidden_sublist
-            anim_action = self.create_play_action(
-                AlgoTransform(
-                    [algo_item.grp.move_to, algo_item.grp.get_center() + UP],
-                    transform=ApplyMethod
-                )
-            )
-            static_action = AlgoSceneAction.create_static_action(
-                algo_item.grp.move_to,
-                [algo_item.grp.get_center() + UP]
-            )
-            self.add_action_pair(anim_action, static_action, animated=True)
+            # Shift all items UP
+            if first:
+                algo_item.shift_item(vector, animated=True)
+                first = False
+            else:
+                algo_item.shift_item(vector, animated=True, w_prev=True)
+
 
     def skip(self, start, end=None):
         if end is None:

@@ -23,7 +23,6 @@ class MergeSortScene(AlgoScene):
             left = self.mergesort(left)
             right = self.mergesort(right)
 
-
             if left.get_val(0) < right.get_val(0):
                 algolist = left.concat(right)
             else:
