@@ -10,14 +10,14 @@ algoscene.settings = DEFAULT_SETTINGS
 
 
 @patch("algomanim.algolist.VGroup", Mock())
-@patch("algomanim.algolist.TexMobject", Mock())
+@patch("algomanim.algoobject.TexMobject", Mock())
 @patch("algomanim.algonode.VGroup", Mock())
 @patch("algomanim.algonode.TextMobject", Mock())
 class TestAlgoList:
-    @patch("algomanim.algolist.AlgoList.show")
-    def test_constructor_calls_show(self, show):
+    @patch("algomanim.algolist.AlgoList.show_list")
+    def test_constructor_calls_show(self, show_list):
         AlgoList(algoscene, test_list)
-        show.assert_called_once()
+        show_list.assert_called_once()
 
     #@patch("algomanim.algolist.AlgoSceneAction")
     #def test_swap_adds_two_action_pairs(self, algoscene_action):
@@ -37,18 +37,18 @@ class TestAlgoList:
     #        animated=True
     #    )
 
-    @patch("algomanim.algonode.AlgoNode.show")
-    @patch("algomanim.algonode.AlgoNode.set_right_of")
-    def test_append_to_right_of_list(self, show, set_right_of):
+    @patch("algomanim.algoobject.AlgoObject.show")
+    @patch("algomanim.algoobject.AlgoObject.set_next_to")
+    def test_append_to_right_of_list(self, show, set_next_to):
         algolist = AlgoList(algoscene, test_list)
         show.reset_mock()
-        set_right_of.reset_mock()
+        set_next_to.reset_mock()
         old_length = algolist.len()
         algolist.append(4)
         new_length = algolist.len()
         assert old_length + 1 == new_length
         show.assert_called_once()
-        set_right_of.assert_called_once()
+        set_next_to.assert_called_once()
 
     @patch("algomanim.algonode.AlgoNode.hide")
     def test_pop_last_element_when_no_given_index(self, hide):

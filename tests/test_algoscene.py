@@ -145,10 +145,10 @@ class AlgoSceneMockList(AlgoScene):
     test_list =  [1]
 
 
-    @patch("algomanim.algolist.TexMobject", Mock())
+    @patch("algomanim.algoobject.TexMobject", Mock())
     @patch("algomanim.algolist.AlgoList.group", Mock())
     @patch("algomanim.algolist.AlgoList.center", Mock())
-    @patch("algomanim.algolist.AlgoList.show", Mock())
+    @patch("algomanim.algolist.AlgoList.show_list", Mock())
     def algoconstruct(self):
         AlgoList(self, self.test_list)
 

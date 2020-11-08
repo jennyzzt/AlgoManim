@@ -17,7 +17,7 @@ class AlgoList(AlgoObject):
         self.group()
         # Initial positioning
         self.center(animated=False)
-        self.show(animated=False)
+        self.show_list(animated=False)
 
     ''' Swaps the nodes at indexes i and j '''
     def swap(self, i, j, metadata=None, animated=True, w_prev=False):
