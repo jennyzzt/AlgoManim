@@ -93,9 +93,9 @@ class TestAlgoList:
         test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
-        algolist.compare(0, 1)
+        algolist.compare(0, 1, text=False)
         algolist.swap(0, 1)
-        algolist.compare(1, 2)
+        algolist.compare(1, 2,text=False)
         algolist.swap(1, 2)
 
         action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
@@ -112,9 +112,9 @@ class TestAlgoList:
         test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
-        algolist.compare(0, 1)
+        algolist.compare(0, 1, text=False)
         algolist.swap(0, 1)
-        algolist.compare(1, 2)
+        algolist.compare(1, 2, text=False)
         algolist.swap(1, 2)
 
         action_pairs_len = len(AlgoList.find_action_pairs(test_algoscene, 2,
