@@ -11,12 +11,18 @@ class AlgoList(AlgoObject):
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
         for i in range(1, len(self.nodes)):
-            self.nodes[i].set_next_to(self.nodes[i-1], RIGHT)
+            self.nodes[i].grp.next_to(self.nodes[i - 1].grp, RIGHT)
+
         # Group nodes together
         self.grp = None
         self.group()
+
         # Initial positioning
-        self.center(animated=False)
+        self.grp.center()
+        # self.center(animated=False)
+
+        # Subscribe to the scene for scene transformations like Shifts
+        scene.track_algoitem(self)
 
         if show:
             self.show_list(animated=False)
@@ -210,7 +216,7 @@ class AlgoList(AlgoObject):
         """
 
         # Shift the Scene up so that that we make space for the new list
-        self.scene.shift_up()
+        self.scene.shift_scene(UP)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
@@ -250,7 +256,6 @@ class AlgoList(AlgoObject):
         # Add metadata to scene
         self.scene.add_metadata(meta)
 
-        return sublist
 
     ''' Concatenates this list and other_list, then centres them '''
     def concat(self, other_list, metadata=None, animated=True, w_prev=False, center=False):
@@ -268,3 +273,21 @@ class AlgoList(AlgoObject):
             self.scene.add_metadata(meta)
 
         return self
+
+    def shift_item(self, vector, animated=False, w_prev=False):
+        for node in self.nodes:
+            node.set_relative_of(node, vector, animated=animated, w_prev=w_prev)
+
+
+    @staticmethod
+    def find_action_pairs(scene, occurence, method, lower_level=None):
+        for meta_tree in scene.meta_trees:
+            if method == meta_tree.metadata and occurence == meta_tree.fid:
+                if lower_level:
+                    pairs = []
+                    for lower in meta_tree.children:
+                        if lower_level == lower.metadata:
+                            pairs.append(lower.action_pair)
+                    return pairs
+                return meta_tree.get_all_action_pairs()
+        return []
