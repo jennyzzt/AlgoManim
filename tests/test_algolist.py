@@ -10,6 +10,7 @@ algoscene.settings = DEFAULT_SETTINGS
 
 
 @patch("algomanim.algolist.VGroup", Mock())
+@patch("algomanim.algolist.TexMobject", Mock())
 @patch("algomanim.algonode.VGroup", Mock())
 @patch("algomanim.algonode.TextMobject", Mock())
 class TestAlgoList:
