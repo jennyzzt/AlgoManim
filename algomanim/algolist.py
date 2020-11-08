@@ -1,4 +1,4 @@
-# pylint: disable=E1101
+# pylint: disable=E1101, W0105, R0913
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
@@ -19,92 +19,96 @@ class AlgoList(AlgoObject):
         self.center(animated=False)
         self.show(animated=False)
 
-    # Swaps the nodes at indexes i and j
-    def swap(self, i, j, animated=True):
-        metadata = Metadata.create_fn_metadata()
-
+    ''' Swaps the nodes at indexes i and j '''
+    def swap(self, i, j, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
         # swap nodes
         temp = self.nodes[i]
         self.nodes[i] = self.nodes[j]
         self.nodes[j] = temp
-        self.nodes[i].swap_with(self.nodes[j], metadata=metadata, animated=animated)
+        self.nodes[i].swap_with(self.nodes[j], metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
-        self.scene.add_metadata(metadata)
-
-    def compare(self, i, j, animated=True, w_prev=False, highlights=True, text=True):
-        meta = Metadata.create_fn_metadata()
+    ''' Compare two nodes at indexes i and j '''
+    def compare(self, i, j, metadata=None, animated=True, w_prev=False,
+                highlights=True, text=True):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
         if highlights:
+            # Add highlight animations
             self.dehighlight(*list(range(len(self.nodes))),
-                             metadata=meta, animated=animated)
-            self.highlight(i, j, metadata=meta, animated=animated)
-
+                             metadata=meta, animated=animated, w_prev=w_prev)
+            self.highlight(i, j, metadata=meta, animated=animated, w_prev=w_prev)
+        # Get nodes' values
         val1 = self.get_val(i)
         val2 = self.get_val(j)
-
         if text:
-            self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP, meta)
-
-        if highlights or text:
+            # Add associated text
+            self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP,
+                          metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
+        if metadata is None and (highlights or text):
             self.scene.add_metadata(meta)
         return val1 < val2
 
-    # Restores the internal VGroup of list nodes
-    # especially if the list has been edited
+    # Restores the internal VGroup of list nodes, especially if the list has been edited
     def group(self):
         self.grp = VGroup(*[n.grp for n in self.nodes])
 
-    # Display the list on screen
-    def show_list(self, animated=True):
-        meta = Metadata.create_fn_metadata()
+    ''' Display the list on screen '''
+    def show_list(self, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Show all nodes in the list
         for node in self.nodes:
-            node.show(metadata=meta, animated=animated)
-
-        self.scene.add_metadata(meta)
-
-    # Hide the list on screen
-    def hide_list(self, animated=True, metadata=None):
-        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
-
-        for node in self.nodes:
-            node.hide(metadata=cur_metadata, animated=animated)
-
+            node.show(metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
         if metadata is None:
-            self.scene.add_metadata(cur_metadata)
+            self.scene.add_metadata(meta)
 
-    # Highlight nodes at the specified indexes
-    def highlight(self, *indexes, animated=True, metadata=None):
+    ''' Hide the list from screen '''
+    def hide_list(self, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Hide all nodes in list
+        for node in self.nodes:
+            node.hide(metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
+
+    ''' Highlight nodes at the specified indexes '''
+    def highlight(self, *indexes, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
         first = True
-        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
         for index in indexes:
             if first:
                 # first node should not be highlighted together with the previous action
-                self.nodes[index].highlight(metadata=cur_metadata, animated=animated, w_prev=False)
+                self.nodes[index].highlight(metadata=meta, animated=animated, w_prev=w_prev)
                 first = False
             else:
                 # subsequent nodes should be highlighted together with the first highlight
-                self.nodes[index].highlight(metadata=cur_metadata, animated=animated, w_prev=True)
-
-        # Only add if it is a higher level function
+                self.nodes[index].highlight(metadata=meta, animated=animated, w_prev=True)
+        # Add metadata if meta is created in this fn
         if metadata is None:
-            self.scene.add_metadata(cur_metadata)
+            self.scene.add_metadata(meta)
 
-    # Unhighlight nodes at the specified indexes
-    def dehighlight(self, *indexes, animated=True, metadata=None):
+    ''' Dehighlight nodes at the specified indexes '''
+    def dehighlight(self, *indexes, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
         first = True
-        cur_metadata = metadata if metadata else Metadata.create_fn_metadata()
         for index in indexes:
             if first:
                 # first node should not be dehighlighted together with the previous action
-                self.nodes[index].dehighlight(metadata=cur_metadata, animated=animated, w_prev=False)
+                self.nodes[index].dehighlight(metadata=meta, animated=animated, w_prev=w_prev)
                 first = False
             else:
                 # subsequent nodes should be highlighted together with the first dehighlight
-                self.nodes[index].dehighlight(metadata=cur_metadata, animated=animated, w_prev=True)
-
-        # Only add if it is a higher level function
+                self.nodes[index].dehighlight(metadata=meta, animated=animated, w_prev=True)
+        # Add metadata if meta is created in this fn
         if metadata is None:
-            self.scene.add_metadata(cur_metadata)
+            self.scene.add_metadata(meta)
 
+    # Returns the value of the node at index
     def get_val(self, index):
         return self.nodes[index].val
 
@@ -112,19 +116,21 @@ class AlgoList(AlgoObject):
     def len(self):
         return len(self.nodes)
 
-    # Appends a new node with the given value to the end of the list
-    def append(self, val, animated=True):
+    ''' Appends a new node with the given value to the end of the list '''
+    def append(self, val, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Create new node and add to the right of the list
         node = AlgoNode(self.scene, val)
-        meta = Metadata.create_fn_metadata()
         if self.len() > 0:
             node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
         self.nodes.append(node)
-
-        node.show(meta, animated)
+        # Update positioning of list
+        node.show(metadata=meta, animated=animated, w_prev=w_prev)
         self.group()
-        self.center(animated=animated, metadata=meta)
-
-        self.scene.add_metadata(meta)
+        self.center(metadata=meta, animated=animated, w_prev=w_prev)
+         # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     # List type functions: needs refactored to fit meta_trees / Metadata functionality
     # Currently not needed for Iteration3's bubblesort
@@ -218,46 +224,19 @@ class AlgoList(AlgoObject):
 
         return sublist
 
-    # Concatenates this list and other_list, then centres them
-    def concat(self, other_list, animated=True):
-        # Join both lists in the backend
+    ''' Concatenates this list and other_list, then centres them '''
+    def concat(self, other_list, metadata=None, animated=True, w_prev=False):
+        meta = metadata if metadata else Metadata.create_fn_metadata()
+        # Add lists together
         self.nodes += other_list.nodes
-
-        meta = Metadata.create_fn_metadata()
-
-        # Join the two lists visually
-        anim_action = self.scene.create_play_action(
-            AlgoTransform(
-                [other_list.grp.next_to, self.grp, RIGHT],
-                transform=ApplyMethod
-            )
-        )
-        static_action = AlgoSceneAction.create_static_action(
-            other_list.grp.next_to,
-            [self.grp, RIGHT]
-        )
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-
-        # Create LowerMetadata
-        lower_meta = LowerMetadata('temp', action_pair)
-        meta.add_lower(lower_meta)
-
+        # Set other list to the right of this list
+        other_list.set_next_to(self, RIGHT, metadata=meta)
         # Update the VGroup of list nodes
         self.group()
-
-        # Center the combined list
-        anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp.center], transform=ApplyMethod)
-        )
-        static_action = AlgoSceneAction.create_static_action(self.grp.center)
-        action_pair = self.scene.add_action_pair(anim_action, static_action,
-                                                 animated=animated)
-
-        # Create LowerMetadata
-        lower_meta = LowerMetadata('center', action_pair)
-        meta.add_lower(lower_meta)
-
-        self.scene.add_metadata(meta)
+        self.center(metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     @staticmethod
     def find_action_pairs(scene, occurence, method, lower_level=None):

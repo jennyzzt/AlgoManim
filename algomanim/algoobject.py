@@ -1,4 +1,4 @@
-# pylint: disable=W0105
+# pylint: disable=W0105, R0913
 from abc import ABC
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
