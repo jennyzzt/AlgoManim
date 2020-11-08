@@ -77,6 +77,6 @@ class BinarySearchScene(AlgoScene):
         settings['highlight_color'] = "#33cccc"  # teal
 
     def customize(self, action_pairs):
-        actions = AlgoList.find_action_pairs(self, 3, 'highlight')
+        actions = self.find_action_pairs(method='highlight', occurence=3)
         for action in actions:
             action.set_color('#ff6666')

@@ -24,20 +24,16 @@ class CustomBubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
-        highlight_pairs = AlgoList.find_action_pairs(
-            self,
-            1,
-            'compare',
-            'highlight')
+        highlight_pairs = self.find_action_pairs(
+            method='compare', occurence=1, lower_level='highlight')
 
         for action_pair in highlight_pairs:
             action_pair.set_color('#ff6666') # pylint: disable=E0602
 
         # 2) all animations are fast forwarded (2x speed)
-        compare_pair = AlgoList.find_action_pairs(
-            self,
-            10,
-            'compare')[0]
+        compare_pair = self.find_action_pairs(
+            method='compare', occurence=10
+        )[0]
         compare_index = compare_pair.get_index()
         self.fast_forward(0, compare_index - 1)
 

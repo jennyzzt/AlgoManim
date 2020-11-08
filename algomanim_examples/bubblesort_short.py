@@ -31,7 +31,7 @@ class ShortBubbleSortScene(AlgoScene):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) find the animations for your different functions
-        print(AlgoList.find_action_pairs(self, 2, 'compare', 'swap'))
+        self.find_action_pairs(method='compare', occurence=2, lower_level='swap')
 
         # 2) animations are fast forwarded (2x speed) for second iteration
         self.fast_forward(45, 75)

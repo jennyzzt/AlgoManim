@@ -237,16 +237,3 @@ class AlgoList(AlgoObject):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
-
-    @staticmethod
-    def find_action_pairs(scene, occurence, method, lower_level=None):
-        for meta_tree in scene.meta_trees:
-            if method == meta_tree.metadata and occurence == meta_tree.fid:
-                if lower_level:
-                    pairs = []
-                    for lower in meta_tree.children:
-                        if lower_level == lower.metadata:
-                            pairs.append(lower.action_pair)
-                    return pairs
-                return meta_tree.get_all_action_pairs()
-        return []

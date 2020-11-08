@@ -404,7 +404,8 @@ class AlgoScene(Scene):
                         if lower_level == lower.metadata:
                             action_pairs.append(lower.action_pair)
                 else:
-                    action_pairs.append(*meta_tree.get_all_action_pairs())
+                    for action_pair in meta_tree.get_all_action_pairs():
+                        action_pairs.append(action_pair)
         return action_pairs
 
     def construct(self):
