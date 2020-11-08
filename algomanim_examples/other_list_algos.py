@@ -11,7 +11,7 @@ class FindMaxScene(AlgoScene):
         self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
 
         for i in range(algolist.len()):
-            if algolist.compare(cur_max_idx, i, highlights=True):
+            if algolist.compare(cur_max_idx, i):
                 cur_max_idx = i
                 self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
 

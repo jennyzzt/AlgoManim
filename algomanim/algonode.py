@@ -53,7 +53,7 @@ class AlgoNode(AlgoObject):
         if metadata is None:
             self.scene.add_metadata(meta)
 
-    def dehighlight(self, animated=True, w_prev=False, metadata=None):
+    def dehighlight(self, metadata=None, animated=True, w_prev=False):
         meta = metadata if metadata else Metadata.create_fn_metadata()
         # Create action pair
         anim_action = self.scene.create_play_action(
