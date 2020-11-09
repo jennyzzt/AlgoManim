@@ -305,9 +305,9 @@ class GuiWindow(QDialog):
         # Check that the python file exists
         if not os.path.exists(pyfile_relpath):
             err = QMessageBox(icon=QMessageBox.Critical,
-                                text="File does not exist")
+                              text="File does not exist")
             err.setInformativeText('The python file no longer exists at the given location. '
-                                    'Select another file to proceed.')
+                                   'Select another file to proceed.')
             err.setStandardButtons(QMessageBox.Close)
             err.setStyleSheet(ERROR_MSG_STYLESHEET)
             err.exec_()
@@ -316,7 +316,7 @@ class GuiWindow(QDialog):
         # Check that a scene has been selected
         if self.scene_combobox.currentIndex() < 0:
             err = QMessageBox(icon=QMessageBox.Critical,
-                                text="No scene selected")
+                              text="No scene selected")
             err.setInformativeText('You must select a scene to render')
             err.setStandardButtons(QMessageBox.Close)
             err.setStyleSheet(ERROR_MSG_STYLESHEET)
