@@ -327,10 +327,12 @@ class AlgoTreeNode(AlgoNode):
         # Recursively finds the node with val
         if val < self.val:
             # If value is lesser, look in left subtree
-            node_found = self.left.find(val)
+            if self.left:
+                node_found = self.left.find(val)
         elif val > self.val:
             # If value is greater, look in right subtree
-            node_found = self.right.find(val)
+            if self.right:
+                node_found = self.right.find(val)
         else:
             # Found node with val
             node_found = self
