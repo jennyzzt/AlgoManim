@@ -16,7 +16,7 @@ class AlgoList(AlgoObject):
 
         # Group nodes together
         self.grp = None
-        self.group()
+        self.group(immediate_effect=True)
 
         # Initial positioning
         self.grp.center()
@@ -62,8 +62,23 @@ class AlgoList(AlgoObject):
         return val1 < val2
 
     # Restores the internal VGroup of list nodes, especially if the list has been edited
-    def group(self):
-        self.grp = VGroup(*[n.grp for n in self.nodes])
+    def group(self, metadata=None, immediate_effect=False):
+
+        def group():
+            self.grp = VGroup(*[n.grp for n in self.nodes])
+
+        # Update the VGroup of the list
+        if immediate_effect:
+            group()
+        else:
+
+            dummy_action = AlgoSceneAction.create_static_action(group, [])
+            dummy_action_pair = self.scene.add_action_pair(dummy_action, dummy_action, animated=False)
+
+            # Not designed to be a Higher level func
+            if metadata:
+                lower_meta = LowerMetadata.create(dummy_action_pair, [self.nodes])
+                metadata.add_lower(lower_meta)
 
     ''' Display the list on screen '''
     def show_list(self, metadata=None, animated=True, w_prev=False):
@@ -135,9 +150,14 @@ class AlgoList(AlgoObject):
         self.nodes.append(node)
         # Update positioning of list
         node.show(metadata=meta, animated=animated, w_prev=w_prev)
-        self.group()
+
+        # Update the VGroup of the list
+        self.group(metadata=meta)
+
+        # Center list
         self.center(metadata=meta, animated=animated, w_prev=w_prev)
-         # Add metadata if meta is created in this fn
+
+        # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
 
@@ -158,7 +178,9 @@ class AlgoList(AlgoObject):
 
         self.nodes[i].hide(meta, animated)
         self.nodes.remove(self.nodes[i])
-        self.group()
+
+        # Update the VGroup of the list
+        self.group(metadata=meta)
 
         if right_nodes is not None and left_node is not None:
             # gap only needs to be closed if there are nodes on the left and right
@@ -274,13 +296,8 @@ class AlgoList(AlgoObject):
         self.nodes += other_list.nodes
 
         # Update the VGroup of the list
-        dummy_action = AlgoSceneAction.create_static_action(self.group, [])
-        dummy_action_pair = self.scene.add_action_pair(dummy_action, dummy_action, animated=False)
+        self.group(metadata=meta)
 
-        lower_meta = LowerMetadata.create(dummy_action_pair, [self.nodes])
-        meta.add_lower(lower_meta)
-
-        # self.group()
         if center:
             self.center(metadata=meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
