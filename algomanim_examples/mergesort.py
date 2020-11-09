@@ -11,8 +11,6 @@ class MergeSortScene(AlgoScene):
 
         self.mergesort(algolist)
 
-    # TODO: Implementation of MergeSort is incorrect. Sample outputl [4,3,1,4] -> [1,4,3,4].
-    #       Merge step (lines 28-31 is incorrect. Needs to be )
     def mergesort(self, algolist):
         if algolist.len() > 1:
             # find middle index
@@ -35,13 +33,14 @@ class MergeSortScene(AlgoScene):
                     res.append(left.get_val(l))
                     l += 1
                 else:
-                    res.append(right.get_val(l))
+                    res.append(right.get_val(r))
                     r += 1
             while l < left.len():
                 res.append(left.get_val(l))
                 l += 1
             while r < right.len():
-                res.append(right.get_val(l))
+                res.append(right.get_val(r))
                 r += 1
+            return res
 
         return algolist

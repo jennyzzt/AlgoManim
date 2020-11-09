@@ -51,7 +51,6 @@ class AlgoTransform:
         if self.transform is None:
             return self.args
 
-        print(self.transform, self.args)
         return self.transform(*self.args)
 
 class AlgoSceneAction:
