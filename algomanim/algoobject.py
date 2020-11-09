@@ -160,7 +160,7 @@ class AlgoObject(ABC):
             )
             static_action = AlgoSceneAction.create_static_action(self.scene.remove,
                                                                  [self.text[key]])
-            action_pair = self.scene.add_action_pair(anim_action, static_action)
+            action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
             # Create hide LowerMetadata
             lower_meta = LowerMetadata('hide', action_pair)
             meta.add_lower(lower_meta)
@@ -172,7 +172,7 @@ class AlgoObject(ABC):
         )
         static_action = AlgoSceneAction.create_static_action(self.text[key].next_to,
                                                              [self.grp, vector])
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
         # Create set_next_to LowerMetadata
         lower_meta = LowerMetadata('set_next_to', action_pair)
         meta.add_lower(lower_meta)
