@@ -195,7 +195,7 @@ class AlgoList(AlgoObject):
 
     # enforced contiguous slices
     # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
-    def slice(self, start, stop, move=LEFT, animated=True):
+    def slice(self, start, stop, move=LEFT, animated=True, shift=False):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -219,14 +219,15 @@ class AlgoList(AlgoObject):
         """
 
         # Shift the Scene up so that that we make space for the new list
-        self.scene.shift_scene(UP, meta)
+        if shift:
+            self.scene.shift_scene(UP, meta)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
                            [n.val for n in self.nodes][start:stop], show=False)
 
         # Align to its original position in the list
-        sublist.nodes[0].set_next_to(self.nodes[start], LEFT, metadata=meta)
+        sublist.nodes[0].set_next_to(self.nodes[start], 0, metadata=meta)
         # sublist.nodes[0].grp.align_to(self.nodes[start].grp, LEFT)
         AlgoList.align_nodes_from_first_node(sublist, metadata=meta)
 
@@ -266,12 +267,20 @@ class AlgoList(AlgoObject):
     ''' Concatenates this list and other_list, then centres them '''
     def concat(self, other_list, metadata=None, animated=True, w_prev=False, center=False):
         meta = Metadata.check_and_create(metadata)
+        # Set other list to the right of this list
+        other_list.set_next_to(self, RIGHT, metadata=meta, animated=animated, w_prev=w_prev)
+
         # Add lists together
         self.nodes += other_list.nodes
-        # Set other list to the right of this list
-        other_list.set_next_to(self, RIGHT, metadata=meta)
-        # Update the VGroup of list nodes
-        self.group()
+
+        # Update the VGroup of the list
+        dummy_action = AlgoSceneAction.create_static_action(self.group, [])
+        dummy_action_pair = self.scene.add_action_pair(dummy_action, dummy_action, animated=False)
+
+        lower_meta = LowerMetadata.create(dummy_action_pair, [self.nodes])
+        meta.add_lower(lower_meta)
+
+        # self.group()
         if center:
             self.center(metadata=meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
@@ -280,6 +289,3 @@ class AlgoList(AlgoObject):
 
         return self
 
-    # def shift_item(self, vector, animated=False, w_prev=False):
-    #     for node in self.nodes:
-    #         node.set_relative_of(node, vector, animated=animated, w_prev=w_prev)
