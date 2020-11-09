@@ -19,7 +19,7 @@ class AlgoList(AlgoObject):
         self.group(immediate_effect=True)
 
         # Initial positioning
-        self.grp.center()
+        self.center()
         # self.center(animated=False)
 
         # Subscribe to the scene for scene transformations like Shifts
