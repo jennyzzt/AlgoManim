@@ -221,6 +221,15 @@ class AlgoTreeNode(AlgoNode):
             self.scene.add_metadata(meta)
     # ---------------------------------------------------- #
 
+    ''' Returns the total number of nodes of the tree '''
+    def size(self):
+        num_nodes = 1
+        if self.left:
+            num_nodes += self.left.size()
+        if self.right:
+            num_nodes += self.right.size()
+        return num_nodes
+
     def insert(self, val, animated=True):
         curr_node = self
         # If value is less than curr_node, insert to the left
@@ -256,6 +265,7 @@ class AlgoTreeNode(AlgoNode):
 
     ''' Swap this tree node with another tree node '''
     def swap(self, node, metadata=None, animated=True, w_prev=False):
+        # this fn should only be used with other tree nodes
         if not isinstance(node, AlgoTreeNode):
             raise ValueError('Inappropriate type: {} for node whereas a  \
             AlgoTreeNode is expected'.format(type(node)))
@@ -297,13 +307,16 @@ class AlgoTreeNode(AlgoNode):
                 self.parent.left = None
             else:
                 self.parent.right = None
+        self.parent = None
         # remove children's connection to it
         if self.left:
             self.left.parent = None
         if self.right:
             self.right.parent = None
-        # add animation to hide node only
-        super().hide(metadata=meta, animated=animated, w_prev=w_prev)
+        self.left = None
+        self.right = None
+        # add animation hide node
+        self.hide(metadata=meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
@@ -358,5 +371,6 @@ class AlgoTreeNode(AlgoNode):
         if metadata is None:
             self.scene.add_metadata(meta)
         # Adjust layout
-        new_root.adjust_layout()
+        if new_root:
+            new_root.adjust_layout()
         return new_root
