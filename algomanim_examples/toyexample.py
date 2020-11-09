@@ -5,11 +5,17 @@ from algomanim.algolist import AlgoList
 
 class ToyScene(AlgoScene):
     def algoconstruct(self):
-        algolist = AlgoList(self, [39, 40, 41, 42])
-        # algolist2 = AlgoList(self, [39, 40, 41, 42])
-        # algolist.concat(algolist2)
+        algolist = AlgoList(self, [39, 40, 41, 42, 43])
+        # algolist2 = AlgoList(self, [1,2])
 
-        algolist.slice(0, 2)
+        left_list = algolist.slice(0, 2, move=LEFT)
+        right_list = algolist.slice(2, 4, move=RIGHT)
+        # left_list.slice(0,1, move=DOWN)
 
-        # algolist.compare(0, 1)
-        # algolist.swap(0, 1)
+        concat_list = left_list.concat(right_list)
+        # right_list = algolist.slice(2, 5, move=RIGHT)
+        #
+        # left_list.slice(0, 1, move=LEFT)
+        # left_list.slice(1, 2, move=RIGHT)
+
+        # algolist.slice(3, 7)
