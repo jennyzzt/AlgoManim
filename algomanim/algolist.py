@@ -73,7 +73,8 @@ class AlgoList(AlgoObject):
         else:
 
             dummy_action = AlgoSceneAction.create_static_action(group, [])
-            dummy_action_pair = self.scene.add_action_pair(dummy_action, dummy_action, animated=False)
+            dummy_action_pair = self.scene.add_action_pair(dummy_action,
+                                                           dummy_action, animated=False)
 
             # Not designed to be a Higher level func
             if metadata:
@@ -236,7 +237,6 @@ class AlgoList(AlgoObject):
         The sliced list is first aligned to its original position in the list.
         The hidden list is positioned where the sliced list will end up,
         and its center is used to define the movement of the sliced list.
-        
         Both slices are hidden from the screen during this process.
         """
 
@@ -305,4 +305,3 @@ class AlgoList(AlgoObject):
             self.scene.add_metadata(meta)
 
         return self
-
