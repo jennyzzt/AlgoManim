@@ -7,6 +7,10 @@ from gui.video_player import VIDEO_BASE_WIDTH
 # Scrollbar base height
 BAR_BASE_HEIGHT = 125
 
+# Box width constraints
+BOX_MIN_WIDTH = 80
+BOX_MAX_WIDTH = 320
+
 
 class AnimationBar(QWidget):
 
@@ -56,6 +60,15 @@ class AnimationBar(QWidget):
         # Show boxes in scroll area
         self.scroll_area.setWidget(anim_group_box)
 
+    @staticmethod
+    def get_anim_box_size(runtime):
+        height = BAR_BASE_HEIGHT - 15  # prevent height overflow
+
+        width = max(int(150 * runtime), BOX_MIN_WIDTH)
+        width = min(width, BOX_MAX_WIDTH)  # prevent box from getting too long
+
+        return width, height
+
     def create_anim_box(self, anim):
         """
         Create a single anim box from the properties of anim
@@ -73,8 +86,8 @@ class AnimationBar(QWidget):
         anim_lbl.setWordWrap(True)
 
         # Size box
-        anim_box.setFixedHeight(BAR_BASE_HEIGHT - 15)  # prevent height overflow
-        width = max(int(150 * anim.runtime), 80)
+        width, height = AnimationBar.get_anim_box_size(anim.runtime)
+        anim_box.setFixedHeight(height)
         anim_box.setFixedWidth(width)
 
         # Layout anim box
