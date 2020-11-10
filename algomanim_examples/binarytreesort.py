@@ -7,7 +7,6 @@ class BinaryTreeSortScene(AlgoScene):
         numlist = [25, 43, 5, 18, 30]
         root = AlgoTreeNode(self, numlist[0])
         for i in range(1, len(numlist)):
-            root.insert(numlist[i], animated=False)
-
-        root.show_tree(order=TreeTraversalType.PREORDER)
-        root.hide_tree()
+            root.insert(numlist[i], animated=True)
+        root.show_tree(order=TreeTraversalType.ALL_AT_ONCE)
+        # root.hide_tree()

@@ -5,11 +5,13 @@ from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.settings import Shape
+import numpy as np
 
 class TreeTraversalType(Enum):
     PREORDER = auto()
     INORDER = auto()
     POSTORDER = auto()
+    ALL_AT_ONCE = auto()
 
 class AlgoTreeNode(AlgoNode):
     def __init__(self, scene, val, parent=None):
@@ -35,10 +37,18 @@ class AlgoTreeNode(AlgoNode):
     def static_set_line_with(self, parent):
         if parent is None:
             # reset line
-            self.line.put_start_and_end_on(self.grp.get_center(),
-                                           self.grp.get_center()+[0.1, 0, 0])
+            self.line.set_opacity(0)
         else:
-            self.line.put_start_and_end_on(self.grp.get_center(), parent.grp.get_center())
+            center = self.grp.get_center()
+            parent_center = parent.grp.get_center()
+            y = center[1] - parent_center[1]
+            x = center[0] - parent_center[0]
+            angle = np.arctan2(y, x)
+            start = center - \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            end = parent_center + \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            self.line.put_start_and_end_on(start, end)
 
     # Set the line connecting the node to its parent
     def set_line_with(self, parent=None):
@@ -136,8 +146,8 @@ class AlgoTreeNode(AlgoNode):
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Send line to back
-        pos_action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
-        self.scene.add_action_pair(pos_action, pos_action, animated=animated)
+        # pos_action = AlgoSceneAction.create_static_action(self.scene.bring_to_back, [self.line])
+        # self.scene.add_action_pair(pos_action, pos_action, animated=animated)
         # Initialise a LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, val=[self.val])
         meta.add_lower(lower_meta)
@@ -152,13 +162,15 @@ class AlgoTreeNode(AlgoNode):
 
     # Recursely show entire tree with this node as the root
     def recurse_show_tree(self, order, metadata=None, animated=True, w_prev=False):
-        if order == TreeTraversalType.PREORDER:
+        if order in (TreeTraversalType.PREORDER, TreeTraversalType.ALL_AT_ONCE):
             self.show(metadata=metadata, animated=animated, w_prev=w_prev)
         if self.left:
+            w_prev = True if order == TreeTraversalType.ALL_AT_ONCE else w_prev
             self.left.recurse_show_tree(order, metadata=metadata, animated=animated, w_prev=w_prev)
         if order == TreeTraversalType.INORDER:
             self.show(metadata=metadata, animated=animated, w_prev=w_prev)
         if self.right:
+            w_prev = True if order == TreeTraversalType.ALL_AT_ONCE else w_prev
             self.right.recurse_show_tree(order, metadata=metadata, animated=animated, w_prev=w_prev)
         if order == TreeTraversalType.POSTORDER:
             self.show(metadata=metadata, animated=animated, w_prev=w_prev)
