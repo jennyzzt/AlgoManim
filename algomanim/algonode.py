@@ -7,6 +7,8 @@ from algomanim.algoobject import AlgoObject
 class AlgoNode(AlgoObject):
     def __init__(self, scene, val):
         super().__init__(scene)
+        self.scene = scene
+
         # Get preconfig settings
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
@@ -29,10 +31,17 @@ class AlgoNode(AlgoObject):
                 fill_opacity=1
             )
         }[scene.settings['node_shape']]
+
         # Set attributes
         self.val = val
         self.txt = TextMobject(str(val))
         self.txt.set_color(scene.settings['font_color'])
+        self.grp = VGroup(self.node, self.txt)
+
+    def update_val(self, new_val):
+        self.val = new_val
+        self.txt = TextMobject(str(new_val))
+        self.txt.set_color(self.scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
     def highlight(self, metadata=None, animated=True, w_prev=False):

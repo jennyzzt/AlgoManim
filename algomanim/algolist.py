@@ -218,7 +218,7 @@ class AlgoList(AlgoObject):
 
     # enforced contiguous slices
     # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
-    def slice(self, start, stop, move=LEFT, animated=True, shift=False):
+    def slice(self, start, stop, move=LEFT, animated=True, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -242,7 +242,7 @@ class AlgoList(AlgoObject):
 
         # Shift the Scene up so that that we make space for the new list
         if shift:
-            self.scene.shift_scene(UP, meta)
+            self.scene.shift_scene(shift_vec, meta)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
@@ -305,3 +305,29 @@ class AlgoList(AlgoObject):
             self.scene.add_metadata(meta)
 
         return self
+
+    def merge(self, left_list, right_list, animated=True, replace=False, shift=False, shift_vec=UP):
+        # make hidden copies of left_list and right_list at their respective positions
+        # reveal the copies silently
+        # create a hidden dummy list of the final length and place below the left_list
+
+        # do the pointer thing and place the respective copied nodes at their respective places
+        # keep track of the copied nodes to remove them later -- prob can do this via the left and right lists
+        # update the values on hidden dummy list silently
+
+        # show the dummy list
+        # remove the copied left and right lists
+
+        # if replace, call replace (with shift set to false) on the left and right lists
+        # if shift, shift scene using the vec
+
+        pass
+
+    ''' Destroys the given list(s) and moves this list to its/their original position.
+     Given lists assumed to be in a single line. '''
+    def replace(self, *lists, animated=True, shift=False, shift_vec=UP):
+        # get the middle point of all the given lists
+        # hide all the given lists
+        # move this list to the middle pt found
+        # if shift, shift the scene using the vec
+        pass
