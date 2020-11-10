@@ -287,6 +287,28 @@ class AlgoScene(Scene):
         else:
             self.add_metadata(metadata)
 
+    # Convenience function to add a text object and the Write transform
+    # Returns the created text object
+    def add_text(self, text, index, position=UP):
+        text = TextMobject(text)
+        text.shift(2 * position)
+        transform = lambda: Write(text)
+        self.add_transform(index, transform)
+        return text
+
+    # Convenience function to edit existing text objects via a ReplacementTransform
+    # Requires the previous text object to be edited
+    # Returns the replacement text object
+    def change_text(self, new_text_string, old_text_object, index, position=UP):
+        new_text_object = TextMobject(new_text_string)
+        new_text_object.shift(2 * position)
+
+        # Create the transform to be run at that point
+        transform = lambda old_text, new_text: \
+            [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+        self.add_transform(index, transform, args=[old_text_object, new_text_object])
+        return new_text_object
+
     def add_fade_out_all(self, index):
         self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
@@ -374,7 +396,7 @@ class AlgoScene(Scene):
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:
-            post_customize(self.action_pairs)
+            post_customize(self)
 
         # bundle animations together according to time
         self.create_animation_blocks(action_pairs, anim_blocks)

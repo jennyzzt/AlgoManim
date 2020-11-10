@@ -265,10 +265,18 @@ class GuiWindow(QDialog):
 
     def apply_changes(self):
         curr_changes = self.changes.copy()
-        def post_customize(action_pairs):
+        def customize_anims(algoscene):
+            action_pairs = algoscene.action_pairs
             for (action_pair_index, change_type), anim_change in curr_changes.items():
                 change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
-        self.post_customize_fns.append(post_customize)
+        self.post_customize_fns.append(customize_anims)
+        # pylint: disable=unused-argument
+        def insert_text(algoscene):
+            # test_add = algoscene.add_text("Test", index=2)
+            # algoscene.change_text(test_add, "Test 2", index=8)
+            pass
+        self.post_customize_fns.append(insert_text)
+
         self.render_video()
         # Do the rendering here
         self.reset_changes()
