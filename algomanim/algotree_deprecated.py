@@ -1,11 +1,11 @@
 # pylint: disable=C0103, R0904, W0105
 from enum import Enum, auto
+import numpy as np
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.settings import Shape
-import numpy as np
 
 class TreeTraversalType(Enum):
     PREORDER = auto()

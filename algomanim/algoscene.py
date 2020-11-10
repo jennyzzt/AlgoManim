@@ -237,10 +237,14 @@ class AlgoScene(Scene):
             w_prev=w_prev, can_set_runtime=True
         )
 
-    def add_action_pair(self, anim_action, static_action=None, animated=True):
+    def add_action_pair(self, anim_action, static_action=None, animated=True, index=None):
+        if index is not None:
+            self.push_back_action_pair_indices(index)
+        else:
+            index = len(self.action_pairs)
         pair = AlgoSceneActionPair(anim_action, static_action,
                                    run_time=None if animated else 0)
-        self.action_pairs.append(pair)
+        self.action_pairs.insert(index, pair)
         return pair
 
     def add_metadata(self, metadata):
@@ -386,7 +390,7 @@ class AlgoScene(Scene):
     def create_metadata_blocks(self):
         self.metadata_blocks = []
 
-        for tree in self.meta_trees:
+        '''for tree in self.meta_trees:
             action_pairs = tree.get_all_action_pairs()
 
             blocks = {action_pair.get_block() for action_pair in action_pairs}
@@ -399,7 +403,7 @@ class AlgoScene(Scene):
                 MetadataBlock(tree, action_pairs, start_time, runtime)
             )
         # some metadata might be added out of order, sort the blocks by start_time
-        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)'''
 
     def insert_pin(self, desc, *args):
         empty_action = AlgoSceneAction.create_empty_action(list(args))
