@@ -262,22 +262,7 @@ class AlgoList(AlgoObject):
         hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move, metadata=meta)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=meta)
 
-        move_pt = hidden_sublist.grp.get_center
-
-        anim_action = self.scene.create_play_action(
-            AlgoTransform(
-                [sublist],
-                transform=lambda obj: ApplyMethod(obj.grp.move_to, move_pt())
-            )
-        )
-
-        static_action = AlgoSceneAction.create_static_action(
-            function=lambda obj: ApplyMethod(obj.grp.move_to, move_pt()),
-            args=[sublist]
-        )
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        lower_meta = LowerMetadata(TEMP, action_pair)
-        meta.add_lower(lower_meta)
+        sublist.set_next_to(hidden_sublist, vector=0, metadata=meta, animated=True)
 
         # Get rid of hidden_sublist
         self.scene.remove(hidden_sublist)
@@ -308,7 +293,6 @@ class AlgoList(AlgoObject):
         return self
 
     def merge(self, left_list, right_list, metadata=None, animated=True, replace=False, shift=False, shift_vec=UP):
-        # TODO: no metadata yet
         meta = Metadata.check_and_create(metadata)
 
         # make hidden copies of left_list and right_list at their respective positions
@@ -328,13 +312,9 @@ class AlgoList(AlgoObject):
 
         final_len = left_len + right_len
         hidden_merged_list = AlgoList(self.scene, [0 for _ in range(0, final_len)], show=False)
-        # hidden_merged_list.set_next_to(left_list, vector=DOWN)
 
         hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN, metadata=meta)
         AlgoList.align_nodes_from_first_node(hidden_merged_list, metadata=meta)
-
-        hidden_merged_list.show(animated=True)
-        hidden_merged_list.hide(animated=True)
 
         # do the pointer thing and place the respective copied nodes at their respective places
         # keep track of the copied nodes to remove them later -- prob can do this via the left and right lists
@@ -359,23 +339,7 @@ class AlgoList(AlgoObject):
                 left_index += 1
 
             # animate moving node_to_move to (hidden_merged_list.nodes[curr_index], vector=0)
-            # TODO: extract this into algoobject
-            move_pt = hidden_merged_list.nodes[curr_index].grp.get_center
-            anim_action = self.scene.create_play_action(
-                AlgoTransform(
-                    [node_to_move],
-                    transform=lambda obj: ApplyMethod(obj.grp.move_to, move_pt())
-                )
-            )
-
-            static_action = AlgoSceneAction.create_static_action(
-                function=lambda obj: ApplyMethod(obj.grp.move_to, move_pt()),
-                args=[node_to_move]
-            )
-            action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-
-            lower_meta = LowerMetadata(TEMP, action_pair)
-            meta.add_lower(lower_meta)
+            node_to_move.set_next_to(hidden_merged_list.nodes[curr_index], vector=0, animated=True, metadata=meta)
 
             # track the added value
             merged_list_vals.append(node_to_move.val)
@@ -391,6 +355,7 @@ class AlgoList(AlgoObject):
             merged_list_vals += [n.val for n in right_list_copy.nodes[right_index:]]
 
             # move it accordingly
+            # TODO: extract this out
             move_pt = rem_hidden.get_center
             anim_action = self.scene.create_play_action(
                 AlgoTransform(
@@ -432,13 +397,11 @@ class AlgoList(AlgoObject):
             meta.add_lower(lower_meta)
 
         merged_list = AlgoList(self.scene, merged_list_vals, show=False)
-
-        merged_list.nodes[0].set_next_to(left_list.nodes[0], DOWN, metadata=meta)
-        AlgoList.align_nodes_from_first_node(merged_list, metadata=meta)
+        merged_list.set_next_to(hidden_merged_list, vector=0, metadata=meta)
 
         # show the dummy list
-        merged_list.show(animated=False)
-        hidden_merged_list.hide(animated=False)
+        merged_list.show(animated=False, metadata=meta)
+        hidden_merged_list.hide(animated=False, metadata=meta)
 
         # remove the copied left and right lists
         self.scene.remove(left_list_copy)
