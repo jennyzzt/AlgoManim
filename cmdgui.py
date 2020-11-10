@@ -10,7 +10,7 @@ from PyQt5.QtCore import QUrl
 from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
-from gui.animation_bar import AnimationBar
+from gui.animation_bar import AnimationBar, EMPTY_ANIMATION
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
@@ -276,6 +276,10 @@ class GuiWindow(QDialog):
     def set_settings(self, label, value):
         # Catch cases that route to custom_renderer
         self.post_config_settings[label] = value
+
+    def add_empty_anim(self, index):
+        self.anims.insert(index, EMPTY_ANIMATION)
+        self.animation_bar.fill_bar(self.anims)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
+from gui.animation_bar import EMPTY_ANIMATION
 from gui.panels.base_changes_panel import BaseChangesPanel
 
 from .widgets.frame_layout import FrameLayout
@@ -65,39 +66,43 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_frame.setLayout(self.menu_layout)
 
     def set_animation(self, anim): # pylint: disable=too-many-locals
-        self.reset_frame(title = anim.desc())
+        if anim == EMPTY_ANIMATION:
+            # to do: add text/change text options
+            pass
+        else:
+            self.reset_frame(title = anim.desc())
 
-        change_possible = False
-        for lower_meta in anim.metadata.children:
-            action_pair = lower_meta.action_pair
-            action_pair_index = action_pair.get_index()
-            lower_meta_name = lower_meta.metadata
-            change_name = f'{anim.desc(sep=" ")} > {lower_meta_name}'
+            change_possible = False
+            for lower_meta in anim.metadata.children:
+                action_pair = lower_meta.action_pair
+                action_pair_index = action_pair.get_index()
+                lower_meta_name = lower_meta.metadata
+                change_name = f'{anim.desc(sep=" ")} > {lower_meta_name}'
 
-            collapsible_box = FrameLayout(title=lower_meta_name)
-            form_layout = QFormLayout()
+                collapsible_box = FrameLayout(title=lower_meta_name)
+                form_layout = QFormLayout()
 
-            # for each customization available in action_pair
-            for (change_type, original_val) in action_pair.customizations().items():
-                change_possible = True
+                # for each customization available in action_pair
+                for (change_type, original_val) in action_pair.customizations().items():
+                    change_possible = True
 
-                # create input widget and set default value to last changed value
-                # or original value
-                widget = change_type.get_widget()
-                wrapped_widget = change_type.wrap_input_widget(widget)
-                change_key = (action_pair_index, change_type)
-                if change_key in self.changes:
-                    wrapped_widget.set_value(self.changes[change_key].get_value())
-                else:
-                    wrapped_widget.set_value(original_val)
+                    # create input widget and set default value to last changed value
+                    # or original value
+                    widget = change_type.get_widget()
+                    wrapped_widget = change_type.wrap_input_widget(widget)
+                    change_key = (action_pair_index, change_type)
+                    if change_key in self.changes:
+                        wrapped_widget.set_value(self.changes[change_key].get_value())
+                    else:
+                        wrapped_widget.set_value(original_val)
 
-                form_layout.addRow(QLabel(change_type.desc), widget)
+                    form_layout.addRow(QLabel(change_type.desc), widget)
 
-                widget_key = (action_pair_index, change_name, change_type)
-                self.change_widgets[widget_key] = wrapped_widget, wrapped_widget.get_value()
+                    widget_key = (action_pair_index, change_name, change_type)
+                    self.change_widgets[widget_key] = wrapped_widget, wrapped_widget.get_value()
 
-            collapsible_box.addLayout(form_layout)
-            self.menu_layout.addWidget(collapsible_box)
+                collapsible_box.addLayout(form_layout)
+                self.menu_layout.addWidget(collapsible_box)
 
-        self.save_button.setEnabled(change_possible)
-        self.inner_scroll_layout.addWidget(self.menu_frame)
+            self.save_button.setEnabled(change_possible)
+            self.inner_scroll_layout.addWidget(self.menu_frame)
