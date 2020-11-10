@@ -38,12 +38,6 @@ class AlgoNode(AlgoObject):
         self.txt.set_color(scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
-    def update_val(self, new_val):
-        self.val = new_val
-        self.txt = TextMobject(str(new_val))
-        self.txt.set_color(self.scene.settings['font_color'])
-        self.grp = VGroup(self.node, self.txt)
-
     def highlight(self, metadata=None, animated=True, w_prev=False):
         meta = Metadata.check_and_create(metadata)
         # Create action pair

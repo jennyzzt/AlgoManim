@@ -8,10 +8,12 @@ from algomanim.algolist import AlgoList
 class ToyScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, [39, 40, 41, 42, 43])
+
         # algolist2 = AlgoList(self, [1,2])
 
         left_list = algolist.slice(0, 2, move=LEFT)
-        right_list = algolist.slice(2, 4, move=RIGHT)
+        right_list = algolist.slice(2, 4, move=RIGHT, shift=True, shift_vec=UP)
+        # left_list.concat(right_list)
 
         algolist.merge(left_list, right_list)
 
