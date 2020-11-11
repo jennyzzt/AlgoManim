@@ -1,3 +1,4 @@
+# pylint: disable=W0201, R0914
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
@@ -9,17 +10,17 @@ class FindMaxScene(AlgoScene):
         algolist = AlgoList(self, [25, 40, 5, 60, 50, 80])
 
         cur_max_idx = 0
-        self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
+        self.insert_pin('max_changed', algolist.get_val(cur_max_idx))
 
         for i in range(1, algolist.len()):
             if algolist.compare(cur_max_idx, i):
                 cur_max_idx = i
-                self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
+                self.insert_pin('max_changed', algolist.get_val(cur_max_idx))
 
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
         settings['node_size'] = 1.5
-        settings['highlight_color'] = "#33cccc"  # teal
+        settings['highlight_color'] = '#33cccc'  # teal
 
     def customize(self, action_pairs):
         # add title to beginning
@@ -29,7 +30,7 @@ class FindMaxScene(AlgoScene):
         self.add_transform(0, transform)
 
         # search for pins that were previously set
-        pins = self.find_pin("max_changed")
+        pins = self.find_pin('max_changed')
         prev_text = text
         for pin in pins:
             # extract val from list of args
@@ -59,26 +60,104 @@ class BinarySearchScene(AlgoScene):
         last = algolist.len()-1
         index = -1
 
+        self.insert_pin('intro', val)
+
         while (first <= last) and (index == -1):
-            algolist.dehighlight(mid_pt)
+            self.insert_pin('searching_range', algolist.nodes[first], algolist.nodes[last])
+
             mid_pt = (first+last)//2
-            algolist.highlight(mid_pt)
+
+            self.insert_pin('highlight', algolist, mid_pt)
+            self.insert_pin('compare', algolist.get_val(mid_pt), val)
+            self.insert_pin('dehighlight', algolist, mid_pt)
+
             if algolist.get_val(mid_pt) == val:
                 index = mid_pt
+                self.insert_pin('found_val', val, index)
+            elif val < algolist.get_val(mid_pt):
+                last = mid_pt -1
             else:
-                if val < algolist.get_val(mid_pt): # Need compare node to value function
-                    last = mid_pt -1
-                else:
-                    first = mid_pt +1
-
-        print(index)
+                first = mid_pt +1
 
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
         settings['node_size'] = 1
-        settings['highlight_color'] = "#33cccc"  # teal
+        settings['highlight_color'] = '#33cccc'  # teal
 
     def customize(self, action_pairs):
-        actions = self.find_action_pairs(method='highlight', occurence=3)
-        for action in actions:
-            action.set_color('#ff6666')
+        # add introduction
+        intro_pin = self.find_pin('intro')[0]
+        index = intro_pin.get_index()
+        val = intro_pin.get_args()[0]
+        intro_text = TextMobject(f'Find value, {val}, in Sorted List')
+        intro_text.shift(2*UP)
+        intro_transform = lambda: Write(intro_text)
+        self.add_transform(index, intro_transform)
+
+        # add animation for searching range box
+        searching_range_pins = self.find_pin('searching_range')
+        # box needs to be created at animation creation time
+        self.custom_box = None
+        # update surrounding box
+        for pin in searching_range_pins:
+            index = pin.get_index()
+            first_node = pin.get_args()[0]
+            last_node = pin.get_args()[1]
+            self.add_static(index, self.update_surrounding_box, [first_node, last_node])
+
+        # add highlight animations
+        highlight_pins = self.find_pin('highlight')
+        for pin in highlight_pins:
+            index = pin.get_index()
+            algolist = pin.get_args()[0]
+            list_index = pin.get_args()[1]
+            algolist.highlight(list_index)
+
+        # add compare texts
+        compare_pins = self.find_pin('compare')
+        old_text = None
+        for pin in compare_pins:
+            index = pin.get_index()
+            val1 = pin.get_args()[0]
+            val2 = pin.get_args()[1]
+            new_text = TextMobject(f'{val1}' \
+                                   + ('<' if val1<val2 else ('>' if val1>val2 else '==')) \
+                                   + f'{val2}')
+            new_text.shift(UP)
+            self.add_static(index, self.update_text, [old_text, new_text])
+            old_text = new_text
+
+        # add dehighlight animations
+        dehighlight_pins = self.find_pin('dehighlight')
+        for pin in dehighlight_pins:
+            index = pin.get_index()
+            algolist = pin.get_args()[0]
+            list_index = pin.get_args()[1]
+            algolist.dehighlight(list_index)
+
+        # add found val text
+        found_pin = self.find_pin('found_val')[0]
+        index = found_pin.get_index()
+        found_val = pin.get_args()[0]
+        found_index = pin.get_args()[1]
+        new_text = TextMobject(f'Found Value {found_val} at index {found_index}!')
+        new_text.shift(UP)
+        self.add_static(index, self.update_text, [old_text, new_text])
+        old_text = new_text
+
+    # -------- customisation static functions -------- #
+
+    def update_text(self, old_text, new_text):
+        if old_text is not None:
+            self.play(ReplacementTransform(old_text, new_text))
+        else:
+            Write(new_text)
+
+    def update_surrounding_box(self, first_node, last_node):
+        old_box = self.custom_box
+        new_box = SurroundingRectangle(VGroup(first_node.grp, last_node.grp))
+        if old_box is None:
+            self.add(new_box)
+        else:
+            self.play(ReplacementTransform(old_box, new_box))
+        self.custom_box = new_box
