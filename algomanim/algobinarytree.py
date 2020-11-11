@@ -29,9 +29,9 @@ class AlgoBinaryTreeNode(AlgoNode):
     def recursive_size(self):
         num_nodes = 1
         if self.left:
-            num_nodes += self.left.size()
+            num_nodes += self.left.recursive_size()
         if self.right:
-            num_nodes += self.right.size()
+            num_nodes += self.right.recursive_size()
         return num_nodes
 
     def recursive_insert(self, val):
