@@ -11,7 +11,7 @@ class AlgoList(AlgoObject):
         super().__init__(scene)
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
-        self.displacement = ORIGIN in displace is None else displacement
+        self.displacement = ORIGIN if displacement is None else displacement
         if displacement is not None and len(self.nodes) > 0:
             self.nodes[0].grp.move_to(displacement)
 
