@@ -1,14 +1,48 @@
-# pylint: skip-file
-
+# pylint: disable = W0201
+from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
 
 class InsertionSortScene(AlgoScene):
     def algoconstruct(self):
+        self.insert_pin('intro')
+
         algolist = AlgoList(self, [25, 16, 39, 44, 5, 1])
-        for i in range(0, algolist.len()):
-            algolist.highlight(i)
+
+        for i in range(algolist.len()):
+            self.insert_pin('sorted_range', algolist.nodes[0], algolist.nodes[i])
             for j in range(0, i):
+                self.insert_pin('highlight', algolist, [i, j])
                 if algolist.compare(i, j):
                     algolist.swap(i, j)
+
+    def customize(self, action_pairs):
+        # add introduction
+        intro_pin = self.find_pin('intro')[0]
+        index = intro_pin.get_index()
+        intro_text = TextMobject('Insertion Sort Algorithm')
+        intro_text.shift(2*UP)
+        intro_transform = lambda: Write(intro_text)
+        self.add_transform(index, intro_transform)
+
+        # add sliding window to show sorted range
+        sorted_range_pins = self.find_pin('sorted_range')
+        self.custom_box = None
+        for pin in sorted_range_pins:
+            index = pin.get_index()
+            first_node = pin.get_args()[0]
+            last_node = pin.get_args()[1]
+            self.add_static(index, self.update_surrounding_box, [first_node, last_node])
+
+
+    # -------- customisation static functions -------- #
+
+    def update_surrounding_box(self, first_node, last_node):
+        old_box = self.custom_box
+        new_box = SurroundingRectangle(VGroup(first_node.grp, last_node.grp))
+        if old_box is None:
+            self.add(new_box)
+        else:
+            self.play(ReplacementTransform(old_box, new_box))
+        self.custom_box = new_box

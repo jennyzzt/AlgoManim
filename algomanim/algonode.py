@@ -10,7 +10,8 @@ class AlgoNode(AlgoObject):
         # Get preconfig settings
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
-        self.node_length = float(scene.settings['node_size'])
+        node_size = float(scene.settings['node_size'])
+        self.node_length = node_size
         self.node = {
             Shape.CIRCLE: Circle(
                 color=self.node_color,
@@ -32,6 +33,7 @@ class AlgoNode(AlgoObject):
         # Set attributes
         self.val = val
         self.txt = TextMobject(str(val))
+        self.txt.scale(node_size * 1.5)
         self.txt.set_color(scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
