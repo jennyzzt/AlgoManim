@@ -11,7 +11,7 @@ class AlgoList(AlgoObject):
         super().__init__(scene)
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
-        self.displacement = displacement
+        self.displacement = ORIGIN in displace is None else displacement
         if displacement is not None and len(self.nodes) > 0:
             self.nodes[0].grp.move_to(displacement)
 
@@ -153,7 +153,7 @@ class AlgoList(AlgoObject):
         node = AlgoNode(self.scene, val)
         if self.len() > 0:
             node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
-        elif self.displacement is not None:
+        else:
             node.grp.move_to(self.displacement)
         self.nodes.append(node)
         # Update positioning of list
