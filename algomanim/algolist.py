@@ -3,9 +3,8 @@ from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
-from algomanim.algoobject import AlgoObject
+from algomanim.algoobject import AlgoObject, TEMP_META_NAME
 
-TEMP = 'temp'
 
 class AlgoList(AlgoObject):
     def __init__(self, scene, arr, show=True, displacement=None):
@@ -208,7 +207,7 @@ class AlgoList(AlgoObject):
             action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata(TEMP, action_pair)
+            lower_meta = LowerMetadata(TEMP_META_NAME, action_pair)
             meta.add_lower(lower_meta)
 
         self.scene.add_metadata(meta)
@@ -378,23 +377,7 @@ class AlgoList(AlgoObject):
             merged_list_vals += [n.val for n in right_list_copy.nodes[right_index:]]
 
             # move it accordingly
-            # TODO: extract this out
-            move_pt = rem_hidden.get_center
-            anim_action = self.scene.create_play_action(
-                AlgoTransform(
-                    [rem_right],
-                    transform=lambda grp: ApplyMethod(grp.move_to, move_pt())
-                )
-            )
-
-            static_action = AlgoSceneAction.create_static_action(
-                function=lambda grp: ApplyMethod(grp.move_to, move_pt()),
-                args=[rem_right]
-            )
-            action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-            lower_meta = LowerMetadata(TEMP, action_pair)
-            meta.add_lower(lower_meta)
-
+            self.move_group_to_group(rem_right, rem_hidden, animated=animated, metadata=meta)
         else:
             # right list was exhausted
             rem_left = VGroup(*[n.grp for n in left_list_copy.nodes[left_index:]])
@@ -406,21 +389,7 @@ class AlgoList(AlgoObject):
             merged_list_vals += [n.val for n in left_list_copy.nodes[left_index:]]
 
             # move it accordingly
-            move_pt = rem_hidden.get_center
-            anim_action = self.scene.create_play_action(
-                AlgoTransform(
-                    [rem_left],
-                    transform=lambda grp: ApplyMethod(grp.move_to, move_pt())
-                )
-            )
-
-            static_action = AlgoSceneAction.create_static_action(
-                function=lambda grp: ApplyMethod(grp.move_to, move_pt()),
-                args=[rem_left]
-            )
-            action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-            lower_meta = LowerMetadata(TEMP, action_pair)
-            meta.add_lower(lower_meta)
+            self.move_group_to_group(rem_left, rem_hidden, animated=animated, metadata=meta)
 
         merged_list = AlgoList(self.scene, merged_list_vals, show=False)
         merged_list.set_next_to(hidden_merged_list, vector=0, metadata=meta)

@@ -13,6 +13,10 @@ Note that the convention for creating a fn that results in an action_pair is:
 3. Create LowerMetadata
 4. Add metadata if metadata is initialised in the fn
 '''
+
+TEMP_META_NAME = 'temp'
+
+
 class AlgoObject(ABC):
     def __init__(self, scene):
         super().__init__()
@@ -230,3 +234,20 @@ class AlgoObject(ABC):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
+
+    def move_group_to_group(self, grp_start, grp_end, animated=True, metadata=None):
+        move_pt = grp_end.get_center
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [grp_start],
+                transform=lambda grp: ApplyMethod(grp.move_to, move_pt())
+            )
+        )
+
+        static_action = AlgoSceneAction.create_static_action(
+            function=lambda grp: ApplyMethod(grp.move_to, move_pt()),
+            args=[grp_start]
+        )
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        lower_meta = LowerMetadata(TEMP_META_NAME, action_pair)
+        metadata.add_lower(lower_meta)
