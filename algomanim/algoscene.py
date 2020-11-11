@@ -309,6 +309,11 @@ class AlgoScene(Scene):
         self.add_transform(index, transform, args=[old_text_object, new_text_object])
         return new_text_object
 
+    # Convenience function to FadeOut an existing text object
+    def remove_text(self, old_text_object, index):
+        transform = lambda: FadeOut(old_text_object)
+        self.add_transform(index, transform)
+
     def add_fade_out_all(self, index):
         self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))

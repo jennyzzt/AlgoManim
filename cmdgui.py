@@ -10,7 +10,7 @@ from PyQt5.QtCore import QUrl
 from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
-from gui.animation_bar import AnimationBar, EMPTY_ANIMATION
+from gui.animation_bar import AnimationBar, empty_animation
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
@@ -133,6 +133,7 @@ class GuiWindow(QDialog):
 
         # Keep track of animation changes to be applied
         self.changes = dict()
+        self.text_changes = dict()
         self.post_customize_fns = []
         self.post_config_settings = dict()
 
@@ -261,6 +262,7 @@ class GuiWindow(QDialog):
 
     def reset_changes(self):
         self.changes = dict()
+        self.text_changes = dict()
         self.change_history_panel.reset()
 
     def apply_changes(self):
@@ -272,9 +274,13 @@ class GuiWindow(QDialog):
         self.post_customize_fns.append(customize_anims)
         # pylint: disable=unused-argument
         def insert_text(algoscene):
-            # test_add = algoscene.add_text("Test", index=2)
+            prev_text = None
+            for index, text in self.text_changes.items():
+                if prev_text:
+                    prev_text = algoscene.change_text(prev_text, text, index=index)
+                else:
+                    prev_text = algoscene.add_text(text, index=index)
             # algoscene.change_text(test_add, "Test 2", index=8)
-            pass
         self.post_customize_fns.append(insert_text)
 
         self.render_video()
@@ -286,7 +292,7 @@ class GuiWindow(QDialog):
         self.post_config_settings[label] = value
 
     def add_empty_anim(self, index):
-        self.anims.insert(index, EMPTY_ANIMATION)
+        self.anims.insert(index, empty_animation(index))
         self.animation_bar.fill_bar(self.anims)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp

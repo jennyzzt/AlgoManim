@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
-from gui.animation_bar import EMPTY_ANIMATION
+from gui.animation_bar import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
 from .widgets.frame_layout import FrameLayout
@@ -31,6 +31,7 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_layout = None
         self.change_widgets = None
         self.changes = changes
+        self.text_widgets = None
 
         self.save_button = QPushButton("Save changes")
         self.save_button.clicked.connect(self.save_changes)
@@ -51,12 +52,16 @@ class CustomisePanel(BaseChangesPanel):
                     change_widget.get_value()
                 )
 
+        self.gui_window.text_changes.update({i: widget.text() \
+            for i, widget in self.text_widgets.items()})
+
     def reset_frame(self, title):
         # set title
         self.title_lbl.setText(title)
 
         # discard old frame and reset change_widgets
         self.change_widgets = dict()
+        self.text_widgets = dict()
         if self.menu_frame is not None:
             self.menu_frame.setParent(None)
 
@@ -66,9 +71,20 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_frame.setLayout(self.menu_layout)
 
     def set_animation(self, anim): # pylint: disable=too-many-locals
-        if anim == EMPTY_ANIMATION:
-            # to do: add text/change text options
-            pass
+        if is_empty_anim(anim):
+            self.reset_frame(title = "custom")
+            collapsible_box = FrameLayout(title="Text animations")
+            form_layout = QFormLayout()
+            collapsible_box.addLayout(form_layout)
+
+            # Add text section
+            add_text_widget = QLineEdit()
+            form_layout.addRow(QLabel("Add Text"), add_text_widget)
+            self.text_widgets[anim['index']] = add_text_widget
+
+            self.menu_layout.addWidget(collapsible_box)
+            self.save_button.setEnabled(True)
+            self.inner_scroll_layout.addWidget(self.menu_frame)
         else:
             self.reset_frame(title = anim.desc())
 

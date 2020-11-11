@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 
 from gui.video_player import VIDEO_BASE_WIDTH
 
-EMPTY_ANIMATION = {}
 
 # Scrollbar base height
 BAR_BASE_HEIGHT = 125
@@ -12,6 +11,15 @@ BAR_BASE_HEIGHT = 125
 BOX_MIN_WIDTH = 80
 BOX_MAX_WIDTH = 320
 
+def empty_animation(index):
+    return {
+        'index': index,
+        'desc': "Add custom animations",
+        'runtime': 0.5
+    }
+
+def is_empty_anim(anim):
+    return not hasattr(anim, 'start_position')
 
 class AnimationBar(QWidget):
 
@@ -74,10 +82,7 @@ class AnimationBar(QWidget):
         """
         Create a single anim box from the properties of anim
         """
-        if anim != EMPTY_ANIMATION:
-            desc = anim.desc()
-        else:
-            desc = "empty"
+        desc = anim['desc'] if is_empty_anim(anim) else anim.desc()
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
@@ -85,23 +90,24 @@ class AnimationBar(QWidget):
         anim_box_layout = QVBoxLayout()
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Create text animation button
+        if not is_empty_anim(anim):
+            add_anim_button = QPushButton(text='+')
+            add_anim_button.setStyleSheet("border:1px solid black;")
+            add_anim_button.clicked.connect(lambda event: self.add_anim(index + 1))
+            anim_box_layout.addWidget(add_anim_button, alignment=Qt.AlignRight)
+
+        # Animation label using metadata
         anim_lbl = QLabel(desc)
         anim_lbl.setAlignment(Qt.AlignCenter)
         anim_lbl.setWordWrap(True)
+        anim_box_layout.addWidget(anim_lbl)
 
-        add_anim_button = QPushButton(text='+')
-        add_anim_button.setStyleSheet("border:1px solid black;")
-        add_anim_button.clicked.connect(lambda event: self.add_anim(index + 1))
-
-        # Size box
+        # Size and layout box
         width, height = AnimationBar.get_anim_box_size(anim.runtime \
-            if anim != EMPTY_ANIMATION else 0.5)
+            if not is_empty_anim(anim) else anim['runtime'])
         anim_box.setFixedHeight(height)
         anim_box.setFixedWidth(width)
-
-        # Layout anim box
-        anim_box_layout.addWidget(add_anim_button, alignment=Qt.AlignRight)
-        anim_box_layout.addWidget(anim_lbl)
         anim_box.setLayout(anim_box_layout)
 
         # Clicking on anim box jumps video to anim
@@ -111,7 +117,7 @@ class AnimationBar(QWidget):
         return anim_box
 
     def set_mouse_clicked(self, anim):
-        if anim != EMPTY_ANIMATION:
+        if not is_empty_anim(anim):
             self.video_player.set_media_position(anim.start_position())
         self.gui_window.anim_clicked(anim)
 
@@ -125,6 +131,8 @@ class AnimationBar(QWidget):
     def media_position_changed(self, position):
         # print(f'Media position changed to {position}')
         for (i, anim) in enumerate(self.anims):
+            if is_empty_anim(anim):
+                continue
             start_position = anim.start_position()
             end_position = anim.end_position()
             if (start_position <= position < end_position) or \
