@@ -323,6 +323,7 @@ class AlgoList(AlgoObject):
 
         hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN, metadata=meta)
         AlgoList.align_nodes_from_first_node(hidden_merged_list, metadata=meta)
+        self.center_x(left_list_copy, right_list_copy, hidden_merged_list, metadata=meta, animated=False)
 
         # do the pointer thing and place the respective copied nodes at their respective places
         # keep track of the copied nodes to remove them later -- prob can do this via the left and right lists
