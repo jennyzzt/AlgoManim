@@ -114,7 +114,7 @@ class BinarySearchScene(AlgoScene):
             node = pin.get_args()[0]
             self.add_transform(index, ApplyMethod, args=[node.node.set_fill,
                                                          node.highlight_color])
-            
+
         # add compare texts
         compare_pins = self.find_pin('compare')
         old_text = None
