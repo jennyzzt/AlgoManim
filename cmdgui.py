@@ -248,6 +248,7 @@ class GuiWindow(QDialog):
     def change_panel_anim(self, anim):
         self.customise_panel.set_animation(anim)
 
+    # add a customisation change
     def add_change(self, action_pair_index, change_name, change_type, change_value):
         change_key = (action_pair_index, change_type)
         anim_change = AnimChange(action_pair_index, change_name, change_type, change_value)
@@ -259,6 +260,12 @@ class GuiWindow(QDialog):
         else:
             self.changes[change_key].update_value(change_value)
             self.change_history_panel.update_change(anim_change)
+
+    # add added-text-frames change
+    def add_text_change(self, text_widgets):
+        self.text_changes.update({i: widget.text() \
+            for i, widget in text_widgets.items()})
+        self.change_history_panel.add_text_change(self.text_changes)
 
     def reset_changes(self):
         self.changes = dict()

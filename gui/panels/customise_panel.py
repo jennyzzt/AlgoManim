@@ -42,6 +42,7 @@ class CustomisePanel(BaseChangesPanel):
         self.scroll_area.setLayout(self.custom_menu)
 
     def save_changes(self):
+        # save changes for customisations
         for (action_pair_index, change_name, change_type), (change_widget, default_val) \
             in self.change_widgets.items():
             if default_val != change_widget.get_value():
@@ -51,9 +52,8 @@ class CustomisePanel(BaseChangesPanel):
                     change_type,
                     change_widget.get_value()
                 )
-
-        self.gui_window.text_changes.update({i: widget.text() \
-            for i, widget in self.text_widgets.items()})
+        # save changes for added text frames
+        self.gui_window.add_text_change(self.text_widgets)
 
     def reset_frame(self, title):
         # set title
