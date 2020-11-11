@@ -15,6 +15,7 @@ Note that the convention for creating a fn that results in an action_pair is:
 '''
 
 TEMP_META_NAME = 'temp'
+TEMP_VAL = -1
 
 
 class AlgoObject(ABC):
@@ -156,6 +157,25 @@ class AlgoObject(ABC):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
+
+    @staticmethod
+    def hide_group(scene, grp, metadata=None, animated=True, w_prev=False):
+        meta = Metadata.check_and_create(metadata)
+
+        # Create action pair
+        anim_action = scene.create_play_action(
+            AlgoTransform([grp], transform=FadeOut), w_prev=w_prev
+        )
+        static_action = AlgoSceneAction.create_static_action(scene.remove, [grp])
+        action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata.create(action_pair, [TEMP_VAL])
+        meta.add_lower(lower_meta)
+
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            scene.add_metadata(meta)
 
     ''' Add custom text associated to this obj '''
     def add_text(self, text, key=' ', vector=UP, metadata=None, animated=False, w_prev=True):

@@ -97,6 +97,7 @@ class AlgoList(AlgoObject):
 
     ''' Hide the list from screen '''
     def hide_list(self, metadata=None, animated=True, w_prev=False):
+        # TODO: make all nodes hide themselves together
         if len(self.nodes) > 0:
             meta = Metadata.check_and_create(metadata)
             # Hide all nodes in list
@@ -399,8 +400,8 @@ class AlgoList(AlgoObject):
         merged_list.show(animated=False, metadata=meta)
 
         # hide the list copies
-        left_list_copy.hide(animated=False, metadata=meta)
-        right_list_copy.hide(animated=False, metadata=meta)
+        left_list_copy.hide_list(metadata=meta, animated=False)
+        right_list_copy.hide_list(metadata=meta, animated=False)
 
         # if replace, call replace (with shift set to false) on the left and right lists
         if replace:
@@ -423,9 +424,13 @@ class AlgoList(AlgoObject):
         first = True
         for hidden_list in lists:
             if first:
-                hidden_list.hide(animated=animated, metadata=meta, w_prev=w_prev)
+                first = False
+                hidden_list.hide_list(animated=animated, metadata=meta, w_prev=w_prev)
+                # hidden_list.highlight(*range(0, hidden_list.len()), metadata=meta)
+                # for n in hidden_list.nodes:
+                #     AlgoObject.hide_group(self.scene, n.grp, metadata=meta, animated=False)
             else:
-                hidden_list.hide(animated=animated, metadata=meta, w_prev=True)
+                hidden_list.hide_list(animated=animated, metadata=meta, w_prev=True)
 
         # move this list to the middle pt found
         self.move_to_calculated_pt(self, lists, pt_fn=AlgoObject.center_up_pt,
