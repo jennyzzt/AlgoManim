@@ -296,10 +296,9 @@ class AlgoScene(Scene):
             self.add_metadata(metadata)
 
     def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
-        self.push_back_action_pair_indices(index)
         static_action = AlgoSceneAction.create_static_action(static_fn, args)
         action_pair = AlgoSceneActionPair(static_action, static_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         if metadata is None:
             curr_metadata = Metadata('custom')
