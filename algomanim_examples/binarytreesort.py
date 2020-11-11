@@ -8,7 +8,7 @@ class BinaryTreeSortScene(AlgoScene):
     def preconfig(self, settings):
         settings['node_size'] = 0.5
         settings['node_shape'] = Shape.CIRCLE
-        settings['highlight_color'] = RED
+        settings['highlight_color'] = "#e74c3c" # red
 
     def inorder_traversal(self, node, curr_list):
         if node is None:
