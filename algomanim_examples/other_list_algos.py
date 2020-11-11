@@ -152,7 +152,7 @@ class BinarySearchScene(AlgoScene):
         if old_text is not None:
             self.play(ReplacementTransform(old_text, new_text))
         else:
-            Write(new_text)
+            self.add(new_text)
 
     def update_surrounding_box(self, first_node, last_node):
         old_box = self.custom_box
