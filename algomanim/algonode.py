@@ -33,7 +33,7 @@ class AlgoNode(AlgoObject):
         # Set attributes
         self.val = val
         self.txt = TextMobject(str(val))
-        self.txt.scale(node_size * 2)
+        self.txt.scale(node_size * 1.5)
         self.txt.set_color(scene.settings['font_color'])
         self.grp = VGroup(self.node, self.txt)
 
