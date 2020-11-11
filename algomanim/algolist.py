@@ -300,7 +300,8 @@ class AlgoList(AlgoObject):
 
         return self
 
-    def merge(self, left_list, right_list, metadata=None, animated=True, replace=False, shift=False, shift_vec=UP):
+    def merge(self, left_list, right_list, metadata=None, animated=True,
+              replace=False, shift=False, shift_vec=UP):
         meta = Metadata.check_and_create(metadata)
 
         # make hidden copies of left_list and right_list at their respective positions
@@ -339,6 +340,13 @@ class AlgoList(AlgoObject):
             fst_left = left_list_copy.nodes[left_index]
             fst_right = right_list_copy.nodes[right_index]
 
+            # highlight the nodes to be compared
+            fst_left.highlight(metadata=meta, animated=animated)
+            fst_right.highlight(metadata=meta, animated=animated, w_prev=True)
+
+            fst_left.dehighlight(metadata=meta, animated=animated)
+            fst_right.dehighlight(metadata=meta, animated=animated, w_prev=True)
+
             node_to_move = fst_left
             if node_to_move.val > fst_right.val:
                 node_to_move = fst_right
@@ -346,8 +354,12 @@ class AlgoList(AlgoObject):
             else:
                 left_index += 1
 
+            # highlight node to move
+            node_to_move.highlight(metadata=meta, animated=animated)
+
             # animate moving node_to_move to (hidden_merged_list.nodes[curr_index], vector=0)
-            node_to_move.set_next_to(hidden_merged_list.nodes[curr_index], vector=0, animated=True, metadata=meta)
+            node_to_move.set_next_to(hidden_merged_list.nodes[curr_index], vector=0, animated=animated,
+                                     metadata=meta)
 
             # track the added value
             merged_list_vals.append(node_to_move.val)
@@ -359,6 +371,9 @@ class AlgoList(AlgoObject):
             # left list was exhausted
             rem_right = VGroup(*[n.grp for n in right_list_copy.nodes[right_index:]])
             rem_hidden = VGroup(*[n.grp for n in hidden_merged_list.nodes[curr_index:]])
+
+            # highlight right slice
+            right_list_copy.highlight(*range(right_index, right_len), metadata=meta, animated=animated)
 
             merged_list_vals += [n.val for n in right_list_copy.nodes[right_index:]]
 
@@ -384,6 +399,9 @@ class AlgoList(AlgoObject):
             # right list was exhausted
             rem_left = VGroup(*[n.grp for n in left_list_copy.nodes[left_index:]])
             rem_hidden = VGroup(*[n.grp for n in hidden_merged_list.nodes[curr_index:]])
+
+            # highlight left slice
+            left_list_copy.highlight(*range(left_index, left_len), metadata=meta, animated=animated)
 
             merged_list_vals += [n.val for n in left_list_copy.nodes[left_index:]]
 
