@@ -54,7 +54,10 @@ class AlgoList(AlgoObject):
         val2 = self.get_val(j)
         if text:
             # Add associated text
-            self.add_text(f"{str(val1)} < {str(val2)}", "compare", UP,
+            self.add_text(f"{str(val1)}"
+                          + ("<" if val1<val2 else (">" if val1>val2 else "=="))
+                          + f"{str(val2)}",
+                          "compare", UP,
                           metadata=meta, animated=animated, w_prev=w_prev)
         # Add metadata if meta is created in this fn
         if metadata is None and (highlights or text):

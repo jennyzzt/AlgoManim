@@ -3,6 +3,7 @@ from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 from algomanim.settings import Shape
 
+
 class FindMaxScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, [25, 40, 5, 60, 50, 80])
@@ -10,7 +11,7 @@ class FindMaxScene(AlgoScene):
         cur_max_idx = 0
         self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
 
-        for i in range(algolist.len()):
+        for i in range(1, algolist.len()):
             if algolist.compare(cur_max_idx, i):
                 cur_max_idx = i
                 self.insert_pin("max_changed", algolist.get_val(cur_max_idx))
@@ -47,6 +48,7 @@ class FindMaxScene(AlgoScene):
             self.add_transform(index, transform, args=[prev_text, new_text])
 
             prev_text = new_text
+
 
 class BinarySearchScene(AlgoScene):
     def algoconstruct(self):
