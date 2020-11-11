@@ -67,17 +67,19 @@ class BinarySearchScene(AlgoScene):
 
             mid_pt = (first+last)//2
 
-            self.insert_pin('highlight', algolist, mid_pt)
+            self.insert_pin('highlight', algolist.nodes[mid_pt])
             self.insert_pin('compare', algolist.get_val(mid_pt), val)
-            self.insert_pin('dehighlight', algolist, mid_pt)
+            self.insert_pin('dehighlight', algolist.nodes[mid_pt])
 
             if algolist.get_val(mid_pt) == val:
                 index = mid_pt
-                self.insert_pin('found_val', val, index)
             elif val < algolist.get_val(mid_pt):
                 last = mid_pt -1
             else:
                 first = mid_pt +1
+
+        self.insert_pin('highlight', algolist.nodes[index])
+        self.insert_pin('found_val', index)
 
     def preconfig(self, settings):
         settings['node_shape'] = Shape.CIRCLE
@@ -109,10 +111,10 @@ class BinarySearchScene(AlgoScene):
         highlight_pins = self.find_pin('highlight')
         for pin in highlight_pins:
             index = pin.get_index()
-            algolist = pin.get_args()[0]
-            list_index = pin.get_args()[1]
-            algolist.highlight(list_index)
-
+            node = pin.get_args()[0]
+            self.add_transform(index, ApplyMethod, args=[node.node.set_fill,
+                                                         node.highlight_color])
+            
         # add compare texts
         compare_pins = self.find_pin('compare')
         old_text = None
@@ -131,16 +133,15 @@ class BinarySearchScene(AlgoScene):
         dehighlight_pins = self.find_pin('dehighlight')
         for pin in dehighlight_pins:
             index = pin.get_index()
-            algolist = pin.get_args()[0]
-            list_index = pin.get_args()[1]
-            algolist.dehighlight(list_index)
+            node = pin.get_args()[0]
+            self.add_transform(index, ApplyMethod, args=[node.node.set_fill,
+                                                         node.node_color])
 
         # add found val text
         found_pin = self.find_pin('found_val')[0]
         index = found_pin.get_index()
-        found_val = pin.get_args()[0]
-        found_index = pin.get_args()[1]
-        new_text = TextMobject(f'Found Value {found_val} at index {found_index}!')
+        found_index = found_pin.get_args()[0]
+        new_text = TextMobject(f'Found Value {val} at index {found_index}!')
         new_text.shift(UP)
         self.add_static(index, self.update_text, [old_text, new_text])
         old_text = new_text
