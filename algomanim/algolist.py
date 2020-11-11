@@ -7,10 +7,14 @@ from algomanim.algoobject import AlgoObject
 
 
 class AlgoList(AlgoObject):
-    def __init__(self, scene, arr, show=True):
+    def __init__(self, scene, arr, show=True, displacement=None):
         super().__init__(scene)
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
+        self.displacement = ORIGIN if displacement is None else displacement
+        if displacement is not None and len(self.nodes) > 0:
+            self.nodes[0].grp.move_to(displacement)
+
         for i in range(1, len(self.nodes)):
             self.nodes[i].grp.next_to(self.nodes[i - 1].grp, RIGHT)
 
@@ -19,8 +23,7 @@ class AlgoList(AlgoObject):
         self.group(immediate_effect=True)
 
         # Initial positioning
-        self.center()
-        # self.center(animated=False)
+        self.center(animated=False)
 
         # Subscribe to the scene for scene transformations like Shifts
         scene.track_algoitem(self)
@@ -86,23 +89,25 @@ class AlgoList(AlgoObject):
 
     ''' Display the list on screen '''
     def show_list(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-        # Show all nodes in the list
-        for node in self.nodes:
-            node.show(metadata=meta, animated=animated, w_prev=w_prev)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        if len(self.nodes) > 0:
+            meta = Metadata.check_and_create(metadata)
+            # Show all nodes in the list
+            for node in self.nodes:
+                node.show(metadata=meta, animated=animated, w_prev=w_prev)
+            # Add metadata if meta is created in this fn
+            if metadata is None:
+                self.scene.add_metadata(meta)
 
     ''' Hide the list from screen '''
     def hide_list(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-        # Hide all nodes in list
-        for node in self.nodes:
-            node.hide(metadata=meta, animated=animated, w_prev=w_prev)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        if len(self.nodes) > 0:
+            meta = Metadata.check_and_create(metadata)
+            # Hide all nodes in list
+            for node in self.nodes:
+                node.hide(metadata=meta, animated=animated, w_prev=w_prev)
+            # Add metadata if meta is created in this fn
+            if metadata is None:
+                self.scene.add_metadata(meta)
 
     ''' Highlight nodes at the specified indexes '''
     def highlight(self, *indexes, metadata=None, animated=True, w_prev=False):
@@ -145,21 +150,24 @@ class AlgoList(AlgoObject):
         return len(self.nodes)
 
     ''' Appends a new node with the given value to the end of the list '''
-    def append(self, val, metadata=None, animated=True, w_prev=False):
+    def append(self, val, metadata=None, animated=True, w_prev=False, center=True):
         meta = Metadata.check_and_create(metadata)
         # Create new node and add to the right of the list
         node = AlgoNode(self.scene, val)
         if self.len() > 0:
             node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
+        else:
+            node.grp.move_to(self.displacement)
         self.nodes.append(node)
         # Update positioning of list
         node.show(metadata=meta, animated=animated, w_prev=w_prev)
 
         # Update the VGroup of the list
-        self.group(metadata=meta)
+        self.group(metadata=meta, immediate_effect=True)
 
         # Center list
-        self.center(metadata=meta, animated=animated, w_prev=w_prev)
+        if center:
+            self.center(metadata=meta, animated=animated, w_prev=False)
 
         # Add metadata if meta is created in this fn
         if metadata is None:
