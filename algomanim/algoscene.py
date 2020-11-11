@@ -244,8 +244,15 @@ class AlgoScene(Scene):
             index = len(self.action_pairs)
         pair = AlgoSceneActionPair(anim_action, static_action,
                                    run_time=None if animated else 0)
-        self.action_pairs.insert(index, pair)
+        self.insert_action_pair(pair, index)
         return pair
+
+    def insert_action_pair(self, action_pair, index=None):
+        if index is None:
+            index = len(self.action_pairs)
+
+        action_pair.attach_index(index)
+        self.action_pairs.insert(index, action_pair)
 
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)
@@ -280,7 +287,7 @@ class AlgoScene(Scene):
         self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform(args, transform=transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         if metadata is None:
             curr_metadata = Metadata('custom')
@@ -295,7 +302,7 @@ class AlgoScene(Scene):
         self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('fade_out')
         lower_meta = LowerMetadata('fade_out', action_pair)
@@ -307,7 +314,7 @@ class AlgoScene(Scene):
         self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_in_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('fade_in')
         lower_meta = LowerMetadata('fade_in', action_pair)
@@ -321,7 +328,7 @@ class AlgoScene(Scene):
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
         action_pair = AlgoSceneActionPair(anim_action, static_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('wait')
         lower_meta = LowerMetadata('wait', action_pair)
@@ -332,7 +339,7 @@ class AlgoScene(Scene):
     def add_clear(self, index):
         self.push_back_action_pair_indices(index)
         action = AlgoSceneAction.create_static_action(self.clear)
-        self.action_pairs.insert(index, AlgoSceneActionPair(action))
+        self.insert_action_pair(AlgoSceneActionPair(action), index)
 
     def fast_forward(self, start, end=None, speed_up=2):
         if end is None:
@@ -443,9 +450,6 @@ class AlgoScene(Scene):
         self.post_config(self.settings)
 
         self.algoconstruct()
-        # attach indexes to action_pair to be used in customize fn
-        for (i, action_pair) in enumerate(self.action_pairs):
-            action_pair.attach_index(i)
         self.customize(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)
