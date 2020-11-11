@@ -1,5 +1,5 @@
 from manimlib.imports import *
-from algomanim.algoscene import AlgoScene, AlgoSceneAction, AlgoTransform
+from algomanim.algoscene import AlgoScene, AlgoTransform
 from algomanim.algolist import AlgoList
 from algomanim.algobinarytree import AlgoBinaryTree, AlgoBinaryTreeNode
 from algomanim.shape import Shape
