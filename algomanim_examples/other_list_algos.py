@@ -45,7 +45,7 @@ class FindMaxScene(AlgoScene):
 
             # create transform to be run at that point
             transform = lambda old_text, new_text: \
-                [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+                [ReplacementTransform(old_text, new_text)]
             self.add_transform(index, transform, args=[prev_text, new_text])
 
             prev_text = new_text
