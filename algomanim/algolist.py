@@ -408,7 +408,8 @@ class AlgoList(AlgoObject):
             merged_list.replace([left_list, right_list], animated=animated, metadata=meta)
 
         # if shift, shift scene using the vec
-        # TODO
+        if shift:
+            self.scene.shift_scene(shift_vec, meta)
 
         if metadata is None:
             self.scene.add_metadata(meta)

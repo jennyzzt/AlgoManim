@@ -9,9 +9,10 @@ class ToyScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, [1, 3, 5, 2, 4])
 
-        left_list = algolist.slice(0, 3, move=LEFT)
+        # TODO: why must we shift the scene first
+        left_list = algolist.slice(0, 3, move=LEFT, shift=True, shift_vec=UP)
         # print([n.val for n in left_list.nodes])
-        right_list = algolist.slice(3, 5, move=RIGHT, shift=True, shift_vec=UP)
+        right_list = algolist.slice(3, 5, move=RIGHT)
         # print([n.val for n in right_list.nodes])
 
         algolist.merge(left_list, right_list, replace=True)
