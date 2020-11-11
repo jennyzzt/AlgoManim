@@ -248,26 +248,40 @@ class AlgoObject(ABC):
             args=[grp_start]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        lower_meta = LowerMetadata(TEMP_META_NAME, action_pair)
+        lower_meta = LowerMetadata("move_group_to_group", action_pair)
         metadata.add_lower(lower_meta)
 
+    # @staticmethod
+    # def center_pt(left_obj, right_obj, obj_to_move):
+    #     new_x = (left_obj.grp.get_x() + right_obj.grp.get_x()) / 2
+    #     return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
+
     @staticmethod
-    def center_pt(left_obj, right_obj, obj_to_move):
-        new_x = (left_obj.grp.get_x() + right_obj.grp.get_x()) / 2
+    def center_pt(obj_to_move, relative_objs):
+        new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
         return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
 
-    def center_x(self, left_obj, right_obj, obj_to_move, metadata=None, animated=True):
+    @staticmethod
+    def center_up_pt(obj, relative_objs):
+        new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
+        new_y = relative_objs[0].grp.get_y()
+        return np.array([new_x, new_y, obj.grp.get_z()])
+
+    def center_x(self, obj_to_move, relative_objs, metadata=None, animated=True):
+        self.move_to_calculated_pt(obj_to_move, relative_objs,
+                                   pt_fn=AlgoObject.center_pt, metadata=metadata, animated=animated)
+
+    def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn, metadata=None, animated=True):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [left_obj, right_obj, obj_to_move],
-                transform=lambda left, right, obj: ApplyMethod(obj.grp.move_to,
-                                                               AlgoObject.center_pt(left, right, obj))
+                [obj_to_move],
+                transform=lambda obj: ApplyMethod(obj.grp.move_to, pt_fn(obj, relative_objs))
             )
         )
         static_action = AlgoSceneAction.create_static_action(
-            function=lambda left, right, obj: obj.grp.move_to(AlgoObject.center_pt(left, right, obj)),
-            args=[left_obj, right_obj, obj_to_move]
+            function=lambda obj: obj.grp.move_to(pt_fn(obj, relative_objs)),
+            args=[obj_to_move]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        lower_meta = LowerMetadata(TEMP_META_NAME, action_pair)
+        lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
         metadata.add_lower(lower_meta)

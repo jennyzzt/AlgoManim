@@ -175,7 +175,7 @@ class AlgoList(AlgoObject):
 
     # Removes the node at the specified index and closes the gap in the list if necessary
     # If no index is specified, removes the last node by default
-    def pop(self, i=None, animated=True):
+    def pop(self, i=None, metadata=None, animated=True):
         if i is None:
             i = self.len()-1
         elif i < 0 or i >= self.len():
@@ -207,26 +207,25 @@ class AlgoList(AlgoObject):
             action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
             # Initialise a LowerMetadata class for this low level function
-            lower_meta = LowerMetadata(TEMP_META_NAME, action_pair)
+            lower_meta = LowerMetadata("pop", action_pair)
             meta.add_lower(lower_meta)
 
-        self.scene.add_metadata(meta)
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     @staticmethod
     def align_nodes_from_first_node(algolist, metadata):
         for i in range(1, algolist.len()):
-            # algolist.nodes[i].grp.next_to(algolist.nodes[i - 1].grp, RIGHT)
             algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT, metadata)
 
     @staticmethod
     def align_nodes_from_last_node(algolist, metadata):
         for i in reversed(range(0, algolist.len() - 1)):
-            # algolist.nodes[i].grp.next_to(algolist.nodes[i + 1].grp, LEFT)
             algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT, metadata)
 
     # enforced contiguous slices
     # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
-    def slice(self, start, stop, move=LEFT, animated=True, shift=False, shift_vec=UP):
+    def slice(self, start, stop, move=LEFT, metadata=None, animated=True, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -275,7 +274,8 @@ class AlgoList(AlgoObject):
         self.scene.remove(hidden_sublist)
 
         # Add metadata to scene
-        self.scene.add_metadata(meta)
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
         return sublist
 
@@ -323,7 +323,7 @@ class AlgoList(AlgoObject):
 
         hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN, metadata=meta)
         AlgoList.align_nodes_from_first_node(hidden_merged_list, metadata=meta)
-        self.center_x(left_list_copy, right_list_copy, hidden_merged_list, metadata=meta, animated=False)
+        self.center_x(hidden_merged_list, [left_list_copy, right_list_copy], metadata=meta, animated=False)
 
         # do the pointer thing and place the respective copied nodes at their respective places
         # keep track of the copied nodes to remove them later -- prob can do this via the left and right lists
@@ -367,7 +367,7 @@ class AlgoList(AlgoObject):
             # increment curr_index
             curr_index += 1
 
-        if left_index == left_len:
+        if left_index == left_len and right_index != right_len:
             # left list was exhausted
             rem_right = VGroup(*[n.grp for n in right_list_copy.nodes[right_index:]])
             rem_hidden = VGroup(*[n.grp for n in hidden_merged_list.nodes[curr_index:]])
@@ -379,7 +379,7 @@ class AlgoList(AlgoObject):
 
             # move it accordingly
             self.move_group_to_group(rem_right, rem_hidden, animated=animated, metadata=meta)
-        else:
+        elif right_index == right_len and left_index != left_len:
             # right list was exhausted
             rem_left = VGroup(*[n.grp for n in left_list_copy.nodes[left_index:]])
             rem_hidden = VGroup(*[n.grp for n in hidden_merged_list.nodes[curr_index:]])
@@ -397,24 +397,42 @@ class AlgoList(AlgoObject):
 
         # show the dummy list
         merged_list.show(animated=False, metadata=meta)
-        hidden_merged_list.hide(animated=False, metadata=meta)
 
-        # remove the copied left and right lists
-        self.scene.remove(left_list_copy)
-        self.scene.remove(right_list_copy)
-        self.scene.remove(hidden_merged_list)
+        # hide the list copies
+        left_list_copy.hide(animated=False, metadata=meta)
+        right_list_copy.hide(animated=False, metadata=meta)
 
         # if replace, call replace (with shift set to false) on the left and right lists
+        if replace:
+            merged_list.replace([left_list, right_list], animated=animated, metadata=meta)
+
         # if shift, shift scene using the vec
         # TODO
 
-        return hidden_merged_list
+        if metadata is None:
+            self.scene.add_metadata(meta)
+
+        return merged_list
 
     ''' Destroys the given list(s) and moves this list to its/their original position.
      Given lists assumed to be in a single line. '''
-    def replace(self, *lists, animated=True, shift=False, shift_vec=UP):
-        # get the middle point of all the given lists
+    def replace(self, lists, animated=True, metadata=None, shift=False, shift_vec=UP, w_prev=False):
+        meta = Metadata.check_and_create(metadata)
+
         # hide all the given lists
+        first = True
+        for hidden_list in lists:
+            if first:
+                hidden_list.hide(animated=animated, metadata=meta, w_prev=w_prev)
+            else:
+                hidden_list.hide(animated=animated, metadata=meta, w_prev=True)
+
         # move this list to the middle pt found
+        self.move_to_calculated_pt(self, lists, pt_fn=AlgoObject.center_up_pt,
+                                   metadata=meta, animated=animated)
+
         # if shift, shift the scene using the vec
-        pass
+        # TODO
+
+        if metadata is None:
+            self.scene.add_metadata(meta)
