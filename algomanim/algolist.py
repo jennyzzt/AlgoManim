@@ -153,7 +153,7 @@ class AlgoList(AlgoObject):
         node = AlgoNode(self.scene, val)
         if self.len() > 0:
             node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
-        else:
+        elif self.displacement is not None:
             node.grp.move_to(self.displacement)
         self.nodes.append(node)
         # Update positioning of list
