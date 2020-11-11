@@ -111,7 +111,8 @@ class AlgoObject(ABC):
             ),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(self.grp.center)
+        static_action = AlgoSceneAction.create_static_action(lambda grp: \
+            grp.move_to(ORIGIN + np.array([0, grp.get_center()[1], 0])), args=[self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])

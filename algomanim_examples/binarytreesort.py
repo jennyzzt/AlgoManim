@@ -20,7 +20,7 @@ class BinaryTreeSortScene(AlgoScene):
 
     def algoconstruct(self):
         unsorted_list = [25, 43, 5, 18, 30, 3, 50]
-        algolist = AlgoList(self, unsorted_list)
+        algolist = AlgoList(self, unsorted_list, displacement=UP)
         self.insert_pin("list_elems", *algolist.nodes)
 
         self.insert_pin("inserted_node", algolist.nodes[0])
@@ -34,69 +34,52 @@ class BinaryTreeSortScene(AlgoScene):
         sorted_list = AlgoList(self, [], displacement=3.5 * DOWN)
         self.inorder_traversal(root, sorted_list)
 
+    # pylint: disable=R0914
     def customize(self, action_pairs):
         pin = self.find_pin("list_elems")[0]
-        nodes = pin.get_args()
         idx = pin.get_index()
-        action = AlgoSceneAction.create_static_action(
-            lambda *nodes: [node.grp.move_to(node.grp.get_center() + UP) for node in nodes],
-            args=nodes)
-        self.add_action_pair(action, index=idx)
+
         title_text = TextMobject("First, we insert the elements of the list into a binary tree")
         title_text.to_edge(UP)
         transform = lambda: Write(title_text)
-        self.add_transform(idx + 1, transform)
+        self.add_transform(idx, transform)
 
-        self.add_wait(idx + 2, wait_time = 0.25)
-        
-        visited_pins = self.find_pin("inserted_node")
-        prev_node = None
-        for pin in visited_pins:
-            node = pin.get_args()[0]
-            anim_action = self.create_play_action(
-                AlgoTransform([node.node.set_fill,
-                    self.settings['highlight_color']], transform=ApplyMethod,
-                    color_index=1), w_prev=False
-            )
-            self.add_action_pair(anim_action, index=pin.get_index())
-            if prev_node is not None:
-                anim_action = self.create_play_action(
-                    AlgoTransform([prev_node.node.set_fill,
-                        self.settings['node_color']], transform=ApplyMethod,
-                        color_index=1), w_prev=True
-                )
-                self.add_action_pair(anim_action, index=pin.get_index()+1)
-            prev_node = node
+        self.add_wait(idx + 1, wait_time = 0.25)
+
+        self.chain_pin_highlight("inserted_node")
 
         tree_finished_pin = self.find_pin("finished_tree_build")[0]
         idx2 = tree_finished_pin.get_index()
-        self.fast_forward(idx + 3, idx2)
+        self.fast_forward(idx + 2, idx2)
         new_text = TextMobject("Now, we do an INORDER traversal of the tree")
         new_text.to_edge(UP)
         transform = lambda: [FadeOut(title_text), ReplacementTransform(title_text, new_text)]
         self.add_transform(idx2, transform)
 
-        visited_pins = self.find_pin("visited_node")
-        prev_node = None
-        for pin in visited_pins:
-            node = pin.get_args()[0]
-            anim_action = self.create_play_action(
-                AlgoTransform([node.node.set_fill,
-                    self.settings['highlight_color']], transform=ApplyMethod,
-                    color_index=1), w_prev=False
-            )
-            self.add_action_pair(anim_action, index=pin.get_index())
-            if prev_node is not None:
-                anim_action = self.create_play_action(
-                    AlgoTransform([prev_node.node.set_fill,
-                        self.settings['node_color']], transform=ApplyMethod,
-                        color_index=1), w_prev=True
-                )
-                self.add_action_pair(anim_action, index=pin.get_index()+1)
-            prev_node = node
+        self.chain_pin_highlight("visited_node")
 
         self.fast_forward(idx2 + 1)
         end_text = TextMobject("We have a sorted list!")
         end_text.to_edge(UP)
         transform = lambda: [FadeOut(new_text), ReplacementTransform(new_text, end_text)]
         self.add_transform(None, transform)
+
+    def chain_pin_highlight(self, pin_str):
+        pins = self.find_pin(pin_str)
+        prev_node = None
+        for pin in pins:
+            node = pin.get_args()[0]
+            anim_action = self.create_play_action(
+                AlgoTransform([node.node.set_fill,
+                    self.settings['highlight_color']], transform=ApplyMethod,
+                    color_index=1), w_prev=False
+            )
+            self.add_action_pair(anim_action, index=pin.get_index())
+            if prev_node is not None:
+                anim_action = self.create_play_action(
+                    AlgoTransform([prev_node.node.set_fill,
+                        self.settings['node_color']], transform=ApplyMethod,
+                        color_index=1), w_prev=True
+                )
+                self.add_action_pair(anim_action, index=pin.get_index()+1)
+            prev_node = node
