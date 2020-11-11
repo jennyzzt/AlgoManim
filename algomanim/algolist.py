@@ -147,7 +147,7 @@ class AlgoList(AlgoObject):
         return len(self.nodes)
 
     ''' Appends a new node with the given value to the end of the list '''
-    def append(self, val, metadata=None, animated=True, w_prev=False):
+    def append(self, val, metadata=None, animated=True, w_prev=False, center=True):
         meta = Metadata.check_and_create(metadata)
         # Create new node and add to the right of the list
         node = AlgoNode(self.scene, val)
@@ -160,10 +160,11 @@ class AlgoList(AlgoObject):
         node.show(metadata=meta, animated=animated, w_prev=w_prev)
 
         # Update the VGroup of the list
-        self.group(metadata=meta)
+        self.group(metadata=meta, immediate_effect=True)
 
         # Center list
-        self.center(metadata=meta, animated=animated, w_prev=w_prev)
+        if center:
+            self.center(metadata=meta, animated=animated, w_prev=False)
 
         # Add metadata if meta is created in this fn
         if metadata is None:

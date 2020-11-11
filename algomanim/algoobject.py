@@ -106,7 +106,10 @@ class AlgoObject(ABC):
         meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp.center], transform=ApplyMethod), w_prev=w_prev
+            AlgoTransform([self.grp], transform=lambda grp: \
+                ApplyMethod(grp.move_to, ORIGIN + np.array([0, grp.get_center()[1], 0]))
+            ),
+            w_prev=w_prev
         )
         static_action = AlgoSceneAction.create_static_action(self.grp.center)
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)

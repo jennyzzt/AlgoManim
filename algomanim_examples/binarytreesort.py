@@ -30,7 +30,8 @@ class BinaryTreeSortScene(AlgoScene):
             self.insert_pin("inserted_node", node)
             algotree.insert(node.val)
 
-        sorted_list = AlgoList(self, [], displacement=3.5 * DOWN + 2.125 * LEFT)
+        self.insert_pin("finished_tree_build")
+        sorted_list = AlgoList(self, [], displacement=3.5 * DOWN)
         self.inorder_traversal(root, sorted_list)
 
     def customize(self, action_pairs):
@@ -41,8 +42,13 @@ class BinaryTreeSortScene(AlgoScene):
             lambda *nodes: [node.grp.move_to(node.grp.get_center() + UP) for node in nodes],
             args=nodes)
         self.add_action_pair(action, index=idx)
-        self.add_wait(idx + 1, wait_time = 0.5)
+        title_text = TextMobject("First, we insert the elements of the list into a binary tree")
+        title_text.to_edge(UP)
+        transform = lambda: Write(title_text)
+        self.add_transform(idx + 1, transform)
 
+        self.add_wait(idx + 2, wait_time = 0.25)
+        
         visited_pins = self.find_pin("inserted_node")
         prev_node = None
         for pin in visited_pins:
@@ -62,6 +68,14 @@ class BinaryTreeSortScene(AlgoScene):
                 self.add_action_pair(anim_action, index=pin.get_index()+1)
             prev_node = node
 
+        tree_finished_pin = self.find_pin("finished_tree_build")[0]
+        idx2 = tree_finished_pin.get_index()
+        self.fast_forward(idx + 3, idx2)
+        new_text = TextMobject("Now, we do an INORDER traversal of the tree")
+        new_text.to_edge(UP)
+        transform = lambda: [FadeOut(title_text), ReplacementTransform(title_text, new_text)]
+        self.add_transform(idx2, transform)
+
         visited_pins = self.find_pin("visited_node")
         prev_node = None
         for pin in visited_pins:
@@ -80,3 +94,9 @@ class BinaryTreeSortScene(AlgoScene):
                 )
                 self.add_action_pair(anim_action, index=pin.get_index()+1)
             prev_node = node
+
+        self.fast_forward(idx2 + 1)
+        end_text = TextMobject("We have a sorted list!")
+        end_text.to_edge(UP)
+        transform = lambda: [FadeOut(new_text), ReplacementTransform(new_text, end_text)]
+        self.add_transform(None, transform)
