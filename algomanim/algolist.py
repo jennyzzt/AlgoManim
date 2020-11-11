@@ -86,23 +86,25 @@ class AlgoList(AlgoObject):
 
     ''' Display the list on screen '''
     def show_list(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-        # Show all nodes in the list
-        for node in self.nodes:
-            node.show(metadata=meta, animated=animated, w_prev=w_prev)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        if len(self.nodes) > 0:
+            meta = Metadata.check_and_create(metadata)
+            # Show all nodes in the list
+            for node in self.nodes:
+                node.show(metadata=meta, animated=animated, w_prev=w_prev)
+            # Add metadata if meta is created in this fn
+            if metadata is None:
+                self.scene.add_metadata(meta)
 
     ''' Hide the list from screen '''
     def hide_list(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-        # Hide all nodes in list
-        for node in self.nodes:
-            node.hide(metadata=meta, animated=animated, w_prev=w_prev)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        if len(self.nodes) > 0:
+            meta = Metadata.check_and_create(metadata)
+            # Hide all nodes in list
+            for node in self.nodes:
+                node.hide(metadata=meta, animated=animated, w_prev=w_prev)
+            # Add metadata if meta is created in this fn
+            if metadata is None:
+                self.scene.add_metadata(meta)
 
     ''' Highlight nodes at the specified indexes '''
     def highlight(self, *indexes, metadata=None, animated=True, w_prev=False):

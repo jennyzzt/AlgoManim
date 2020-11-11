@@ -26,6 +26,14 @@ class AlgoBinaryTreeNode(AlgoNode):
         self.right.parent = self
         self.recursive_update_depth()
 
+    def recursive_size(self):
+        num_nodes = 1
+        if self.left:
+            num_nodes += self.left.size()
+        if self.right:
+            num_nodes += self.right.size()
+        return num_nodes
+
     def recursive_insert(self, val):
         curr_node = self
         # If value is less than curr_node, insert to the left
@@ -141,7 +149,12 @@ class AlgoBinaryTree:
             if metadata is None:
                 self.scene.add_metadata(meta)
 
+    ''' Insert element into tree '''
     def insert(self, val, metadata=None, animated=True, w_prev=False):
         new_node = self.root.recursive_insert(val)
         new_node.recursive_show(self.max_depth, metadata=None, animated=animated,
-            w_prev=w_prev)    
+            w_prev=w_prev)
+
+    ''' Returns the total number of nodes of the tree '''
+    def size(self):
+        return self.root.recursive_size()

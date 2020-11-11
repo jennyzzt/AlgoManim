@@ -390,20 +390,25 @@ class AlgoScene(Scene):
     def create_metadata_blocks(self):
         self.metadata_blocks = []
 
-        '''for tree in self.meta_trees:
+        for tree in self.meta_trees:
             action_pairs = tree.get_all_action_pairs()
 
             blocks = {action_pair.get_block() for action_pair in action_pairs}
-            start_time = min(map(lambda block: block.start_time, blocks))
-            end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
+            if len(blocks) == 0:
+                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
+                    has no action_pairs attached to it!')
+            else:
+                start_time = min(map(lambda block: block.start_time, blocks))
+                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
 
-            runtime = end_time - start_time
+                runtime = end_time - start_time
 
-            self.metadata_blocks.append(
-                MetadataBlock(tree, action_pairs, start_time, runtime)
-            )
+                self.metadata_blocks.append(
+                    MetadataBlock(tree, action_pairs, start_time, runtime)
+                )
+
         # some metadata might be added out of order, sort the blocks by start_time
-        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)'''
+        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
 
     def insert_pin(self, desc, *args):
         empty_action = AlgoSceneAction.create_empty_action(list(args))
