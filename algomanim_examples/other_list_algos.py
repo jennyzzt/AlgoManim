@@ -78,7 +78,7 @@ class BinarySearchScene(AlgoScene):
             else:
                 first = mid_pt +1
 
-        self.insert_pin('highlight', algolist.nodes[index])
+        self.insert_pin('final_highlight', algolist.nodes[index])
         self.insert_pin('found_val', index)
 
     def preconfig(self, settings):
@@ -145,6 +145,13 @@ class BinarySearchScene(AlgoScene):
         new_text.shift(UP)
         self.add_static(index, self.update_text, [old_text, new_text])
         old_text = new_text
+
+        # add last highlight animations
+        final_highlight_pins = self.find_pin('final_highlight')
+        for pin in final_highlight_pins:
+            index = pin.get_index()
+            node = pin.get_args()[0]
+            self.add_transform(index, ApplyMethod, args=[node.node.set_fill, '#ff6666'])
 
     # -------- customisation static functions -------- #
 
