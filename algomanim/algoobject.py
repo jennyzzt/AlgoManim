@@ -306,3 +306,15 @@ class AlgoObject(ABC):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
         metadata.add_lower(lower_meta)
+
+    ''' Applies a function to a list of objects such that the animation takes place at the same time 
+    for all objects '''
+    @staticmethod
+    def loop_fn_w_prev(objs, fn_to_apply, animated, metadata, init_w_prev):
+        first = True
+        for obj in objs:
+            if first:
+                first = False
+                fn_to_apply(obj, animated=animated, metadata=metadata, w_prev=init_w_prev)
+            else:
+                fn_to_apply(obj, animated=animated, metadata=metadata, w_prev=True)

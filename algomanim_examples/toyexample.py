@@ -1,6 +1,5 @@
 # pylint: skip-file
 
-from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
@@ -9,10 +8,5 @@ class ToyScene(AlgoScene):
     def algoconstruct(self):
         algolist = AlgoList(self, [1, 3, 5, 2, 4])
 
-        # TODO: why must we shift the scene first
-        left_list = algolist.slice(0, 3, move=LEFT, shift=True, shift_vec=UP)
-        # print([n.val for n in left_list.nodes])
-        right_list = algolist.slice(3, 5, move=RIGHT)
-        # print([n.val for n in right_list.nodes])
-
-        algolist.merge(left_list, right_list, replace=True)
+        algolist.highlight(*[0, 2, 4])
+        algolist.dehighlight(*[0, 2, 4])
