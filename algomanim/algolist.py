@@ -145,6 +145,10 @@ class AlgoList(AlgoObject):
     def get_val(self, index):
         return self.nodes[index].val
 
+    # Change value of list at index
+    def change_val(self, index, val):
+        self.nodes[index].change_value(val)
+
     # Returns the length of the list
     def len(self):
         return len(self.nodes)
