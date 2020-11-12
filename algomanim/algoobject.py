@@ -13,6 +13,11 @@ Note that the convention for creating a fn that results in an action_pair is:
 3. Create LowerMetadata
 4. Add metadata if metadata is initialised in the fn
 '''
+
+TEMP_META_NAME = 'temp'
+TEMP_VAL = -1
+
+
 class AlgoObject(ABC):
     def __init__(self, scene):
         super().__init__()
@@ -153,6 +158,25 @@ class AlgoObject(ABC):
         if metadata is None:
             self.scene.add_metadata(meta)
 
+    @staticmethod
+    def hide_group(scene, grp, metadata=None, animated=True, w_prev=False):
+        meta = Metadata.check_and_create(metadata)
+
+        # Create action pair
+        anim_action = scene.create_play_action(
+            AlgoTransform([grp], transform=FadeOut), w_prev=w_prev
+        )
+        static_action = AlgoSceneAction.create_static_action(scene.remove, [grp])
+        action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata.create(action_pair, [TEMP_VAL])
+        meta.add_lower(lower_meta)
+
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            scene.add_metadata(meta)
+
     ''' Add custom text associated to this obj '''
     def add_text(self, text, key=' ', vector=UP, metadata=None, animated=False, w_prev=True):
         meta = Metadata.check_and_create(metadata)
@@ -230,3 +254,70 @@ class AlgoObject(ABC):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
+
+    ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
+    @staticmethod
+    def move_group_to_group(scene, grp_start, grp_end, animated=True, metadata=None):
+        move_pt = grp_end.get_center
+        anim_action = scene.create_play_action(
+            AlgoTransform(
+                [grp_start],
+                transform=lambda grp: ApplyMethod(grp.move_to, move_pt())
+            )
+        )
+        static_action = AlgoSceneAction.create_static_action(
+            function=lambda grp: AlgoTransform(grp.move_to, move_pt()),
+            args=[grp_start]
+        )
+        action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
+        lower_meta = LowerMetadata("move_group_to_group", action_pair)
+        metadata.add_lower(lower_meta)
+
+    ''' Returns a destination point for obj_to_move that is aligned vertically
+     with all relative_objs, but still has the same y, z-coords. '''
+    @staticmethod
+    def center_pt(obj_to_move, relative_objs):
+        new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
+        return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
+
+    ''' Returns the 2D centre point of all relative_objs.
+     Assumes relative_objs are horizontally aligned. '''
+    @staticmethod
+    def center_up_pt(obj, relative_objs):
+        new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
+        new_y = relative_objs[0].grp.get_y()
+        return np.array([new_x, new_y, obj.grp.get_z()])
+
+    ''' Aligns obj_to_move vertically with the midpoint of all relative_objs '''
+    def center_x(self, obj_to_move, relative_objs, metadata=None, animated=True):
+        self.move_to_calculated_pt(obj_to_move, relative_objs,
+                                   pt_fn=AlgoObject.center_pt, metadata=metadata, animated=animated)
+
+    ''' Moves obj_to_move to a point calculated by pt_fn, in relation to relative_objs '''
+    def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn,
+                              metadata=None, animated=True):
+        anim_action = self.scene.create_play_action(
+            AlgoTransform(
+                [obj_to_move],
+                transform=lambda obj: ApplyMethod(obj.grp.move_to, pt_fn(obj, relative_objs))
+            )
+        )
+        static_action = AlgoSceneAction.create_static_action(
+            function=lambda obj: obj.grp.move_to(pt_fn(obj, relative_objs)),
+            args=[obj_to_move]
+        )
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
+        metadata.add_lower(lower_meta)
+
+    ''' Applies a function to a list of objects such that the animation takes place at the same time
+    for all objects '''
+    @staticmethod
+    def loop_fn_w_prev(objs, fn_to_apply, animated, metadata, init_w_prev):
+        first = True
+        for obj in objs:
+            if first:
+                first = False
+                fn_to_apply(obj, animated=animated, metadata=metadata, w_prev=init_w_prev)
+            else:
+                fn_to_apply(obj, animated=animated, metadata=metadata, w_prev=True)

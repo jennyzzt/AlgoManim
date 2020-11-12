@@ -142,7 +142,7 @@ class AlgoSceneClear(AlgoScene):
 
 
 class AlgoSceneMockList(AlgoScene):
-    test_list =  [1]
+    test_list = [1]
 
 
     @patch("algomanim.algoobject.TexMobject", Mock())

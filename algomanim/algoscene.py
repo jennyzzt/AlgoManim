@@ -259,6 +259,10 @@ class AlgoScene(Scene):
     def track_algoitem(self, algo_item):
         self.algo_objs.append(algo_item)
 
+    def untrack_algoitem(self, algo_item):
+        if algo_item in self.algo_objs:
+            self.algo_objs.remove(algo_item)
+
     def shift_scene(self, vector, metadata=None):
         first = True
 
@@ -386,7 +390,8 @@ class AlgoScene(Scene):
         start_time = 0
         for action_pair in action_pairs:
             action = action_pair.curr_action()
-            if action.w_prev and len(anim_blocks) > 0 and anim_blocks[-1].act() == action.act:
+            if action.w_prev and anim_blocks and anim_blocks[-1].act() == action.act:
+                # anim_blocks should have at least 1 element
                 # if action is supposed to be executed with previous action and
                 # act function is the same as that of current block, bundle actions
                 # together
@@ -403,7 +408,9 @@ class AlgoScene(Scene):
     def execute_action_pairs(self, action_pairs, anim_blocks):
         # wait action is required at the end if last animation is not
         # a play/wait, else the last animation will not be rendered
-        if len(action_pairs) > 0:
+
+        if action_pairs:
+            # action_pairs should not be empty
             last_action_pair = action_pairs[-1]
             last_act = last_action_pair.act()
             if last_act != self.play or last_act != self.wait: # pylint: disable=W0143
@@ -434,7 +441,7 @@ class AlgoScene(Scene):
             action_pairs = tree.get_all_action_pairs()
 
             blocks = {action_pair.get_block() for action_pair in action_pairs}
-            if len(blocks) == 0:
+            if not blocks:
                 print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
                     has no action_pairs attached to it!')
             else:
