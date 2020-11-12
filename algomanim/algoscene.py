@@ -259,7 +259,7 @@ class AlgoScene(Scene):
     def track_algoitem(self, algo_item):
         self.algo_objs.append(algo_item)
 
-    def remove_algoitem(self, algo_item):
+    def untrack_algoitem(self, algo_item):
         if algo_item in self.algo_objs:
             self.algo_objs.remove(algo_item)
 

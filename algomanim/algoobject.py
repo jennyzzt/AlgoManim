@@ -256,9 +256,10 @@ class AlgoObject(ABC):
             self.scene.add_metadata(meta)
 
     ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
-    def move_group_to_group(self, grp_start, grp_end, animated=True, metadata=None):
+    @staticmethod
+    def move_group_to_group(scene, grp_start, grp_end, animated=True, metadata=None):
         move_pt = grp_end.get_center
-        anim_action = self.scene.create_play_action(
+        anim_action = scene.create_play_action(
             AlgoTransform(
                 [grp_start],
                 transform=lambda grp: ApplyMethod(grp.move_to, move_pt())
@@ -268,7 +269,7 @@ class AlgoObject(ABC):
             function=lambda grp: AlgoTransform(grp.move_to, move_pt()),
             args=[grp_start]
         )
-        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+        action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
         lower_meta = LowerMetadata("move_group_to_group", action_pair)
         metadata.add_lower(lower_meta)
 

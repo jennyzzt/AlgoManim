@@ -115,7 +115,7 @@ class AlgoList(AlgoObject):
         AlgoObject.loop_fn_w_prev(self.nodes, AlgoNode.hide, animated=animated, metadata=meta, init_w_prev=w_prev)
 
         # Unsubscribe from the scene
-        self.scene.remove_algoitem(self)
+        self.scene.untrack_algoitem(self)
 
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -394,7 +394,7 @@ class AlgoList(AlgoObject):
             merged_list_vals += [n.val for n in right_list_copy.nodes[right_index:]]
 
             # move it accordingly
-            self.move_group_to_group(rem_right, rem_hidden, animated=animated, metadata=meta)
+            AlgoObject.move_group_to_group(self.scene, rem_right, rem_hidden, animated=animated, metadata=meta)
         elif right_index == right_len and left_index != left_len:
             # right list was exhausted
             rem_left = VGroup(*[n.grp for n in left_list_copy.nodes[left_index:]])
@@ -406,7 +406,7 @@ class AlgoList(AlgoObject):
             merged_list_vals += [n.val for n in left_list_copy.nodes[left_index:]]
 
             # move it accordingly
-            self.move_group_to_group(rem_left, rem_hidden, animated=animated, metadata=meta)
+            AlgoObject.move_group_to_group(self.scene, rem_left, rem_hidden, animated=animated, metadata=meta)
 
         # silently create the final merged list and arrange it
         merged_list = AlgoList(self.scene, merged_list_vals, show=False)

@@ -1,5 +1,6 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
+from unittest import TestCase
 from algomanim.algolist import AlgoList
 from algomanim.algoscene import AlgoScene
 from algomanim.settings import DEFAULT_SETTINGS
@@ -151,3 +152,84 @@ class TestAlgoList:
                                                         lower_level='swap')
 
         assert len(action_pairs) == 0
+
+    # --------------- Slice Tests --------------- #
+    class SliceTests(TestCase):
+        def setUp(self) -> None:
+            algoscene.reset_mock()
+            self.algolist = AlgoList(algoscene, test_list)
+
+        # Check that the internal representation is represented accordingly
+        def test_slice_internal_list_same_as_list_slicing(self):
+
+            for i in range(1, self.algolist.len() + 1):
+                new_list = self.algolist.slice(0, i)
+                assert [n.val for n in new_list.nodes] == test_list[0:i]
+
+        # Check that a few key solutions were called
+        @patch("algomanim.algolist.AlgoList.hide_list")
+        def test_key_internal_calls(self, hide_list):
+
+            _ = self.algolist.slice(0, len(test_list))
+            hide_list.assert_called_once()
+
+            _ = self.algolist.slice(0, len(test_list), shift=True)
+            algoscene.shift_scene.assert_called_once()
+
+    # --------------- Merge Tests --------------- #
+    class MergeTests(TestCase):
+        def setUp(self) -> None:
+            algoscene.reset_mock()
+            self.test_list2 = [1, 2, 4]
+            self.algolist = AlgoList(algoscene, test_list)
+            self.algolist2 = AlgoList(algoscene, self.test_list2)
+            self.expected_list = test_list + self.test_list2
+
+            # Sort the expected list
+            self.expected_list.sort()
+
+        # Check that the internal representation is represented accordingly
+        def test_merge_internal_list_sorted_and_contains_all(self):
+
+            merged_list = self.algolist.merge(self.algolist, self.algolist2)
+
+            assert self.expected_list == [n.val for n in merged_list.nodes]
+
+        # Check that a few key solutions were called
+        @patch("algomanim.algolist.AlgoList.replace")
+        @patch("algomanim.algolist.AlgoList.hide_list")
+        def test_key_internal_calls(self, hide_list, replace):
+
+            _ = self.algolist.merge(self.algolist, self.algolist2)
+            assert hide_list.call_count == 3
+
+            _ = self.algolist.merge(self.algolist, self.algolist2, replace=True)
+            replace.assert_called_once()
+
+# --------------- Concat Tests --------------- #
+    class ConcatTests(TestCase):
+        def setUp(self) -> None:
+            algoscene.reset_mock()
+            self.test_list2 = [1, 2, 4]
+            self.test_list3 = []
+            self.algolist = AlgoList(algoscene, test_list)
+            self.algolist2 = AlgoList(algoscene, self.test_list2)
+            self.expected_list = test_list + self.test_list2
+
+        # Check that the internal representation is represented accordingly
+        def test_concat_internal_list_contains_all(self):
+
+            concat_list = self.algolist.concat(self.algolist2)
+
+            assert self.expected_list == [n.val for n in concat_list.nodes]
+
+        # Check that a few key solutions were called
+        @patch("algomanim.algolist.AlgoList.center")
+        @patch("algomanim.algolist.AlgoList.group")
+        def test_key_internal_calls(self, group, center):
+
+            _ = self.algolist.concat(self.algolist2)
+            group.assert_called_once()
+
+            _ = self.algolist.concat(self.algolist2, center=True)
+            center.assert_called_once()
