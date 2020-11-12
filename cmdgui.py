@@ -10,7 +10,7 @@ from PyQt5.QtCore import QUrl
 from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
-from gui.animation_bar import AnimationBar
+from gui.animation_bar import AnimationBar, empty_animation
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
@@ -133,6 +133,7 @@ class GuiWindow(QDialog):
 
         # Keep track of animation changes to be applied
         self.changes = dict()
+        self.text_changes = dict()
         self.post_customize_fns = []
         self.post_config_settings = dict()
 
@@ -247,6 +248,7 @@ class GuiWindow(QDialog):
     def change_panel_anim(self, anim):
         self.customise_panel.set_animation(anim)
 
+    # add a customisation change
     def add_change(self, action_pair_index, change_name, change_type, change_value):
         change_key = (action_pair_index, change_type)
         anim_change = AnimChange(action_pair_index, change_name, change_type, change_value)
@@ -259,16 +261,35 @@ class GuiWindow(QDialog):
             self.changes[change_key].update_value(change_value)
             self.change_history_panel.update_change(anim_change)
 
+    # add added-text-frames change
+    def add_text_change(self, text_widgets):
+        self.text_changes.update({i: widget.text() \
+            for i, widget in text_widgets.items()})
+        self.change_history_panel.add_text_change(self.text_changes)
+
     def reset_changes(self):
         self.changes = dict()
+        self.text_changes = dict()
         self.change_history_panel.reset()
 
     def apply_changes(self):
         curr_changes = self.changes.copy()
-        def post_customize(action_pairs):
+        def customize_anims(algoscene):
+            action_pairs = algoscene.action_pairs
             for (action_pair_index, change_type), anim_change in curr_changes.items():
                 change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
-        self.post_customize_fns.append(post_customize)
+        self.post_customize_fns.append(customize_anims)
+        # pylint: disable=unused-argument
+        def insert_text(algoscene):
+            prev_text = None
+            for index, text in self.text_changes.items():
+                if prev_text:
+                    prev_text = algoscene.change_text(prev_text, text, index=index)
+                else:
+                    prev_text = algoscene.add_text(text, index=index)
+            # algoscene.change_text(test_add, "Test 2", index=8)
+        self.post_customize_fns.append(insert_text)
+
         self.render_video()
         # Do the rendering here
         self.reset_changes()
@@ -276,6 +297,10 @@ class GuiWindow(QDialog):
     def set_settings(self, label, value):
         # Catch cases that route to custom_renderer
         self.post_config_settings[label] = value
+
+    def add_empty_anim(self, index):
+        self.anims.insert(index, empty_animation(index))
+        self.animation_bar.fill_bar(self.anims)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod

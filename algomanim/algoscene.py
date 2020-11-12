@@ -295,6 +295,46 @@ class AlgoScene(Scene):
         else:
             self.add_metadata(metadata)
 
+    # Convenience function to add a text object and the Write transform
+    # Returns the created text object
+    def add_text(self, text, index, position=UP):
+        text = TextMobject(text)
+        text.shift(2 * position)
+        transform = lambda: Write(text)
+        self.add_transform(index, transform)
+        return text
+
+    # Convenience function to edit existing text objects via a ReplacementTransform
+    # Requires the previous text object to be edited
+    # Returns the replacement text object
+    def change_text(self, new_text_string, old_text_object, index, position=UP):
+        new_text_object = TextMobject(new_text_string)
+        new_text_object.shift(2 * position)
+
+        # Create the transform to be run at that point
+        transform = lambda old_text, new_text: \
+            [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+        self.add_transform(index, transform, args=[old_text_object, new_text_object])
+        return new_text_object
+
+    # Convenience function to FadeOut an existing text object
+    def remove_text(self, old_text_object, index):
+        transform = lambda: FadeOut(old_text_object)
+        self.add_transform(index, transform)
+
+    def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
+        static_action = AlgoSceneAction.create_static_action(static_fn, args)
+        action_pair = AlgoSceneActionPair(static_action, static_action)
+        self.insert_action_pair(action_pair, index)
+
+        if metadata is None:
+            curr_metadata = Metadata('custom')
+            lower_meta = LowerMetadata('custom', action_pair)
+            curr_metadata.add_lower(lower_meta)
+            self.add_metadata(curr_metadata)
+        else:
+            self.add_metadata(metadata)
+
     def add_fade_out_all(self, index):
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
@@ -378,7 +418,7 @@ class AlgoScene(Scene):
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:
-            post_customize(self.action_pairs)
+            post_customize(self)
 
         # bundle animations together according to time
         self.create_animation_blocks(action_pairs, anim_blocks)
