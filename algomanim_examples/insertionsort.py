@@ -11,11 +11,12 @@ class InsertionSortScene(AlgoScene):
         algolist = AlgoList(self, [25, 16, 39, 44, 5, 1])
 
         for i in range(algolist.len()):
-            self.insert_pin('sorted_range', algolist.nodes[0], algolist.nodes[i])
+            self.insert_pin('range', algolist.nodes[0], algolist.nodes[i])
             for j in range(0, i):
                 self.insert_pin('highlight', algolist, [i, j])
                 if algolist.compare(i, j):
                     algolist.swap(i, j)
+            self.insert_pin('sorted')
 
     def customize(self, action_pairs):
         # add introduction
@@ -27,14 +28,19 @@ class InsertionSortScene(AlgoScene):
         self.add_transform(index, intro_transform)
 
         # add sliding window to show sorted range
-        sorted_range_pins = self.find_pin('sorted_range')
+        range_pins = self.find_pin('range')
         self.custom_box = None
-        for pin in sorted_range_pins:
+        for pin in range_pins:
             index = pin.get_index()
             first_node = pin.get_args()[0]
             last_node = pin.get_args()[1]
             self.add_static(index, self.update_surrounding_box, [first_node, last_node])
 
+        # add sorted text
+        sorted_pins = self.find_pin('sorted')
+        for pin in sorted_pins:
+            index = pin.get_index()
+            self.add_static(index, self.add_sorted_text)
 
     # -------- customisation static functions -------- #
 
@@ -46,3 +52,10 @@ class InsertionSortScene(AlgoScene):
         else:
             self.play(ReplacementTransform(old_box, new_box))
         self.custom_box = new_box
+
+    def add_sorted_text(self):
+        text = TextMobject('Sorted')
+        text.next_to(self.custom_box, UP)
+        text.align_to(self.custom_box, LEFT)
+        self.play(Write(text))
+        self.play(FadeOut(text))
