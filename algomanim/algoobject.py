@@ -273,14 +273,15 @@ class AlgoObject(ABC):
         lower_meta = LowerMetadata("move_group_to_group", action_pair)
         metadata.add_lower(lower_meta)
 
-    ''' Returns a destination point for obj_to_move that is aligned vertically with all relative_objs,
-    but still has the same y, z-coords. '''
+    ''' Returns a destination point for obj_to_move that is aligned vertically
+     with all relative_objs, but still has the same y, z-coords. '''
     @staticmethod
     def center_pt(obj_to_move, relative_objs):
         new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
         return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
 
-    ''' Returns the 2D centre point of all relative_objs. Assumes relative_objs are horizontally aligned. '''
+    ''' Returns the 2D centre point of all relative_objs.
+     Assumes relative_objs are horizontally aligned. '''
     @staticmethod
     def center_up_pt(obj, relative_objs):
         new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
@@ -293,7 +294,8 @@ class AlgoObject(ABC):
                                    pt_fn=AlgoObject.center_pt, metadata=metadata, animated=animated)
 
     ''' Moves obj_to_move to a point calculated by pt_fn, in relation to relative_objs '''
-    def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn, metadata=None, animated=True):
+    def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn,
+                              metadata=None, animated=True):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
                 [obj_to_move],
@@ -308,7 +310,7 @@ class AlgoObject(ABC):
         lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
         metadata.add_lower(lower_meta)
 
-    ''' Applies a function to a list of objects such that the animation takes place at the same time 
+    ''' Applies a function to a list of objects such that the animation takes place at the same time
     for all objects '''
     @staticmethod
     def loop_fn_w_prev(objs, fn_to_apply, animated, metadata, init_w_prev):
