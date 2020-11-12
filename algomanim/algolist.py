@@ -197,11 +197,8 @@ class AlgoList(AlgoObject):
         if metadata is None:
             self.scene.add_metadata(meta)
 
-    # List type functions: needs refactored to fit meta_trees / Metadata functionality
-    # Currently not needed for Iteration3's bubblesort
-
-    # Removes the node at the specified index and closes the gap in the list if necessary
-    # If no index is specified, removes the last node by default
+    ''' Removes the node at the specified index and closes the gap in the list if necessary.
+    If no index is specified, removes the last node by default. '''
     def pop(self, i=None, metadata=None, animated=True):
         if i is None:
             i = self.len()-1
@@ -250,8 +247,9 @@ class AlgoList(AlgoObject):
         for i in reversed(range(0, algolist.len() - 1)):
             algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT, metadata)
 
-    # enforced contiguous slices
-    # move = LEFT or RIGHT, denoting which direction the slice should be shifted in
+    ''' Slices the list, returning the equivalent of list[start: stop]. 
+    Set move to LEFT, RIGHT or 0 (no movement) to denote which direction the slice should be shifted in.
+    The slice must be contiguous. '''
     def slice(self, start, stop, move=LEFT, metadata=None, animated=True, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
@@ -326,6 +324,8 @@ class AlgoList(AlgoObject):
 
         return self
 
+    ''' Merges left_list and right_list, returning the resultant list.
+    If replace is True, hides left_list and right_list, then moves merged_list to the midpoint of both lists. '''
     def merge(self, left_list, right_list, metadata=None, animated=True,
               replace=False, shift=False, shift_vec=UP):
         meta = Metadata.check_and_create(metadata)

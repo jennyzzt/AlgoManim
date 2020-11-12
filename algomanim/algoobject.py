@@ -255,6 +255,7 @@ class AlgoObject(ABC):
         if metadata is None:
             self.scene.add_metadata(meta)
 
+    ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
     def move_group_to_group(self, grp_start, grp_end, animated=True, metadata=None):
         move_pt = grp_end.get_center
         anim_action = self.scene.create_play_action(
@@ -271,26 +272,26 @@ class AlgoObject(ABC):
         lower_meta = LowerMetadata("move_group_to_group", action_pair)
         metadata.add_lower(lower_meta)
 
-    # @staticmethod
-    # def center_pt(left_obj, right_obj, obj_to_move):
-    #     new_x = (left_obj.grp.get_x() + right_obj.grp.get_x()) / 2
-    #     return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
-
+    ''' Returns a destination point for obj_to_move that is aligned vertically with all relative_objs,
+    but still has the same y, z-coords. '''
     @staticmethod
     def center_pt(obj_to_move, relative_objs):
         new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
         return np.array([new_x, obj_to_move.grp.get_y(), obj_to_move.grp.get_z()])
 
+    ''' Returns the 2D centre point of all relative_objs. Assumes relative_objs are horizontally aligned. '''
     @staticmethod
     def center_up_pt(obj, relative_objs):
         new_x = sum([obj.grp.get_x() for obj in relative_objs]) / len(relative_objs)
         new_y = relative_objs[0].grp.get_y()
         return np.array([new_x, new_y, obj.grp.get_z()])
 
+    ''' Aligns obj_to_move vertically with the midpoint of all relative_objs '''
     def center_x(self, obj_to_move, relative_objs, metadata=None, animated=True):
         self.move_to_calculated_pt(obj_to_move, relative_objs,
                                    pt_fn=AlgoObject.center_pt, metadata=metadata, animated=animated)
 
+    ''' Moves obj_to_move to a point calculated by pt_fn, in relation to relative_objs '''
     def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn, metadata=None, animated=True):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
