@@ -91,19 +91,22 @@ class AlgoList(AlgoObject):
 
     ''' Display the list on screen '''
     def show_list(self, metadata=None, animated=True, w_prev=False):
-        if len(self.nodes) > 0:
-            meta = Metadata.check_and_create(metadata)
-            # Show all nodes in the list
-            for node in self.nodes:
-                node.show(metadata=meta, animated=animated, w_prev=w_prev)
-            # Add metadata if meta is created in this fn
-            if metadata is None:
-                self.scene.add_metadata(meta)
+        if self.empty():
+            # empty list, nothing to do
+            return
+
+        meta = Metadata.check_and_create(metadata)
+        # Show all nodes in the list
+        for node in self.nodes:
+            node.show(metadata=meta, animated=animated, w_prev=w_prev)
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     ''' Hide the list from screen '''
     def hide_list(self, metadata=None, animated=True, w_prev=False):
-        if len(self.nodes) == 0:
-            # nothing to do
+        if self.empty():
+            # empty list, nothing to do
             return
 
         meta = Metadata.check_and_create(metadata)
@@ -164,15 +167,21 @@ class AlgoList(AlgoObject):
     def len(self):
         return len(self.nodes)
 
+    # Returns true if the list is empty
+    def empty(self):
+        return not self.nodes
+
     ''' Appends a new node with the given value to the end of the list '''
     def append(self, val, metadata=None, animated=True, w_prev=False, center=True):
         meta = Metadata.check_and_create(metadata)
         # Create new node and add to the right of the list
         node = AlgoNode(self.scene, val)
-        if self.len() > 0:
-            node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
-        else:
+
+        if self.empty():
             node.grp.move_to(self.displacement)
+        else:
+            node.set_next_to(self.nodes[-1], RIGHT, metadata=meta)
+
         self.nodes.append(node)
         # Update positioning of list
         node.show(metadata=meta, animated=animated, w_prev=w_prev)
@@ -421,7 +430,7 @@ class AlgoList(AlgoObject):
         right_list_copy.hide_list(metadata=meta, animated=False)
         hidden_merged_list.hide_list(metadata=meta, animated=False)
 
-        # if replace, call replace (with shift set to false) on the left and right lists
+        # if replace, call replace on the left and right lists
         if replace:
             merged_list.replace([left_list, right_list], animated=animated, metadata=meta)
 
@@ -452,8 +461,6 @@ class AlgoList(AlgoObject):
             if first:
                 first = False
                 hidden_list.hide_list(animated=animated, metadata=meta, w_prev=w_prev)
-                # for n in hidden_list.nodes:
-                #     AlgoObject.hide_group(self.scene, n.grp, metadata=meta, animated=False)
             else:
                 hidden_list.hide_list(animated=animated, metadata=meta, w_prev=True)
 
