@@ -286,7 +286,7 @@ class AlgoList(AlgoObject):
         AlgoList.align_nodes_from_first_node(sublist, metadata=meta)
 
         hidden_sublist = AlgoList(self.scene,
-                                  [n.val for n in self.nodes][start:stop], show=False)
+                                  [0 for _ in self.nodes][start:stop], show=False)
 
         # Position hidden sliced list by taking reference from last element
         # hidden_sublist.nodes[-1].grp.next_to(self.nodes[stop - 1].grp, DOWN + move)
@@ -296,7 +296,7 @@ class AlgoList(AlgoObject):
         sublist.set_next_to(hidden_sublist, vector=0, metadata=meta, animated=True)
 
         # Get rid of hidden_sublist
-        self.scene.remove(hidden_sublist)
+        hidden_sublist.hide_list(metadata=meta, animated=False)
 
         # Add metadata to scene
         if metadata is None:
