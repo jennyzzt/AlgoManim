@@ -39,6 +39,21 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
         return change_box
 
+    @staticmethod
+    def create_text_change_box(index, text):
+        change_desc = f'Adding text scene at index {index} with: \n \'{text}\''
+
+        # Create box
+        change_box = QGroupBox()
+        change_box.setStyleSheet("margin-top: 6px")
+        # Set layout
+        change_box_layout = QHBoxLayout()
+        change_box.setLayout(change_box_layout)
+        # Add title label
+        change_box_layout.addWidget(QLabel(change_desc))
+
+        return change_box
+
     def update_view(self):
         change_group_box = QGroupBox()
         change_group_box.setStyleSheet("border-style: none")
@@ -67,6 +82,12 @@ class ChangeHistoryPanel(BaseChangesPanel):
         self.change_box_index[key] = self.change_box_list.count()
         self.change_box_list.addWidget(change_box)
         self.update_view()
+
+    def add_text_change(self, text_changes):
+        for i, text in text_changes.items():
+            text_change_box = self.create_text_change_box(i, text)
+            self.change_box_list.addWidget(text_change_box)
+            self.update_view()
 
     @staticmethod
     # can move this fn to a util file later

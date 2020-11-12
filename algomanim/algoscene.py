@@ -237,11 +237,20 @@ class AlgoScene(Scene):
             w_prev=w_prev, can_set_runtime=True
         )
 
-    def add_action_pair(self, anim_action, static_action=None, animated=True):
+    def add_action_pair(self, anim_action, static_action=None, animated=True, index=None):
         pair = AlgoSceneActionPair(anim_action, static_action,
                                    run_time=None if animated else 0)
-        self.action_pairs.append(pair)
+        self.insert_action_pair(pair, index)
         return pair
+
+    def insert_action_pair(self, action_pair, index=None):
+        if index is not None:
+            self.push_back_action_pair_indices(index)
+        else:
+            index = len(self.action_pairs)
+
+        action_pair.attach_index(index)
+        self.action_pairs.insert(index, action_pair)
 
     def add_metadata(self, metadata):
         self.meta_trees.append(metadata)
@@ -273,10 +282,9 @@ class AlgoScene(Scene):
             action_pair.attach_index(action_pair.get_index() + 1)
 
     def add_transform(self, index, transform, args=[], metadata=None): # pylint: disable=W0102
-        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform(args, transform=transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         if metadata is None:
             curr_metadata = Metadata('custom')
@@ -287,11 +295,50 @@ class AlgoScene(Scene):
         else:
             self.add_metadata(metadata)
 
+    # Convenience function to add a text object and the Write transform
+    # Returns the created text object
+    def add_text(self, text, index, position=UP):
+        text = TextMobject(text)
+        text.shift(2 * position)
+        transform = lambda: Write(text)
+        self.add_transform(index, transform)
+        return text
+
+    # Convenience function to edit existing text objects via a ReplacementTransform
+    # Requires the previous text object to be edited
+    # Returns the replacement text object
+    def change_text(self, new_text_string, old_text_object, index, position=UP):
+        new_text_object = TextMobject(new_text_string)
+        new_text_object.shift(2 * position)
+
+        # Create the transform to be run at that point
+        transform = lambda old_text, new_text: \
+            [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+        self.add_transform(index, transform, args=[old_text_object, new_text_object])
+        return new_text_object
+
+    # Convenience function to FadeOut an existing text object
+    def remove_text(self, old_text_object, index):
+        transform = lambda: FadeOut(old_text_object)
+        self.add_transform(index, transform)
+
+    def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
+        static_action = AlgoSceneAction.create_static_action(static_fn, args)
+        action_pair = AlgoSceneActionPair(static_action, static_action)
+        self.insert_action_pair(action_pair, index)
+
+        if metadata is None:
+            curr_metadata = Metadata('custom')
+            lower_meta = LowerMetadata('custom', action_pair)
+            curr_metadata.add_lower(lower_meta)
+            self.add_metadata(curr_metadata)
+        else:
+            self.add_metadata(metadata)
+
     def add_fade_out_all(self, index):
-        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('fade_out')
         lower_meta = LowerMetadata('fade_out', action_pair)
@@ -300,10 +347,9 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_fade_in_all(self, index):
-        self.push_back_action_pair_indices(index)
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_in_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('fade_in')
         lower_meta = LowerMetadata('fade_in', action_pair)
@@ -312,12 +358,11 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_wait(self, index, wait_time=1):
-        self.push_back_action_pair_indices(index)
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
         action_pair = AlgoSceneActionPair(anim_action, static_action)
-        self.action_pairs.insert(index, action_pair)
+        self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('wait')
         lower_meta = LowerMetadata('wait', action_pair)
@@ -326,9 +371,8 @@ class AlgoScene(Scene):
         self.add_metadata(curr_metadata)
 
     def add_clear(self, index):
-        self.push_back_action_pair_indices(index)
         action = AlgoSceneAction.create_static_action(self.clear)
-        self.action_pairs.insert(index, AlgoSceneActionPair(action))
+        self.insert_action_pair(AlgoSceneActionPair(action), index)
 
     def fast_forward(self, start, end=None, speed_up=2):
         if end is None:
@@ -374,7 +418,7 @@ class AlgoScene(Scene):
 
         # run post customize functions from the GUI
         for post_customize in self.post_customize_fns:
-            post_customize(self.action_pairs)
+            post_customize(self)
 
         # bundle animations together according to time
         self.create_animation_blocks(action_pairs, anim_blocks)
@@ -390,14 +434,19 @@ class AlgoScene(Scene):
             action_pairs = tree.get_all_action_pairs()
 
             blocks = {action_pair.get_block() for action_pair in action_pairs}
-            start_time = min(map(lambda block: block.start_time, blocks))
-            end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
+            if len(blocks) == 0:
+                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
+                    has no action_pairs attached to it!')
+            else:
+                start_time = min(map(lambda block: block.start_time, blocks))
+                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
 
-            runtime = end_time - start_time
+                runtime = end_time - start_time
 
-            self.metadata_blocks.append(
-                MetadataBlock(tree, action_pairs, start_time, runtime)
-            )
+                self.metadata_blocks.append(
+                    MetadataBlock(tree, action_pairs, start_time, runtime)
+                )
+
         # some metadata might be added out of order, sort the blocks by start_time
         self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
 
@@ -434,9 +483,6 @@ class AlgoScene(Scene):
         self.post_config(self.settings)
 
         self.algoconstruct()
-        # attach indexes to action_pair to be used in customize fn
-        for (i, action_pair) in enumerate(self.action_pairs):
-            action_pair.attach_index(i)
         self.customize(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)

@@ -10,7 +10,8 @@ class AlgoNode(AlgoObject):
         # Get preconfig settings
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
-        self.node_length = float(scene.settings['node_size'])
+        node_size = float(scene.settings['node_size'])
+        self.node_length = node_size
         self.node = {
             Shape.CIRCLE: Circle(
                 color=self.node_color,
@@ -31,9 +32,54 @@ class AlgoNode(AlgoObject):
         }[scene.settings['node_shape']]
         # Set attributes
         self.val = val
-        self.txt = TextMobject(str(val))
-        self.txt.set_color(scene.settings['font_color'])
+        self.txt = self.generate_text(val)
         self.grp = VGroup(self.node, self.txt)
+
+    def generate_text(self, val):
+        text = TextMobject(str(val))
+        text.scale(self.node_length * 1.5)
+        text.set_color(self.scene.settings['font_color'])
+        return text
+
+    def static_replace_text(self, old_text, new_text):
+        new_text.move_to(old_text.get_center())
+        self.scene.remove(old_text)
+        self.scene.add(new_text)
+
+    @staticmethod
+    def animated_replace_text(old_text, new_text):
+        new_text.move_to(old_text.get_center())
+        return [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+
+    def change_value(self, val, metadata=None, animated=True, w_prev=False):
+        meta = Metadata.check_and_create(metadata)
+
+        old_text = self.txt
+        new_text = self.generate_text(val)
+        new_text.move_to(self.txt.get_center())
+        self.val = val
+        self.txt = new_text
+        self.grp = VGroup(self.node, self.txt)
+
+        # Create action pair
+        anim_action = self.scene.create_play_action(
+            AlgoTransform([old_text, new_text],
+                transform=self.animated_replace_text
+            ),
+            w_prev=w_prev
+        )
+        static_action = AlgoSceneAction.create_static_action(
+            self.static_replace_text, [old_text, new_text]
+        )
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        # Create LowerMetadata
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
+        meta.add_lower(lower_meta)
+
+        # Add metadata if meta is created in this fn
+        if metadata is None:
+            self.scene.add_metadata(meta)
 
     def highlight(self, metadata=None, animated=True, w_prev=False):
         meta = Metadata.check_and_create(metadata)
