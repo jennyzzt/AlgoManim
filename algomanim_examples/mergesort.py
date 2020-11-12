@@ -17,13 +17,14 @@ class MergeSortScene(AlgoScene):
             mid_pt = algolist.len() // 2  # 2
 
             # slice list into two
-            left = algolist.slice(0, mid_pt, move=0, shift=True)
-            right = algolist.slice(mid_pt, algolist.len(), move=0)
+            left = algolist.slice(0, mid_pt, move=LEFT, shift=True)
+            right = algolist.slice(mid_pt, algolist.len(), move=RIGHT)
 
             left = self.mergesort(left)
             right = self.mergesort(right)
 
             merged_list = algolist.merge(left, right, replace=True, shift=True, shift_vec=DOWN)
+            merged_list.replace(algolist)
 
             return merged_list
 

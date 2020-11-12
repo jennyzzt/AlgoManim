@@ -1,4 +1,5 @@
 # pylint: disable=E1101, W0105, R0913
+from collections.abc import Iterable
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
@@ -9,6 +10,7 @@ from algomanim.algoobject import AlgoObject, TEMP_META_NAME
 class AlgoList(AlgoObject):
     def __init__(self, scene, arr, show=True, displacement=None):
         super().__init__(scene)
+
         # Make and arrange nodes
         self.nodes = [AlgoNode(scene, val) for val in arr]
         self.displacement = ORIGIN if displacement is None else displacement
@@ -114,6 +116,9 @@ class AlgoList(AlgoObject):
                 node.hide(metadata=meta, animated=animated, w_prev=w_prev)
             else:
                 node.hide(metadata=meta, animated=animated, w_prev=True)
+
+        # Unsubscribe from the scene
+        self.scene.remove_algoitem(self)
 
         # Add metadata if meta is created in this fn
         if metadata is None:
@@ -414,6 +419,7 @@ class AlgoList(AlgoObject):
         # hide the list copies
         left_list_copy.hide_list(metadata=meta, animated=False)
         right_list_copy.hide_list(metadata=meta, animated=False)
+        hidden_merged_list.hide_list(metadata=meta, animated=False)
 
         # if replace, call replace (with shift set to false) on the left and right lists
         if replace:
@@ -428,18 +434,24 @@ class AlgoList(AlgoObject):
 
         return merged_list
 
+    # TODO: create generic function that applies the w_prev pattern that has been repeated many times
+
     ''' Destroys the given list(s) and moves this list to its/their original position.
      Given lists assumed to be in a single line. '''
     def replace(self, lists, animated=True, metadata=None, shift=False, shift_vec=UP, w_prev=False):
         meta = Metadata.check_and_create(metadata)
 
+        # Check if given single object rather than a list
+        if not isinstance(lists, Iterable):
+            lists = [lists]
+
         # hide all the given lists
         first = True
         for hidden_list in lists:
+            # hidden_list.highlight(*range(0, hidden_list.len()), metadata=meta)
             if first:
                 first = False
                 hidden_list.hide_list(animated=animated, metadata=meta, w_prev=w_prev)
-                # hidden_list.highlight(*range(0, hidden_list.len()), metadata=meta)
                 # for n in hidden_list.nodes:
                 #     AlgoObject.hide_group(self.scene, n.grp, metadata=meta, animated=False)
             else:
@@ -450,7 +462,8 @@ class AlgoList(AlgoObject):
                                    metadata=meta, animated=animated)
 
         # if shift, shift the scene using the vec
-        # TODO
+        if shift:
+            self.scene.shift_scene(shift_vec, meta)
 
         if metadata is None:
             self.scene.add_metadata(meta)
