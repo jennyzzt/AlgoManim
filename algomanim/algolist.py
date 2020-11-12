@@ -1,5 +1,4 @@
 # pylint: disable=E1101, W0105, R0913
-from collections.abc import Iterable
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
@@ -245,7 +244,8 @@ class AlgoList(AlgoObject):
     ''' Slices the list, returning the equivalent of list[start: stop].
     Set move to LEFT, RIGHT or 0 (no movement) to denote which direction
     the slice should be shifted in. The slice must be contiguous. '''
-    def slice(self, start, stop, move=LEFT, metadata=None, animated=True, w_prev=False, shift=False, shift_vec=UP):
+    def slice(self, start, stop, move=LEFT, metadata=None,
+              animated=True, w_prev=False, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -320,6 +320,7 @@ class AlgoList(AlgoObject):
     ''' Merges left_list and right_list, returning the resultant list.
     If replace is True, hides left_list and right_list,then moves
      merged_list to the midpoint of both lists. '''
+    # pylint: disable=R0914, R0915
     def merge(self, left_list, right_list, metadata=None, animated=True,
               replace=False, shift=False, shift_vec=UP):
         meta = Metadata.check_and_create(metadata)

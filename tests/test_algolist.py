@@ -1,6 +1,5 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from unittest import TestCase
 from algomanim.algolist import AlgoList
 from algomanim.algoscene import AlgoScene
 from algomanim.settings import DEFAULT_SETTINGS
