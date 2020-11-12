@@ -111,7 +111,7 @@ class AlgoList(AlgoObject):
 
         meta = Metadata.check_and_create(metadata)
 
-        # Hide all nodes in list
+        # Hide all nodes in list at the same time
         AlgoObject.loop_fn_w_prev(self.nodes, AlgoNode.hide, animated=animated, metadata=meta, init_w_prev=w_prev)
 
         # Unsubscribe from the scene
@@ -126,6 +126,8 @@ class AlgoList(AlgoObject):
         meta = Metadata.check_and_create(metadata)
 
         nodes_to_highlight = [self.nodes[i] for i in indexes]
+
+        # Highlight all nodes at the same time
         AlgoObject.loop_fn_w_prev(nodes_to_highlight, AlgoNode.highlight,
                                   animated=animated, metadata=meta, init_w_prev=w_prev)
 
@@ -137,8 +139,10 @@ class AlgoList(AlgoObject):
     def dehighlight(self, *indexes, metadata=None, animated=True, w_prev=False):
         meta = Metadata.check_and_create(metadata)
 
-        nodes_to_unhighlight = [self.nodes[i] for i in indexes]
-        AlgoObject.loop_fn_w_prev(nodes_to_unhighlight, AlgoNode.dehighlight,
+        nodes_to_dehighlight = [self.nodes[i] for i in indexes]
+
+        # Dehighlight all nodes at the same time
+        AlgoObject.loop_fn_w_prev(nodes_to_dehighlight, AlgoNode.dehighlight,
                                   animated=animated, metadata=meta, init_w_prev=w_prev)
 
         # Add metadata if meta is created in this fn
@@ -223,11 +227,15 @@ class AlgoList(AlgoObject):
         if metadata is None:
             self.scene.add_metadata(meta)
 
+    ''' Re-aligns nodes starting from the node at the start of the list
+    No need for w_prev as it is currently non-animated.'''
     @staticmethod
     def align_nodes_from_first_node(algolist, metadata):
         for i in range(1, algolist.len()):
             algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT, metadata)
 
+    ''' Re-aligns nodes starting from the node at the end of the list.
+    No need for w_prev as it is currently non-animated.'''
     @staticmethod
     def align_nodes_from_last_node(algolist, metadata):
         for i in reversed(range(0, algolist.len() - 1)):
@@ -236,7 +244,7 @@ class AlgoList(AlgoObject):
     ''' Slices the list, returning the equivalent of list[start: stop]. 
     Set move to LEFT, RIGHT or 0 (no movement) to denote which direction the slice should be shifted in.
     The slice must be contiguous. '''
-    def slice(self, start, stop, move=LEFT, metadata=None, animated=True, shift=False, shift_vec=UP):
+    def slice(self, start, stop, move=LEFT, metadata=None, animated=True, w_prev=False, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -246,10 +254,10 @@ class AlgoList(AlgoObject):
         meta = Metadata.check_and_create()
 
         # Highlight the sublist we want to keep
-        self.highlight(*range(start, stop), animated=animated, metadata=meta)
+        self.highlight(*range(start, stop), animated=animated, metadata=meta, w_prev=w_prev)
 
         # Dehighlight the sublist we want to keep
-        self.dehighlight(*range(start, stop), animated=animated, metadata=meta)
+        self.dehighlight(*range(start, stop), animated=animated, metadata=meta, w_prev=w_prev)
 
         """
         The sliced list is first aligned to its original position in the list.
@@ -260,7 +268,7 @@ class AlgoList(AlgoObject):
 
         # Shift the scene up so that that we make space for the new list
         if shift:
-            self.scene.shift_scene(shift_vec, meta)
+            self.scene.shift_scene(shift_vec, metadata=meta)
 
         # Create sliced list in background
         sublist = AlgoList(self.scene,
@@ -277,7 +285,7 @@ class AlgoList(AlgoObject):
         hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move, metadata=meta)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=meta)
 
-        sublist.set_next_to(hidden_sublist, vector=0, metadata=meta, animated=True)
+        sublist.set_next_to(hidden_sublist, vector=0, metadata=meta, animated=True, w_prev=w_prev)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=meta, animated=False)
@@ -412,7 +420,7 @@ class AlgoList(AlgoObject):
         hidden_merged_list.hide_list(metadata=meta, animated=False)
 
         if replace:
-            merged_list.replace([left_list, right_list], animated=animated, metadata=meta)
+            merged_list.replace(left_list, right_list, animated=animated, metadata=meta)
 
         if shift:
             self.scene.shift_scene(shift_vec, meta)
@@ -422,18 +430,12 @@ class AlgoList(AlgoObject):
 
         return merged_list
 
-    # TODO: create generic function that applies the w_prev pattern that has been repeated many times
-
     ''' Destroys the given list(s) and moves this list to its/their original position.
      Given lists assumed to be in a single line. '''
-    def replace(self, lists, animated=True, metadata=None, shift=False, shift_vec=UP, w_prev=False):
+    def replace(self, *lists, animated=True, metadata=None, shift=False, shift_vec=UP, w_prev=False):
         meta = Metadata.check_and_create(metadata)
 
-        # Check if given single object rather than a list
-        if not isinstance(lists, Iterable):
-            lists = [lists]
-
-        # hide all the given lists
+        # hide all the given lists at the same time
         AlgoObject.loop_fn_w_prev(lists, AlgoList.hide_list, animated=animated, metadata=meta, init_w_prev=w_prev)
 
         # move this list to the middle pt found
