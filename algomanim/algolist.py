@@ -46,7 +46,7 @@ class AlgoList(AlgoObject):
 
     ''' Compare two nodes at indexes i and j '''
     def compare(self, i, j, metadata=None, animated=True, w_prev=False,
-                highlights=True, text=True):
+                highlights=True, text=False):
         meta = Metadata.check_and_create(metadata)
         if highlights:
             # Add highlight animations

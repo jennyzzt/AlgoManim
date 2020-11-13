@@ -11,7 +11,7 @@ class CustomBubbleSortScene(AlgoScene):
             swaps_made = False
             for i in range(algolist.len() - 1):
                 j = i + 1
-                if algolist.compare(i, j):
+                if algolist.compare(i, j, text=True):
                     swaps_made = True
                     algolist.swap(i, j)
 

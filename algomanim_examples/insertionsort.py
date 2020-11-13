@@ -14,7 +14,7 @@ class InsertionSortScene(AlgoScene):
             self.insert_pin('range', algolist.nodes[0], algolist.nodes[i])
             for j in range(0, i):
                 self.insert_pin('highlight', algolist, [i, j])
-                if algolist.compare(i, j):
+                if algolist.compare(i, j, text=True):
                     algolist.swap(i, j)
             self.insert_pin('sorted')
 
