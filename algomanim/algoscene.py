@@ -335,6 +335,13 @@ class AlgoScene(Scene):
         else:
             self.add_metadata(metadata)
 
+    def add_slide(self, text, index, text_position=ORIGIN, duration=1.0):
+        self.add_fade_out_all(index)
+        text_anim = self.add_text(text, index + 1, position=text_position)
+        self.add_wait(index + 2, wait_time=duration)
+        self.remove_text(text_anim, index + 3)
+        self.add_fade_in_all(index + 4)
+
     def add_fade_out_all(self, index):
         anim_action = self.create_play_action(AlgoTransform([self], transform=fade_out_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
