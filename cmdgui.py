@@ -281,13 +281,8 @@ class GuiWindow(QDialog):
         self.post_customize_fns.append(customize_anims)
         # pylint: disable=unused-argument
         def insert_text(algoscene):
-            prev_text = None
             for index, text in self.text_changes.items():
-                if prev_text:
-                    prev_text = algoscene.change_text(prev_text, text, index=index)
-                else:
-                    prev_text = algoscene.add_text(text, index=index)
-            # algoscene.change_text(test_add, "Test 2", index=8)
+                algoscene.add_slide(text, index + 1)
         self.post_customize_fns.append(insert_text)
 
         self.render_video()
@@ -298,8 +293,8 @@ class GuiWindow(QDialog):
         # Catch cases that route to custom_renderer
         self.post_config_settings[label] = value
 
-    def add_empty_anim(self, index):
-        self.anims.insert(index, empty_animation(index))
+    def add_empty_anim(self, index, position):
+        self.anims.insert(index, empty_animation(position))
         self.animation_bar.fill_bar(self.anims)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp

@@ -94,7 +94,8 @@ class AnimationBar(QWidget):
         if not is_empty_anim(anim):
             add_anim_button = QPushButton(text='+')
             add_anim_button.setStyleSheet("border:1px solid black;")
-            add_anim_button.clicked.connect(lambda event: self.add_anim(index + 1))
+            add_anim_button.clicked.connect(lambda event: \
+                self.add_anim(index + 1, anim.end_index()))
             anim_box_layout.addWidget(add_anim_button, alignment=Qt.AlignRight)
 
         # Animation label using metadata
@@ -142,5 +143,6 @@ class AnimationBar(QWidget):
             else:
                 self.set_inactive_lbl(i)
 
-    def add_anim(self, index):
-        self.gui_window.add_empty_anim(index)
+    def add_anim(self, index, position):
+        self.gui_window.add_empty_anim(index, position)
+        self.set_active_lbl(index)
