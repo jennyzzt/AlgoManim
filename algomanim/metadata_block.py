@@ -14,3 +14,11 @@ class MetadataBlock:
 
     def end_position(self):
         return (self.start_time + self.runtime) * 1000
+
+    def start_index(self):
+        assert len(self.action_pairs) > 0
+        return self.action_pairs[0].get_index()
+
+    def end_index(self):
+        assert len(self.action_pairs) > 0
+        return self.action_pairs[-1].get_index()
