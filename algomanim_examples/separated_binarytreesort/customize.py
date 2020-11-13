@@ -1,7 +1,7 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform
 
-# pylint: disable=R0914
+# pylint: disable=R0914,W0613
 def my_customize(scene, action_pairs):
     pin = scene.find_pin("list_elems")[0]
     idx = pin.get_index()

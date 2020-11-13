@@ -5,6 +5,7 @@ from algomanim.algobinarytree import AlgoBinaryTree, AlgoBinaryTreeNode
 from .preconfig import my_preconfig
 from .customize import my_customize
 
+# pylint: disable=R0914
 class BinaryTreeSortScene(AlgoScene):
     preconfig = my_preconfig
     customize = my_customize

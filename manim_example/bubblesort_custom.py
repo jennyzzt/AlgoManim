@@ -28,6 +28,7 @@ class BubbleSortScene(Scene):
         self.play(nodes_grp.center)
         return nodes, nodes_grp
 
+    # pylint: disable=R0914
     def construct(self):
         input_list = [25, 43, 5, 18, 30]
         nodes, nodes_grp = self.init_list(input_list)
