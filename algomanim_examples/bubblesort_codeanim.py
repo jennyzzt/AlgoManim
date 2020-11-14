@@ -1,4 +1,5 @@
 import inspect
+from pylatexenc.latexencode import unicode_to_latex
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
@@ -20,15 +21,12 @@ class BubbleSortCodeScene(AlgoScene):
                 continue
             # get suitable line tab for new code line
             line_tab = ' ' * (len(line) - len(line.lstrip()))
-            if i < len(source_lines) - 1:
-                next_line_tab = ' ' * (len(source_lines[i+1]) - len(source_lines[i+1].lstrip()))
-                line_tab = line_tab if line_tab == next_line_tab else next_line_tab
             # strip current code line of EOL to be added into pin
             stripped_line = line.rstrip('\n')
-            # add original code line and new pin line
+            # add pin line then add original code line
             pin_line = f'{line_tab}self.insert_pin(\'__code__\', \'{stripped_line}\')\n'
-            modified_source_lines.append(line)
             modified_source_lines.append(pin_line)
+            modified_source_lines.append(line)
 
         # get modified source code and execute
         modified_source_str = ''.join(modified_source_lines)
@@ -48,4 +46,8 @@ class BubbleSortCodeScene(AlgoScene):
     def customize(self, action_pairs):
         # add code anim text
         code_pins = self.find_pin('__code__')
-        print('number of code pins:', len(code_pins))
+        for pin in code_pins:
+            index = pin.get_index()
+            text = unicode_to_latex(pin.get_args()[0])
+            textobj = TextMobject(text)
+            self.add_transform(index, lambda: FadeIn(textobj))
