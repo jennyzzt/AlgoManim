@@ -54,7 +54,18 @@ class BubbleSortCodeScene(AlgoScene):
         sourcecode_pin = self.find_pin('__sourcecode__')[0]
         index = sourcecode_pin.get_index()
         sourcecode = sourcecode_pin.get_args()[0]
-        self.add_static(index, self.show_sourcecode, [sourcecode])
+        textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
+        self.add_static(index, self.show_sourcecode, [textobjs])
+
+        # move arrow to which code line is executed
+        arrow = Arrow(ORIGIN, RIGHT)
+        self.add_static(index+1, self.add_arrow_beside, [arrow, textobjs[0]])
+        codeindex_pins = self.find_pin('__codeindex__')
+        for pin in codeindex_pins:
+            index = pin.get_index()
+            codeindex = pin.get_args()[0]
+            self.add_transform(index, ApplyMethod, args=[arrow.next_to,
+                                                         textobjs[codeindex], LEFT])
 
     # zoom out scene camera to twice the width
     def zoom_out(self):
@@ -63,11 +74,15 @@ class BubbleSortCodeScene(AlgoScene):
         self.camera_frame.move_to(new_center)
 
     # show sourcecode on the right of the zoomed out screen
-    def show_sourcecode(self, sourcecode):
-        mid_index = len(sourcecode)/2
-        for i, line in enumerate(sourcecode):
-            textobj = TextMobject(unicode_to_latex(line))
-            center_of_right_screen = self.camera_frame.get_right() * 2
+    def show_sourcecode(self, textobjs):
+        mid_index = len(textobjs)/2
+        for i, textobj in enumerate(textobjs):
+            center_of_right_screen = (self.camera_frame.get_right()
+                                      + self.camera_frame.get_center()) / 2.0
             textobj.move_to(center_of_right_screen)
             textobj.shift((i - mid_index) * DOWN)
             self.add(textobj)
+
+    def add_arrow_beside(self, arrow, textobj):
+        arrow.next_to(textobj, LEFT)
+        self.add(arrow)
