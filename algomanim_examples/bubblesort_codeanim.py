@@ -9,15 +9,14 @@ class BubbleSortCodeScene(AlgoScene):
         source_lines, _ = inspect.getsourcelines(self.algo)
 
         # get and remove redundant leading spaces
-        tab_spacing = len(source_lines[0]) - len(source_lines[0].lstrip())
+        tab_spacing = (len(source_lines[0]) - len(source_lines[0].lstrip())) * 2
         source_lines = [line[tab_spacing:] for line in source_lines]
 
         # insert pin at every alternate source line
         modified_source_lines = []
         for i, line in enumerate(source_lines):
             if i == 0:
-                # do not insert pin for the first code line
-                modified_source_lines.append(line)
+                # do not execute first def line
                 continue
             # get suitable line tab for new code line
             line_tab = ' ' * (len(line) - len(line.lstrip()))
@@ -31,10 +30,9 @@ class BubbleSortCodeScene(AlgoScene):
             modified_source_lines.append(line)
             modified_source_lines.append(pin_line)
 
+        # get modified source code and execute
         modified_source_str = ''.join(modified_source_lines)
-        print(modified_source_str)
-
-        exec(f'{modified_source_str}\nret=self.algo()')
+        exec(f'{modified_source_str}')
 
     def algo(self):
         algolist = AlgoList(self, [25, 43, 5, 18, 30])
