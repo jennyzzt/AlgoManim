@@ -1,201 +1,20 @@
-# pylint: disable=R0903, R0904
+# pylint: disable=W0105, W0122, W0611, R0904
+import inspect
+from pylatexenc.latexencode import unicode_to_latex
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
-from gui.panels.customisation_type import CustomisationType
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction, AlgoSceneActionPair, \
+    fade_in_transform, fade_out_transform, do_nothing
 from .animation_block import AnimationBlock
 from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
 
-def do_nothing(*_):
-    return
+# import algoobjects
+from .algobinarytree import AlgoBinaryTree
+from .algolist import AlgoList
+from .algonode import AlgoNode
+from .algoobject import AlgoObject
 
-def fade_out_transform(scene):
-    scene.save_mobjects = scene.mobjects
-    return list(map(FadeOut, scene.save_mobjects))
-
-def fade_in_transform(scene):
-    result = list(map(FadeIn, scene.save_mobjects))
-    scene.save_mobjects = []
-    return result
-
-class AlgoTransform:
-    def __init__(self, args, transform=None, color_index=None):
-        """
-        if transform is None, this class encapsulates a list of arguments
-        else, the arguments are to be consumed by the transform function
-        if color_index is None, this transform does not have a color property
-        else, color can be changed by changing args[color_index]
-        """
-        self.transform = transform
-        self.args = args
-        self.color_index = color_index
-
-    def can_set_color(self):
-        return self.color_index is not None
-
-    def get_color(self):
-        if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
-            return None
-
-        return self.args[self.color_index]
-
-    def set_color(self, color):
-        if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
-            return
-
-        self.args[self.color_index] = color
-
-    def run(self):
-        if self.transform is None:
-            return self.args
-
-        return self.transform(*self.args)
-
-class AlgoSceneAction:
-    @staticmethod
-    def create_static_action(function, args=[], color_index=None): # pylint: disable=W0102
-        # w_prev flag does not matter for static actions
-        return AlgoSceneAction(
-            do_nothing,
-            transform=AlgoTransform(args, transform=function, color_index=color_index),
-            w_prev=True,
-            can_set_runtime=False)
-
-    @staticmethod
-    def create_empty_action(args=[]): # pylint: disable=W0102
-        # empty filler action
-        return AlgoSceneAction.create_static_action(do_nothing, args)
-
-    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
-        self.act = act
-        self.transform = transform
-        self.w_prev = w_prev
-        self.can_set_runtime = can_set_runtime
-
-    def get_args(self):
-        return self.transform.args
-
-    def can_set_color(self):
-        if self.transform is not None:
-            return self.transform.can_set_color()
-
-        return False
-
-    def set_color(self, color):
-        if self.transform is not None:
-            self.transform.set_color(color)
-
-    def get_color(self):
-        if self.transform is not None:
-            return self.transform.get_color()
-
-        return None
-
-    def run(self):
-        if self.transform is not None:
-            return self.transform.run()
-        return []
-
-class AlgoSceneActionPair:
-    def __init__(self, anim_action, static_action=None, run_time=None):
-        '''
-        encodes a pair of AlgoSceneActions
-        if run_time is None, anim_action is run
-        else if run_time == 0, static_action is run
-        else if run_time > 0, anim_action is run with a run_time parameter
-        '''
-        self.anim_action = anim_action
-        self.static_action = static_action if static_action is not None else anim_action
-        self.run_time = run_time
-        self.anim_block = None # anim_block this action_pair ends up in
-        self.index = None # index of action pair in action_pairs list
-
-    def get_args(self):
-        return self.curr_action().get_args()
-
-    def attach_block(self, anim_block):
-        self.anim_block = anim_block
-
-    def attach_index(self, index):
-        self.index = index
-
-    def get_index(self):
-        return self.index
-
-    def get_block(self):
-        return self.anim_block
-
-    def can_set_runtime(self):
-        return self.anim_action.can_set_runtime
-
-    def get_runtime(self):
-        return self.run_time
-
-    def get_runtime_val(self):
-        if not self.can_set_runtime():
-            return 0
-
-        return 1 if self.run_time is None else self.run_time
-
-    def set_runtime(self, run_time):
-        if not self.can_set_runtime() and run_time != 0:
-            print('WARNING: ActionPair does not have runtime property')
-            return
-
-        if self.anim_action == self.static_action and run_time == 0:
-            print('WARNING: ActionPair cannot be skipped')
-            return
-
-        if not isinstance(run_time, float) or not isinstance(run_time, int):
-            run_time = float(run_time)
-
-        self.run_time = run_time
-
-    def can_set_color(self):
-        return self.anim_action.can_set_color() or \
-            self.static_action.can_set_color()
-
-    def get_color(self):
-        return self.anim_action.get_color()
-
-    def set_color(self, color):
-        self.anim_action.set_color(color)
-        self.static_action.set_color(color)
-
-    def skip(self):
-        self.set_runtime(0)
-
-    def fast_forward(self, speed_up = 2):
-        if self.run_time is None:
-            self.set_runtime(1 / speed_up)
-        else:
-            self.set_runtime(self.run_time / speed_up)
-
-    def curr_action(self):
-        if self.run_time is None or self.run_time > 0:
-            return self.anim_action
-
-        return self.static_action
-
-    def act(self):
-        return self.curr_action().act
-
-    def run(self):
-        return self.curr_action().run()
-
-    def customizations(self):
-        customizations = dict()
-        if self.can_set_color():
-            customizations[CustomisationType.COLOR] = self.get_color()
-
-        if self.can_set_runtime() and self.anim_block.first_pair() == self:
-            # runtime argument is only used when the runtime argument can be set
-            # and action_pair is the first pair in block
-            customizations[CustomisationType.RUNTIME] = self.get_runtime_val()
-
-        return customizations
 
 class AlgoScene(MovingCameraScene):
     def __init__(self, **kwargs):
@@ -217,14 +36,102 @@ class AlgoScene(MovingCameraScene):
         self.meta_trees = []
         self.metadata_blocks = []
 
+        # flag to set automatic parallel code animation
+        self.code_anim = True
+
         MovingCameraScene.__init__(self, **kwargs)
 
+    ''' For user to overwrite '''
     def preconfig(self, settings):
         pass
 
     def algoconstruct(self):
+        # Add parallel code animation
+        if self.code_anim:
+            # get algo source lines
+            source_lines, _ = inspect.getsourcelines(self.algo)
+
+            modified_source_lines = []
+
+            # insert pin at the beginning to show all code
+            sourcecode = [line.replace('\n', '') for line in source_lines]
+            pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
+            modified_source_lines.append(pin_code_source)
+
+            # get redundant spacing for first code line that is not def
+            redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
+            # insert pin at every alternate source line
+            for i, line in enumerate(source_lines):
+                if i == 0:
+                    # do not execute first def line
+                    continue
+                # get suitable line tab for new code line
+                line_tab = ' ' * (len(line) - len(line.lstrip()) - redundant_space_count)
+                # pin index of the code line
+                pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {i})\n'
+                modified_source_lines.append(pin)
+                # add original code back
+                modified_source_lines.append(line[redundant_space_count:])
+
+            # get modified source code and execute
+            modified_source_str = ''.join(modified_source_lines)
+            exec(f'{modified_source_str}')
+        # Run normal algo animation
+        else:
+            self.algo()
+
+    ''' For user to overwrite '''
+    def algo(self):
         pass
 
+    def customize_construct(self, action_pairs):
+        # Add customisation needed for parallel code anim
+        if self.code_anim:
+            # ----- helper static fns ----- #
+            def zoom_out():
+                new_center = self.camera_frame.get_right()
+                self.camera_frame.set_width(self.camera_frame.get_width() * 2)
+                self.camera_frame.move_to(new_center)
+
+            def show_sourcecode(textobjs, num_spaces):
+                mid_index = len(textobjs)/2
+                for i, textobj in enumerate(textobjs):
+                    textobj.align_to(self.camera_frame.get_center(), LEFT)
+                    textobj.shift((i - mid_index) * DOWN)
+                    textobj.shift(num_spaces[i] * RIGHT)
+                    self.add(textobj)
+
+            def add_arrow_beside(arrow, textobj):
+                arrow.next_to(textobj, LEFT)
+                self.add(arrow)
+            # ----------------------------- #
+
+            # zoom camera out
+            self.add_static(0, zoom_out)
+
+            # show source code text
+            sourcecode_pin = self.find_pin('__sourcecode__')[0]
+            index = sourcecode_pin.get_index()
+            sourcecode = sourcecode_pin.get_args()[0]
+            num_spaces = [len(line) - len(line.lstrip(' ')) for line in sourcecode]
+            min_spaces = min([n for n in num_spaces if n != 0])
+            num_spaces = [(n / min_spaces - 1) for n in num_spaces]
+            textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
+            self.add_static(index, show_sourcecode, [textobjs, num_spaces])
+
+            # move arrow to which code line is executed
+            arrow = Arrow(ORIGIN, RIGHT)
+            self.add_static(index+1, add_arrow_beside, [arrow, textobjs[0]])
+            codeindex_pins = self.find_pin('__codeindex__')
+            for pin in codeindex_pins:
+                index = pin.get_index()
+                codeindex = pin.get_args()[0]
+                self.add_transform(index, ApplyMethod, args=[arrow.next_to,
+                                                             textobjs[codeindex], LEFT])
+        # Run user-defined customize fn
+        self.customize(action_pairs)
+
+    ''' For user to overwrite '''
     def customize(self, action_pairs):
         pass
 
@@ -497,7 +404,7 @@ class AlgoScene(MovingCameraScene):
         self.post_config(self.settings)
 
         self.algoconstruct()
-        self.customize(self.action_pairs)
+        self.customize_construct(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)
         self.create_metadata_blocks()

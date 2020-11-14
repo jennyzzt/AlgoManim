@@ -1,7 +1,7 @@
 import numpy as np
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
-from algomanim.algoscene import AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata
 
 class AlgoBinaryTreeNode(AlgoNode):

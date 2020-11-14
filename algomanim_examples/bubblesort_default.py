@@ -3,7 +3,7 @@ from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
 class DefaultBubbleSortScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, [25, 43, 5, 18, 30])
         swaps_made = True
         while swaps_made:

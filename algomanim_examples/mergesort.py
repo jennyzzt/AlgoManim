@@ -1,14 +1,12 @@
 # pylint: skip-file
-
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
 
 class MergeSortScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, [4, 3, 1, 4])
-
         self.mergesort(algolist)
 
     def mergesort(self, algolist):

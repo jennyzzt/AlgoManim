@@ -18,7 +18,7 @@ class BinaryTreeSortScene(AlgoScene):
         curr_list.append(node.val)
         self.inorder_traversal(node.right, curr_list)
 
-    def algoconstruct(self):
+    def algo(self):
         unsorted_list = [25, 43, 5, 18, 30, 3, 50]
         algolist = AlgoList(self, unsorted_list, displacement=UP)
         self.insert_pin("list_elems", *algolist.nodes)

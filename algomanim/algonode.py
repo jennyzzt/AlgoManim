@@ -1,5 +1,5 @@
 from manimlib.imports import *
-from algomanim.algoscene import AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.settings import Shape
 from algomanim.algoobject import AlgoObject

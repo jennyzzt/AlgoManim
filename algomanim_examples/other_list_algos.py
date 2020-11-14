@@ -6,7 +6,7 @@ from algomanim.settings import Shape
 
 
 class FindMaxScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, [25, 40, 5, 60, 50, 80])
 
         cur_max_idx = 0
@@ -52,7 +52,7 @@ class FindMaxScene(AlgoScene):
 
 
 class BinarySearchScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, list(range(0, 31, 3)))
         val = 27
         mid_pt = 0

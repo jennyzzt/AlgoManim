@@ -5,7 +5,7 @@ from algomanim.algolist import AlgoList
 
 
 class InsertionSortScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         self.insert_pin('intro')
 
         algolist = AlgoList(self, [25, 16, 39, 44, 5, 1])

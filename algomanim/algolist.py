@@ -1,7 +1,7 @@
 # pylint: disable=E1101, W0105, R0913
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
-from algomanim.algoscene import AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import Metadata, LowerMetadata
 from algomanim.algoobject import AlgoObject
 
