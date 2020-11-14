@@ -12,8 +12,8 @@ class BubbleSortCodeScene(AlgoScene):
         modified_source_lines = []
 
         # insert pin at the beginning to show all code
-        sourcecode = ''.join([line.replace('\n', '\\n') for line in source_lines])
-        pin_code_source = f'self.insert_pin(\'__codesource__\', \'{sourcecode}\')\n'
+        sourcecode = [line.replace('\n', '') for line in source_lines]
+        pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
         modified_source_lines.append(pin_code_source)
 
         # get redundant spacing for first code line that is not def
@@ -47,6 +47,11 @@ class BubbleSortCodeScene(AlgoScene):
                     algolist.swap(i, j)
 
     def customize(self, action_pairs):
-        # add code anim text
-        code_pins = self.find_pin('__codesource__')
-        print(len(code_pins))
+        # add code source text
+        sourcecode_pin = self.find_pin('__sourcecode__')[0]
+        index = sourcecode_pin.get_index()
+        sourcecode = sourcecode_pin.get_args()[0]
+        for i, line in enumerate(sourcecode):
+            textobj = TextMobject(unicode_to_latex(line))
+            textobj.shift((2 + i) * DOWN)
+            self.add_static(index, self.add, [textobj])
