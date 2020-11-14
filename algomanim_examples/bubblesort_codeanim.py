@@ -54,8 +54,10 @@ class BubbleSortCodeScene(AlgoScene):
         sourcecode_pin = self.find_pin('__sourcecode__')[0]
         index = sourcecode_pin.get_index()
         sourcecode = sourcecode_pin.get_args()[0]
+        num_spaces = [len(line) - len(line.lstrip(' ')) for line in sourcecode]
+        num_spaces = [(n / min(num_spaces) - 1) for n in num_spaces]
         textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
-        self.add_static(index, self.show_sourcecode, [textobjs])
+        self.add_static(index, self.show_sourcecode, [textobjs, num_spaces])
 
         # move arrow to which code line is executed
         arrow = Arrow(ORIGIN, RIGHT)
@@ -74,13 +76,12 @@ class BubbleSortCodeScene(AlgoScene):
         self.camera_frame.move_to(new_center)
 
     # show sourcecode on the right of the zoomed out screen
-    def show_sourcecode(self, textobjs):
+    def show_sourcecode(self, textobjs, num_spaces):
         mid_index = len(textobjs)/2
         for i, textobj in enumerate(textobjs):
-            center_of_right_screen = (self.camera_frame.get_right()
-                                      + self.camera_frame.get_center()) / 2.0
-            textobj.move_to(center_of_right_screen)
+            textobj.align_to(self.camera_frame.get_center(), LEFT)
             textobj.shift((i - mid_index) * DOWN)
+            textobj.shift(num_spaces[i] * RIGHT)
             self.add(textobj)
 
     def add_arrow_beside(self, arrow, textobj):
