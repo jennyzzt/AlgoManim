@@ -197,7 +197,7 @@ class AlgoSceneActionPair:
 
         return customizations
 
-class AlgoScene(Scene):
+class AlgoScene(MovingCameraScene):
     def __init__(self, **kwargs):
         # Default settings
         self.settings = DEFAULT_SETTINGS.copy()
@@ -217,7 +217,7 @@ class AlgoScene(Scene):
         self.meta_trees = []
         self.metadata_blocks = []
 
-        Scene.__init__(self, **kwargs)
+        MovingCameraScene.__init__(self, **kwargs)
 
     def preconfig(self, settings):
         pass

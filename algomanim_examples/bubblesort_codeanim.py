@@ -47,11 +47,27 @@ class BubbleSortCodeScene(AlgoScene):
                     algolist.swap(i, j)
 
     def customize(self, action_pairs):
-        # add code source text
+        # zoom camera out
+        self.add_static(0, self.zoom_out)
+
+        # show source code text
         sourcecode_pin = self.find_pin('__sourcecode__')[0]
         index = sourcecode_pin.get_index()
         sourcecode = sourcecode_pin.get_args()[0]
+        self.add_static(index, self.show_sourcecode, [sourcecode])
+
+    # zoom out scene camera to twice the width
+    def zoom_out(self):
+        new_center = self.camera_frame.get_right()
+        self.camera_frame.set_width(self.camera_frame.get_width() * 2)
+        self.camera_frame.move_to(new_center)
+
+    # show sourcecode on the right of the zoomed out screen
+    def show_sourcecode(self, sourcecode):
+        mid_index = len(sourcecode)/2
         for i, line in enumerate(sourcecode):
             textobj = TextMobject(unicode_to_latex(line))
-            textobj.shift((2 + i) * DOWN)
-            self.add_static(index, self.add, [textobj])
+            center_of_right_screen = self.camera_frame.get_right() * 2
+            textobj.move_to(center_of_right_screen)
+            textobj.shift((i - mid_index) * DOWN)
+            self.add(textobj)
