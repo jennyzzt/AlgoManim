@@ -60,47 +60,51 @@ class AlgoScene(MovingCameraScene):
     def preconfig(self, settings):
         pass
 
-    def algoconstruct(self):
-        # Add parallel code animation
-        if self.code_anim:
-            # import necessary modules
-            file_path = inspect.getsourcefile(self.algo)
-            imports = get_imports(file_path)
-            for imp in imports:
-                module = '.'.join(imp.module)
-                names = ','.join(imp.name)
-                if imp.module:
-                    exec(f'from {module} import {names}')
-                else:
-                    exec(f'import {names}')
-            # get algo source lines
-            source_lines, _ = inspect.getsourcelines(self.algo)
+    def algo_codeanim(self):
+        # import necessary modules
+        file_path = inspect.getsourcefile(self.algo)
+        imports = get_imports(file_path)
+        for imp in imports:
+            module = '.'.join(imp.module)
+            names = ','.join(imp.name)
+            if imp.module:
+                exec(f'from {module} import {names}')
+            else:
+                exec(f'import {names}')
+        # get algo source lines
+        source_lines, _ = inspect.getsourcelines(self.algo)
 
-            modified_source_lines = []
+        modified_source_lines = []
 
-            # insert pin at the beginning to show all code
-            sourcecode = [line.replace('\n', '') for line in source_lines]
-            pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
-            modified_source_lines.append(pin_code_source)
+        # insert pin at the beginning to show all code
+        sourcecode = [line.replace('\n', '') for line in source_lines]
+        pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
+        modified_source_lines.append(pin_code_source)
 
-            # get redundant spacing for first code line that is not def
-            redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
-            # insert pin at every alternate source line
-            for i, line in enumerate(source_lines):
-                if i == 0:
-                    # do not execute first def line
-                    continue
-                # get suitable line tab for new code line
+        # get redundant spacing for first code line that is not def
+        redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
+        # insert pin at every alternate source line
+        for i, line in enumerate(source_lines):
+            if i == 0:
+                # do not execute first def line
+                continue
+            # get suitable line tab for new code line
+            if 'insert_pin' not in line:
                 line_tab = ' ' * (len(line) - len(line.lstrip()) - redundant_space_count)
                 # pin index of the code line
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {i})\n'
                 modified_source_lines.append(pin)
-                # add original code back
-                modified_source_lines.append(line[redundant_space_count:])
+            # add original code back
+            modified_source_lines.append(line[redundant_space_count:])
 
-            # get modified source code and execute
-            modified_source_str = ''.join(modified_source_lines)
-            exec(f'{modified_source_str}')
+        # get modified source code and execute
+        modified_source_str = ''.join(modified_source_lines)
+        exec(f'{modified_source_str}')
+
+    def algo_construct(self):
+        # Add parallel code animation
+        if self.code_anim:
+            self.algo_codeanim()
         # Run normal algo animation
         else:
             self.algo()
@@ -109,50 +113,53 @@ class AlgoScene(MovingCameraScene):
     def algo(self):
         pass
 
+    def customize_codeanim(self):
+        # ----- helper static fns ----- #
+        def zoom_out():
+            new_center = self.camera_frame.get_right()
+            self.camera_frame.set_width(self.camera_frame.get_width() * 2)
+            self.camera_frame.move_to(new_center)
+
+        def show_sourcecode(textobjs, num_spaces):
+            mid_index = len(textobjs)/2
+            for i, textobj in enumerate(textobjs):
+                textobj.align_to(self.camera_frame.get_center(), LEFT)
+                textobj.shift((i - mid_index) * DOWN)
+                textobj.shift(num_spaces[i] * RIGHT)
+                self.add(textobj)
+
+        def add_arrow_beside(arrow, textobj):
+            arrow.next_to(textobj, LEFT)
+            self.add(arrow)
+        # ----------------------------- #
+
+        # zoom camera out
+        self.add_static(0, zoom_out)
+
+        # show source code text
+        sourcecode_pin = self.find_pin('__sourcecode__')[0]
+        index = sourcecode_pin.get_index()
+        sourcecode = sourcecode_pin.get_args()[0]
+        num_spaces = [len(line) - len(line.lstrip(' ')) for line in sourcecode]
+        min_spaces = min([n for n in num_spaces if n != 0])
+        num_spaces = [(n / min_spaces - 1) for n in num_spaces]
+        textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
+        self.add_static(index, show_sourcecode, [textobjs, num_spaces])
+
+        # move arrow to which code line is executed
+        arrow = Arrow(ORIGIN, RIGHT)
+        self.add_static(index+1, add_arrow_beside, [arrow, textobjs[0]])
+        codeindex_pins = self.find_pin('__codeindex__')
+        for pin in codeindex_pins:
+            index = pin.get_index()
+            codeindex = pin.get_args()[0]
+            self.add_transform(index, ApplyMethod, args=[arrow.next_to,
+                                                         textobjs[codeindex], LEFT])
+
     def customize_construct(self, action_pairs):
         # Add customisation needed for parallel code anim
         if self.code_anim:
-            # ----- helper static fns ----- #
-            def zoom_out():
-                new_center = self.camera_frame.get_right()
-                self.camera_frame.set_width(self.camera_frame.get_width() * 2)
-                self.camera_frame.move_to(new_center)
-
-            def show_sourcecode(textobjs, num_spaces):
-                mid_index = len(textobjs)/2
-                for i, textobj in enumerate(textobjs):
-                    textobj.align_to(self.camera_frame.get_center(), LEFT)
-                    textobj.shift((i - mid_index) * DOWN)
-                    textobj.shift(num_spaces[i] * RIGHT)
-                    self.add(textobj)
-
-            def add_arrow_beside(arrow, textobj):
-                arrow.next_to(textobj, LEFT)
-                self.add(arrow)
-            # ----------------------------- #
-
-            # zoom camera out
-            self.add_static(0, zoom_out)
-
-            # show source code text
-            sourcecode_pin = self.find_pin('__sourcecode__')[0]
-            index = sourcecode_pin.get_index()
-            sourcecode = sourcecode_pin.get_args()[0]
-            num_spaces = [len(line) - len(line.lstrip(' ')) for line in sourcecode]
-            min_spaces = min([n for n in num_spaces if n != 0])
-            num_spaces = [(n / min_spaces - 1) for n in num_spaces]
-            textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
-            self.add_static(index, show_sourcecode, [textobjs, num_spaces])
-
-            # move arrow to which code line is executed
-            arrow = Arrow(ORIGIN, RIGHT)
-            self.add_static(index+1, add_arrow_beside, [arrow, textobjs[0]])
-            codeindex_pins = self.find_pin('__codeindex__')
-            for pin in codeindex_pins:
-                index = pin.get_index()
-                codeindex = pin.get_args()[0]
-                self.add_transform(index, ApplyMethod, args=[arrow.next_to,
-                                                             textobjs[codeindex], LEFT])
+            self.customize_codeanim()
         # Run user-defined customize fn
         self.customize(action_pairs)
 
@@ -428,7 +435,7 @@ class AlgoScene(MovingCameraScene):
         self.preconfig(self.settings)
         self.post_config(self.settings)
 
-        self.algoconstruct()
+        self.algo_construct()
         self.customize_construct(self.action_pairs)
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)
