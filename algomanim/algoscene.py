@@ -85,12 +85,14 @@ class AlgoScene(MovingCameraScene):
         redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
         # insert pin at every alternate source line
         for i, line in enumerate(source_lines):
+            # Do not execute first def line
             if i == 0:
-                # do not execute first def line
                 continue
-            # get suitable line tab for new code line
-            if 'insert_pin' not in line:
-                line_tab = ' ' * (len(line) - len(line.lstrip()) - redundant_space_count)
+            front_space_count = len(line) - len(line.lstrip())
+            # Only insert pin if line is not a pin, empty line, or comment
+            if ('insert_pin' not in line) and line.strip() and (line[front_space_count] != '#'):
+                # get suitable line tab for new code line
+                line_tab = ' ' * (front_space_count - redundant_space_count)
                 # pin index of the code line
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {i})\n'
                 modified_source_lines.append(pin)
