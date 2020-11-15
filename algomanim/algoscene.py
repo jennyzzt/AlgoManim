@@ -102,8 +102,8 @@ class AlgoScene(MovingCameraScene):
         modified_source_lines.insert(0, pin_code_source)
 
         # get modified source code and execute
-        modified_source_str = ''.join(modified_source_lines)
-        exec(f'{modified_source_str}')
+        modified_source_code = ''.join(modified_source_lines)
+        exec(f'{modified_source_code}')
 
     def algo_construct(self):
         # Add parallel code animation
@@ -130,7 +130,7 @@ class AlgoScene(MovingCameraScene):
             # move first line to the desired position
             mid_index = len(textobjs)/2
             textobjs[0].move_to((self.camera_frame.get_center() +
-                                 self.camera_frame.get_right()) / 2)
+                                 self.camera_frame.get_right()) / 3)
             textobjs[0].shift(mid_index * UP * 0.7)
             # arrange text group downwards aligned to the left
             text = VGroup(*textobjs)
