@@ -81,19 +81,27 @@ class AlgoScene(MovingCameraScene):
         redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
         # insert pin at every alternate source line
         for i, line in enumerate(source_lines):
-            # Do not execute first def line
-            if i == 0:
-                continue
             front_space_count = len(line) - len(line.lstrip())
-            # Only insert pin if line is not a pin, empty line, or comment
-            if ('insert_pin' not in line) and line.strip() and (line[front_space_count] != '#'):
-                # get suitable line tab for new code line
-                line_tab = ' ' * (front_space_count - redundant_space_count)
-                # pin index of the code line
+
+            # Do not execute first def line, empty line, or comment
+            if i == 0 or not line.strip() or line[front_space_count] == '#':
+                continue
+
+            line_tab = ' ' * (front_space_count - redundant_space_count)
+
+            # If inner fn, add global declaration
+            if line[front_space_count:].split()[0] == 'def':
+                inner_fn_name = line[front_space_count:].split()[1]
+                inner_fn_name = inner_fn_name.split('(')[0]
+                modified_source_lines.append(f'{line_tab}global {inner_fn_name}\n')
+
+            # Insert pin if line is not a pin
+            elif 'insert_pin' not in line:
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(algo_source_lines)})\n'
                 modified_source_lines.append(pin)
-                algo_source_lines.append(line)
-            # add original code back
+
+            # Add original code
+            algo_source_lines.append(line)
             modified_source_lines.append(line[redundant_space_count:])
 
         # insert pin at the beginning to show all code
