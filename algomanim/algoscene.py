@@ -1,5 +1,7 @@
 # pylint: disable=W0105, W0122, W0611, R0904
+import ast
 import inspect
+from collections import namedtuple
 from pylatexenc.latexencode import unicode_to_latex
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
@@ -9,12 +11,25 @@ from .animation_block import AnimationBlock
 from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
 
-# import algoobjects
-from .algobinarytree import AlgoBinaryTree
-from .algolist import AlgoList
-from .algonode import AlgoNode
-from .algoobject import AlgoObject
 
+# ----- import utility used for code_anim ----- #
+Import = namedtuple("Import", ["module", "name", "alias"])
+
+def get_imports(path):
+    with open(path) as fh:        
+       root = ast.parse(fh.read(), path)
+
+    for node in ast.iter_child_nodes(root):
+        if isinstance(node, ast.Import):
+            module = []
+        elif isinstance(node, ast.ImportFrom):  
+            module = node.module.split('.')
+        else:
+            continue
+
+        for n in node.names:
+            yield Import(module, n.name.split('.'), n.asname)
+# --------------------------------------------- #
 
 class AlgoScene(MovingCameraScene):
     def __init__(self, **kwargs):
@@ -48,6 +63,16 @@ class AlgoScene(MovingCameraScene):
     def algoconstruct(self):
         # Add parallel code animation
         if self.code_anim:
+            # import necessary modules
+            file_path = inspect.getsourcefile(self.algo)
+            imports = get_imports(file_path)
+            for imp in imports:
+                module = '.'.join(imp.module)
+                names = ','.join(imp.name)
+                if imp.module:
+                    exec(f'from {module} import {names}')
+                else:
+                    exec(f'import {names}')
             # get algo source lines
             source_lines, _ = inspect.getsourcelines(self.algo)
 

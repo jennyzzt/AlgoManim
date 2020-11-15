@@ -1,6 +1,7 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algoscene import AlgoScene, AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
+from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 from algomanim.settings import DEFAULT_SETTINGS, Shape
 
@@ -79,13 +80,15 @@ class TestAlgoScenePreconfig:
 default_transform = AlgoTransform([], transform=mock_animation)
 
 class AlgoSceneTestSingle(AlgoScene):
-    def algoconstruct(self):
+    code_anim = False
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
-    def algoconstruct(self):
+    code_anim = False
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
         action = self.create_play_action(default_transform, w_prev=True)
@@ -93,6 +96,7 @@ class AlgoSceneTestDoubleTogether(AlgoScene):
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
+    code_anim = False
     def algoconstruct(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
@@ -100,7 +104,8 @@ class AlgoSceneTestDoubleNotTogether(AlgoScene):
 
 
 class AlgoSceneCustomColor(AlgoScene):
-    def algoconstruct(self):
+    code_anim = False
+    def algo(self):
         original_color = Mock()
         action = self.create_play_action(
             AlgoTransform([original_color], transform=mock_animation, color_index=0)
@@ -112,7 +117,8 @@ class AlgoSceneCustomColor(AlgoScene):
 
 
 class AlgoSceneFastForward(AlgoScene):
-    def algoconstruct(self):
+    code_anim = False
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
@@ -121,7 +127,8 @@ class AlgoSceneFastForward(AlgoScene):
 
 
 class AlgoSceneSkip(AlgoScene):
-    def algoconstruct(self):
+    code_anim = False
+    def algo(self):
         self.add_action_pair(
             AlgoSceneAction(self.play, default_transform),
             AlgoSceneAction(self.add, default_transform)
@@ -132,24 +139,26 @@ class AlgoSceneSkip(AlgoScene):
 
 
 class AlgoSceneWait(AlgoScene):
+    code_anim = False
     def customize(self, action_pairs):
         self.add_wait(0)
 
 
 class AlgoSceneClear(AlgoScene):
+    code_anim = False
     def customize(self, action_pairs):
         self.clear()
 
 
 class AlgoSceneMockList(AlgoScene):
     test_list = [1]
-
+    code_anim = False
 
     @patch("algomanim.algoobject.TexMobject", Mock())
     @patch("algomanim.algolist.AlgoList.group", Mock())
     @patch("algomanim.algolist.AlgoList.center", Mock())
     @patch("algomanim.algolist.AlgoList.show_list", Mock())
-    def algoconstruct(self):
+    def algo(self):
         AlgoList(self, self.test_list)
 
 
