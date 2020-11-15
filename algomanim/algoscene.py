@@ -1,4 +1,4 @@
-# pylint: disable=W0105, W0122, W0611, R0904
+# pylint: disable=R0914, W0122, W0105, R0904
 import ast
 import inspect
 from collections import namedtuple
@@ -6,7 +6,7 @@ from pylatexenc.latexencode import unicode_to_latex
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction, AlgoSceneActionPair, \
-    fade_in_transform, fade_out_transform, do_nothing
+    fade_in_transform, fade_out_transform
 from .animation_block import AnimationBlock
 from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
@@ -16,19 +16,19 @@ from .metadata import Metadata, LowerMetadata
 Import = namedtuple("Import", ["module", "name", "alias"])
 
 def get_imports(path):
-    with open(path) as fh:        
-       root = ast.parse(fh.read(), path)
+    with open(path) as path_file:
+        root = ast.parse(path_file.read(), path)
 
     for node in ast.iter_child_nodes(root):
         if isinstance(node, ast.Import):
             module = []
-        elif isinstance(node, ast.ImportFrom):  
+        elif isinstance(node, ast.ImportFrom):
             module = node.module.split('.')
         else:
             continue
 
-        for n in node.names:
-            yield Import(module, n.name.split('.'), n.asname)
+        for node_name in node.names:
+            yield Import(module, node_name.name.split('.'), node_name.asname)
 # --------------------------------------------- #
 
 class AlgoScene(MovingCameraScene):
