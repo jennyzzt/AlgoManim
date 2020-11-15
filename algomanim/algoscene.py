@@ -74,12 +74,8 @@ class AlgoScene(MovingCameraScene):
         # get algo source lines
         source_lines, _ = inspect.getsourcelines(self.algo)
 
+        algo_source_lines = []
         modified_source_lines = []
-
-        # insert pin at the beginning to show all code
-        sourcecode = [line.replace('\n', '') for line in source_lines]
-        pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
-        modified_source_lines.append(pin_code_source)
 
         # get redundant spacing for first code line that is not def
         redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
@@ -94,10 +90,16 @@ class AlgoScene(MovingCameraScene):
                 # get suitable line tab for new code line
                 line_tab = ' ' * (front_space_count - redundant_space_count)
                 # pin index of the code line
-                pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {i})\n'
+                pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(algo_source_lines)})\n'
                 modified_source_lines.append(pin)
+                algo_source_lines.append(line)
             # add original code back
             modified_source_lines.append(line[redundant_space_count:])
+
+        # insert pin at the beginning to show all code
+        sourcecode = [line.replace('\n', '') for line in algo_source_lines]
+        pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
+        modified_source_lines.insert(0, pin_code_source)
 
         # get modified source code and execute
         modified_source_str = ''.join(modified_source_lines)
@@ -123,12 +125,21 @@ class AlgoScene(MovingCameraScene):
             self.camera_frame.move_to(new_center)
 
         def show_sourcecode(textobjs, num_spaces):
+            if not textobjs or not num_spaces:
+                return
+            # move first line to the desired position
             mid_index = len(textobjs)/2
+            textobjs[0].move_to((self.camera_frame.get_center() +
+                                 self.camera_frame.get_right()) / 2)
+            textobjs[0].shift(mid_index * UP * 0.7)
+            # arrange text group downwards aligned to the left
+            text = VGroup(*textobjs)
+            text.arrange(DOWN, center=False, aligned_edge=LEFT)
+            # add tabbing to shown text
             for i, textobj in enumerate(textobjs):
-                textobj.align_to(self.camera_frame.get_center(), LEFT)
-                textobj.shift((i - mid_index) * DOWN)
                 textobj.shift(num_spaces[i] * RIGHT)
-                self.add(textobj)
+            # add text
+            self.add(text)
 
         def add_arrow_beside(arrow, textobj):
             arrow.next_to(textobj, LEFT)
