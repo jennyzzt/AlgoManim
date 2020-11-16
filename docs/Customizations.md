@@ -84,20 +84,20 @@ Here is a sample code snippet to add custom transforms:
 ```python
 ...
     
-    // I want to add custom manim text in the action_pair with index=idx,
-    // then change it to another text in the action_pair with index=idx2 using Manim animations
+    # I want to add custom manim text in the action_pair with index=idx,
+    # then change it to another text in the action_pair with index=idx2 using Manim's animations
     def customize(self, action_pairs):
         ...
         ...
 
-        // Adding the text
+        # Adding the text
         title_text = TextMobject("My custom text")
         title_text.to_edge(UP)
         transform = lambda: Write(title_text)
         self.add_transform(idx, transform)
 
         
-        // Changing the text
+        # Changing the text
         new_text = TextMobject("My custom text with Manim's replacement transform animation")
         new_text.to_edge(UP)
         transform = lambda: [FadeOut(title_text), ReplacementTransform(title_text, new_text)]
@@ -144,11 +144,11 @@ This allows you to do various things:
 
 ### Customising using pins
 ```python
-    \\ Customisaing the Binary Tree Sort Algorithm
+    # Customising the Binary Tree Sort Algorithm
     def customize(self, action_pairs):
     
-        // 3. Change animations of `action_pairs` around these pins
-        // Add text straight after the "list_elems" pin 
+        # 3. Change animations of `action_pairs` around these pins
+        # Add text straight after the "list_elems" pin 
         pin = self.find_pin("list_elems")[0]
         idx = pin.get_index()
 
@@ -159,12 +159,12 @@ This allows you to do various things:
 
         self.add_wait(idx + 1, wait_time = 0.25)
         
-        // 2. Add non-static animations at these pins
-        // Highlight the arguments passed to the pin "inserted_node"
+        # 2. Add non-static animations at these pins
+        # Highlight the arguments passed to the pin "inserted_node"
         self.chain_pin_highlight("inserted_node")
 
-        // 3. Change animations of `action_pairs` around these pins
-        // Add text 2 animations after the "finished_tree_build" pin 
+        # 3. Change animations of `action_pairs` around these pins
+        # Add text 2 animations after the "finished_tree_build" pin 
         tree_finished_pin = self.find_pin("finished_tree_build")[0]
         idx2 = tree_finished_pin.get_index()
         self.fast_forward(idx + 2, idx2)
@@ -174,13 +174,13 @@ This allows you to do various things:
         self.add_transform(idx2, transform)
 
 
-        // 2. Add non-static animations at these pins
-        // Highlight the arguments passed to the pin "visited_node"
+        # 2. Add non-static animations at these pins
+        # Highlight the arguments passed to the pin "visited_node"
         self.chain_pin_highlight("visited_node")
     
 
-        // 3. Change animations of `action_pairs` around these pins
-        // Add text straight after the "finished_tree_build" pin 
+        # 3. Change animations of `action_pairs` around these pins
+        # Add text straight after the "finished_tree_build" pin 
         self.fast_forward(idx2 + 1)
         end_text = TextMobject("We have a sorted list!")
         end_text.to_edge(UP)
