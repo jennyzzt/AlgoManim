@@ -58,7 +58,7 @@ class TestAlgoList:
         highlight.assert_called_once()
 
     def test_find_action_pairs_2nd_compare(self):
-        test_algoscene = AlgoSceneTest()
+        test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
         algolist.compare(0, 1, text=False)
@@ -76,7 +76,7 @@ class TestAlgoList:
         assert action_pairs_len == sum_action_pairs
 
     def test_find_action_pairs_2nd_compare_with_lower(self):
-        test_algoscene = AlgoSceneTest()
+        test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
         algolist.compare(0, 1, text=False)
@@ -94,7 +94,7 @@ class TestAlgoList:
         assert action_pairs_len == sum_action_pairs
 
     def test_find_action_pairs_2nd_compare_invalid_upper(self):
-        test_algoscene = AlgoSceneTest()
+        test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
         algolist.compare(0, 1)
@@ -107,7 +107,7 @@ class TestAlgoList:
         assert len(action_pairs) == 0
 
     def test_find_action_pairs_2nd_compare_invalid_lower(self):
-        test_algoscene = AlgoSceneTest()
+        test_algoscene = AlgoScene()
         algolist = AlgoList(test_algoscene, test_list)
 
         algolist.compare(0, 1)
@@ -218,7 +218,3 @@ class TestAlgoList:
     #
     #     y = self.algolist.concat(self.algolist2, center=True)
     #     center.assert_called_once()
-
-class AlgoSceneTest(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False

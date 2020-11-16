@@ -51,10 +51,10 @@ class AlgoScene(MovingCameraScene):
         self.meta_trees = []
         self.metadata_blocks = []
 
-        # flag to set automatic parallel code animation
-        self.code_anim = False
-
         MovingCameraScene.__init__(self, **kwargs)
+
+    def is_code_anim(self):
+        return self.settings['code_anim']
 
     ''' For user to overwrite '''
     def preconfig(self, settings):
@@ -115,7 +115,7 @@ class AlgoScene(MovingCameraScene):
 
     def algo_construct(self):
         # Add parallel code animation
-        if self.code_anim:
+        if self.is_code_anim():
             self.algo_codeanim()
         # Run normal algo animation
         else:
@@ -179,7 +179,7 @@ class AlgoScene(MovingCameraScene):
 
     def customize_construct(self, action_pairs):
         # Add customisation needed for parallel code anim
-        if self.code_anim:
+        if self.is_code_anim():
             self.customize_codeanim()
         # Run user-defined customize fn
         self.customize(action_pairs)

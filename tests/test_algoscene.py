@@ -80,18 +80,12 @@ class TestAlgoScenePreconfig:
 default_transform = AlgoTransform([], transform=mock_animation)
 
 class AlgoSceneTestSingle(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
@@ -100,9 +94,6 @@ class AlgoSceneTestDoubleTogether(AlgoScene):
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
@@ -110,9 +101,6 @@ class AlgoSceneTestDoubleNotTogether(AlgoScene):
 
 
 class AlgoSceneCustomColor(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         original_color = Mock()
         action = self.create_play_action(
@@ -125,9 +113,6 @@ class AlgoSceneCustomColor(AlgoScene):
 
 
 class AlgoSceneFastForward(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
@@ -137,9 +122,6 @@ class AlgoSceneFastForward(AlgoScene):
 
 
 class AlgoSceneSkip(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def algo(self):
         self.add_action_pair(
             AlgoSceneAction(self.play, default_transform),
@@ -151,17 +133,11 @@ class AlgoSceneSkip(AlgoScene):
 
 
 class AlgoSceneWait(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def customize(self, action_pairs):
         self.add_wait(0)
 
 
 class AlgoSceneClear(AlgoScene):
-    def preconfig(self, settings):
-        self.code_anim = False
-
     def customize(self, action_pairs):
         self.clear()
 
@@ -181,11 +157,9 @@ class AlgoSceneNodeColorHex(AlgoSceneMockList):
     test_color = "#FFFF00"
 
     def preconfig(self, settings):
-        self.code_anim = False
         settings['node_color'] = self.test_color
 
 
 class AlgoSceneNodeCircle(AlgoSceneMockList):
     def preconfig(self, settings):
-        self.code_anim = False
         settings['node_shape'] = Shape.CIRCLE
