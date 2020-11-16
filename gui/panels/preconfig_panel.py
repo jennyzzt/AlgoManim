@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
+from gui.panels.widgets.input_check_box import InputCheckBox
 from gui.panels.widgets.input_color_button import InputColorButton
 from gui.panels.widgets.input_dropdown import InputDropdown
 from gui.panels.widgets.input_text_box import InputTextBox
@@ -11,6 +12,7 @@ from algomanim.shape import Shape
 
 
 SETTINGS = ([
+    ('code_anim', InputCheckBox, QCheckBox),
     ('background_color', InputColorButton, QColorButton),
     ('node_color', InputColorButton, QColorButton),
     ('node_shape', InputDropdown, QComboBox),
