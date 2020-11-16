@@ -28,8 +28,11 @@ The types of customizations you can make here are:
 - change colors of specific animations (to emphasize edge-cases for example) (`set_color`)
 - add new animations
   - pause (`add_wait`)
-  - fade out (`add_fade_out_all`)
-  - fade in (`add_fade_in_all`)
+  - fade out all items on screen (`add_fade_out_all`)
+  - fade in all items on screen (`add_fade_in_all`)
+  - add text to screen (`add_text`)
+  - change text on screen (`change_text`)
+  - remove text from screen (`remove_text`)
 
 You can see this happening in the code snippet given below:
 ```python

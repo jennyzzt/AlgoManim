@@ -2,6 +2,28 @@
 import inspect
 from collections import Counter
 
+def attach_metadata(func):
+    def wrapped_func(*args, **kwargs):
+        # retrieve metadata from arguments
+        metadata = kwargs["metadata"] if "metadata" in kwargs else None
+
+        # if metadata was not given in arguments, create it for the given function
+        meta = Metadata(func.__name__) if metadata is None else metadata
+
+        if metadata is None:
+            # set metadata argument if it was not previously set
+            kwargs["metadata"] = meta
+
+        # run function, get back result
+        result = func(*args, **kwargs)
+
+        # if metadata was created, add it to the scene
+        if metadata is None and len(meta.children) > 0:
+            args[0].scene.add_metadata(meta)
+
+        return result
+    return wrapped_func
+
 class Metadata:
     counter = Counter()
 
