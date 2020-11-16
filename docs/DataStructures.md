@@ -3,6 +3,7 @@ Out of the box, we support `List` and `Binary Tree` data structures. Please find
 
 ## AlgoList
 On top of the standard operations supported by Python's list interface, we support further operations that make sorting algorithms work and also some animation functions that can be called in `algoconstruct` while the algorithm is executing.  
+
 | Method | Description |
 |---------|--------------------------|
 | compare(i, j) | compares the values at indices i and j and returns list[i] < list[j]. |
