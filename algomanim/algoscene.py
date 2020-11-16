@@ -52,7 +52,7 @@ class AlgoScene(MovingCameraScene):
         self.metadata_blocks = []
 
         # flag to set automatic parallel code animation
-        self.code_anim = True
+        self.code_anim = False
 
         MovingCameraScene.__init__(self, **kwargs)
 
