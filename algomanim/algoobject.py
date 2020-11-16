@@ -2,7 +2,7 @@
 from abc import ABC
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata, attach_metadata
+from algomanim.metadata import LowerMetadata, attach_metadata
 
 '''
 Base class for objects created with this library

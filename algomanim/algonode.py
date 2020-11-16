@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata, attach_metadata
+from algomanim.metadata import LowerMetadata, attach_metadata
 from algomanim.settings import Shape
 from algomanim.algoobject import AlgoObject
 

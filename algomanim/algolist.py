@@ -2,7 +2,7 @@
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata
+from algomanim.metadata import LowerMetadata
 from algomanim.algoobject import AlgoObject
 from algomanim.metadata import attach_metadata
 
@@ -258,7 +258,8 @@ class AlgoList(AlgoObject):
         hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move, metadata=metadata)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=metadata)
 
-        sublist.set_next_to(hidden_sublist, vector=0, metadata=metadata, animated=True, w_prev=w_prev)
+        sublist.set_next_to(hidden_sublist, vector=0, metadata=metadata, animated=True,
+            w_prev=w_prev)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=metadata, animated=False)
