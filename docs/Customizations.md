@@ -158,4 +158,13 @@ Here are some of the pre-defined utility functions that you can use:
     - introduce highlighting (`chain_pin_highlight`)
 
 ## Adding Customizations IV
-Adding text
+### Adding text
+
+For any `AlgoObject` like `AlgoNode`, `AlgoList`, `AlgoBinaryTree`, we can generate text animations by using the `add_text(text, key, vector=UP)` function. 
+1. The `text` parameter indicates the text that will be shown
+2. The `key` parameter indicates the key for the specific text in the scene.
+If the key already exists, i.e. text has been generated with that key, then the old text  is hidden and the new text is shown.
+3. The `vector` parameter indicates where the text will appear relative to the `AlgoObject`. By default, `vector=UP`.
+
+Functions that have in-built text:
+ - `AlgoList`'s `compare` method which can be triggered with `compare(..,text=true)`.
