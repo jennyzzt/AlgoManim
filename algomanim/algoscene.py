@@ -229,10 +229,12 @@ class AlgoScene(MovingCameraScene):
         for algo_obj in self.algo_objs:
             # Shift all items UP
             if first:
-                algo_obj.set_next_to(algo_obj, vector, metadata, animated=True, w_prev=False)
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=False)
                 first = False
             else:
-                algo_obj.set_next_to(algo_obj, vector, metadata, animated=True, w_prev=True)
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=True)
 
     def skip(self, start, end=None):
         if end is None:
@@ -263,7 +265,7 @@ class AlgoScene(MovingCameraScene):
     # Returns the created text object
     def add_text(self, text, index, position=UP):
         text = TextMobject(text)
-        text.shift(2 * position)
+        text.shift(position)
         transform = lambda: Write(text)
         self.add_transform(index, transform)
         return text
@@ -273,7 +275,7 @@ class AlgoScene(MovingCameraScene):
     # Returns the replacement text object
     def change_text(self, new_text_string, old_text_object, index, position=UP):
         new_text_object = TextMobject(new_text_string)
-        new_text_object.shift(2 * position)
+        new_text_object.shift(position)
 
         # Create the transform to be run at that point
         transform = lambda old_text, new_text: \
@@ -342,8 +344,14 @@ class AlgoScene(MovingCameraScene):
         self.add_metadata(curr_metadata)
 
     def add_clear(self, index):
-        action = AlgoSceneAction.create_static_action(self.clear)
-        self.insert_action_pair(AlgoSceneActionPair(action), index)
+        action_pair = AlgoSceneAction.create_static_action(self.clear)
+        self.insert_action_pair(AlgoSceneActionPair(action_pair), index)
+
+        curr_metadata = Metadata('clear')
+        lower_meta = LowerMetadata('clear', action_pair)
+        curr_metadata.add_lower(lower_meta)
+
+        self.add_metadata(curr_metadata)
 
     def fast_forward(self, start, end=None, speed_up=2):
         if end is None:

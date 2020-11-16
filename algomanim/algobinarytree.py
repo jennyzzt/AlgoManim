@@ -2,7 +2,8 @@ import numpy as np
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata
+from algomanim.metadata import attach_metadata
+
 
 class AlgoBinaryTreeNode(AlgoNode):
     def __init__(self, scene, val, parent=None):
@@ -125,7 +126,7 @@ class AlgoBinaryTreeNode(AlgoNode):
             static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
             self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
-        super().show(metadata, animated, True)
+        super().show(metadata=metadata, animated=animated, w_prev=True)
 
 
 class AlgoBinaryTree:
@@ -137,29 +138,19 @@ class AlgoBinaryTree:
         if show:
             self.show_tree(animated=False)
 
+    @attach_metadata
     def show_tree(self, metadata=None, animated=True, w_prev=False):
         ''' Display Tree on Sceen '''
         if self.root is not None:
-            meta = Metadata.check_and_create(metadata)
-
-            self.root.recursive_show(self.max_depth, metadata=meta, animated=animated,
+            self.root.recursive_show(self.max_depth, metadata=metadata, animated=animated,
                 w_prev=w_prev)
 
-            # Add metadata if meta is created in this fn
-            if metadata is None:
-                self.scene.add_metadata(meta)
-
+    @attach_metadata
     def insert(self, val, metadata=None, animated=True, w_prev=False):
         ''' Insert element into tree '''
-        meta = Metadata.check_and_create(metadata)
-
         new_node = self.root.recursive_insert(val)
-        new_node.recursive_show(self.max_depth, metadata=meta, animated=animated,
+        new_node.recursive_show(self.max_depth, metadata=metadata, animated=animated,
             w_prev=w_prev)
-
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
 
     def size(self):
         ''' Returns the total number of nodes of the tree '''

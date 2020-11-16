@@ -1,6 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata
+from algomanim.metadata import LowerMetadata, attach_metadata
 from algomanim.settings import Shape
 from algomanim.algoobject import AlgoObject
 
@@ -54,9 +54,8 @@ class AlgoNode(AlgoObject):
         new_text.move_to(old_text.get_center())
         return [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
 
+    @attach_metadata
     def change_value(self, val, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-
         old_text = self.txt
         new_text = self.generate_text(val)
         new_text.move_to(self.txt.get_center())
@@ -78,14 +77,10 @@ class AlgoNode(AlgoObject):
 
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
+        metadata.add_lower(lower_meta)
 
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
-
+    @attach_metadata
     def highlight(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.highlight_color], transform=ApplyMethod,
@@ -97,13 +92,10 @@ class AlgoNode(AlgoObject):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        metadata.add_lower(lower_meta)
 
+    @attach_metadata
     def dehighlight(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.node_color], transform=ApplyMethod,
@@ -115,7 +107,4 @@ class AlgoNode(AlgoObject):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        metadata.add_lower(lower_meta)
