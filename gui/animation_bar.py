@@ -90,8 +90,9 @@ class AnimationBar(QWidget):
         anim_box_layout = QVBoxLayout()
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Create text animation button
-        if not is_empty_anim(anim):
+        # Animation blocks with runtime act as the markers to add custom animation can be added
+        if not is_empty_anim(anim) and anim.start_position() != anim.end_position():
+            # Create text animation button
             add_anim_button = QPushButton(text='+')
             add_anim_button.setStyleSheet("border:1px solid black;")
             add_anim_button.clicked.connect(lambda event: \
