@@ -5,6 +5,7 @@ from gui.animation_bar import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
 from .widgets.frame_layout import FrameLayout
+from .widgets.input_text_box import InputTextBox
 
 # pylint: disable=too-few-public-methods
 class CustomisePanel(BaseChangesPanel):
@@ -69,6 +70,26 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_frame = QWidget()
         self.menu_layout = QVBoxLayout()
         self.menu_frame.setLayout(self.menu_layout)
+
+    def set_animation_group(self, anims):
+        contains_empty_anim = any([is_empty_anim(anim) for anim in anims])
+        if contains_empty_anim:
+            # TODO: check how to integrate with text transitions
+            return
+        else:
+            change_possible = True # TODO: check whether action pairs can set runtime
+            total_duration = sum([anim.runtime for anim in anims])
+            self.reset_frame(title = f'{anims[0].desc(sep=" ")} \n to {anims[-1].desc(sep=" ")}')
+            widget = QLineEdit()
+            wrapped_widget = InputTextBox(widget)
+            wrapped_widget.set_value(total_duration)
+
+            form_layout = QFormLayout()
+            form_layout.addRow(QLabel('Total Duration'), widget)
+
+            self.save_button.setEnabled(change_possible)
+            self.menu_layout.addLayout(form_layout)
+            self.inner_scroll_layout.addWidget(self.menu_frame)
 
     def set_animation(self, anim): # pylint: disable=too-many-locals
         if is_empty_anim(anim):

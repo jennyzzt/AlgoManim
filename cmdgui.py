@@ -240,7 +240,11 @@ class GuiWindow(QDialog):
                                      .standardIcon(QStyle.SP_MediaSeekBackward))
 
     def anim_clicked(self, anim):
-        self.change_panel_anim(anim)
+        # Select multiblocks for testing. TODO: delete on merge
+        self.multiblock_select(0, 5)
+        return
+
+        # self.change_panel_anim(anim) TODO: uncomment on merge
         # also opens the side menu if it is not yet open
         self.open_sidemenu()
 
@@ -360,6 +364,9 @@ class GuiWindow(QDialog):
 
         # Display button
         self.show_video_button.show()
+
+    def multiblock_select(self, start, end):
+        self.customise_panel.set_animation_group(self.anims[start:end])
 
 
 if __name__ == '__main__':
