@@ -1,6 +1,6 @@
 from manimlib.imports import *
 
-# pylint: disable=R0914
+# pylint: disable=R0914,W0613
 def my_customize(self, action_pairs):
     pin = self.find_pin("list_elems")[0]
     idx = pin.get_index()
