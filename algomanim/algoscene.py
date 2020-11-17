@@ -2,7 +2,6 @@
 import ast
 import inspect
 from collections import namedtuple
-from pylatexenc.latexencode import unicode_to_latex
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction, AlgoSceneActionPair, \
@@ -138,7 +137,7 @@ class AlgoScene(MovingCameraScene):
             # move first line to the desired position
             mid_index = len(textobjs)/2
             textobjs[0].move_to((self.camera_frame.get_center() +
-                                 self.camera_frame.get_right()) / 3)
+                                 self.camera_frame.get_right()) / 2)
             textobjs[0].shift(mid_index * UP * 0.7)
             # arrange text group downwards aligned to the left
             text = VGroup(*textobjs)
@@ -164,7 +163,7 @@ class AlgoScene(MovingCameraScene):
         num_spaces = [len(line) - len(line.lstrip(' ')) for line in sourcecode]
         min_spaces = min([n for n in num_spaces if n != 0])
         num_spaces = [(n / min_spaces - 1) for n in num_spaces]
-        textobjs = [TextMobject(unicode_to_latex(line)) for line in sourcecode]
+        textobjs = [Text(line.lstrip(), font='Inconsolata') for line in sourcecode]
         self.add_static(index, show_sourcecode, [textobjs, num_spaces])
 
         # move arrow to which code line is executed
