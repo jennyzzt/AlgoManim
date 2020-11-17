@@ -90,8 +90,8 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         if val > self.val:
             return self.right.recursive_find(val)
-        else:
-            return self.left.recursive_find(val)
+
+        return self.left.recursive_find(val)
 
     def set_line_start_end(self, parent):
         if parent is None:
