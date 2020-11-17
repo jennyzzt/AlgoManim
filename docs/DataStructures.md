@@ -32,7 +32,7 @@ On top of the standard operations supported by Python's list interface, we suppo
 | insert(val) | insert val into tree |
 | size() | get size of tree |
 | remove(val) (TODO) | finds and removes val in tree |
-| find(val) (TODO) | finds val in tree |
+| find(val) | finds val in tree |
 
 ## AlgoBinaryTreeNode
 AlgoBinaryTree holds the root of this node, which has `left` and `right` as properties which can be accessed by the user to do a tree traversal (please check out `algomanim_examples/binarytreesort.py`).

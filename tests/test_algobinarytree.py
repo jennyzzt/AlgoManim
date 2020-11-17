@@ -42,12 +42,25 @@ class TestAlgoTree:
 
     # --------------- Insertion tests --------------- #
     def test_insertion_according_to_val(self):
+        algoscene.reset_mock()
         root = AlgoBinaryTreeNode(algoscene, test_vals[0])
         tree = AlgoBinaryTree(algoscene, 4, root)
         for i in range(1, len(test_vals)):
             tree.insert(test_vals[i])
         self.check_tree_order(root)
         assert tree.size() == len(test_vals)
+
+    # --------------- Find tests --------------- #
+    def test_find_adds_action_pairs(self):
+        # if value is found, 2 action pairs should be added
+        root = AlgoBinaryTreeNode(algoscene, test_vals[0])
+        tree = AlgoBinaryTree(algoscene, 4, root)
+        for i in range(1, len(test_vals)):
+            tree.insert(test_vals[i])
+        algoscene.reset_mock()
+        root.recursive_find(2)
+        # Check that only one action pair is created
+        assert algoscene.add_action_pair.call_count == 2
 
     # --------------- Helper Test Functions --------------- #
     # Checks left child val is smaller, right child val is bigger

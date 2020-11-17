@@ -81,6 +81,18 @@ class AlgoBinaryTreeNode(AlgoNode):
             self.right.recursive_show(max_depth, metadata=metadata, animated=animated,
                 w_prev=w_prev)
 
+    @attach_metadata
+    def recursive_find(self, val, metadata=None, animated=True, w_prev=False):
+        if self.val == val:
+            super().highlight(metadata=metadata, animated=animated, w_prev=w_prev)
+            super().dehighlight(metadata=metadata, animated=animated, w_prev=False)
+            return self
+
+        if val > self.val:
+            return self.right.recursive_find(val)
+        else:
+            return self.left.recursive_find(val)
+
     def set_line_start_end(self, parent):
         if parent is None:
             # reset line
@@ -151,6 +163,10 @@ class AlgoBinaryTree:
         new_node = self.root.recursive_insert(val)
         new_node.recursive_show(self.max_depth, metadata=metadata, animated=animated,
             w_prev=w_prev)
+
+    @attach_metadata
+    def find(self, val, metadata=None, animated=True, w_prev=False):
+        return self.root.recursive_find(val, metadata=metadata, animated=animated, w_prev=w_prev)
 
     def size(self):
         ''' Returns the total number of nodes of the tree '''
