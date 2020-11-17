@@ -2,7 +2,6 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import Shape
 
 
 class FindMaxScene(AlgoScene):
@@ -18,7 +17,7 @@ class FindMaxScene(AlgoScene):
                 self.insert_pin('max_changed', algolist.get_val(cur_max_idx))
 
     def preconfig(self, settings):
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'
         settings['node_size'] = 1.5
         settings['highlight_color'] = '#33cccc'  # teal
 
@@ -82,7 +81,7 @@ class BinarySearchScene(AlgoScene):
         self.insert_pin('found_val', index)
 
     def preconfig(self, settings):
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'
         settings['node_size'] = 1
         settings['highlight_color'] = '#33cccc'  # teal
 

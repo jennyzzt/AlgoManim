@@ -1,7 +1,7 @@
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import Shape
+
 
 class CustomBubbleSortScene(AlgoScene):
     def algo(self):
@@ -16,7 +16,7 @@ class CustomBubbleSortScene(AlgoScene):
                     algolist.swap(i, j)
 
     def preconfig(self, settings):
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'
         settings['node_size'] = 2.5
         settings['highlight_color'] = "#33cccc"  # teal
 

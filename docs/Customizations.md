@@ -8,14 +8,13 @@ There are many types of customizations that can be added to the default animatio
 from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import Shape
 
 class DefaultBubbleSortScene(AlgoScene):
     def preconfig(self, settings):
         settings['font_color'] = BLACK
         settings['highlight_color'] = "#e74c3c" # red
         settings['node_color'] = PURPLE
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'
         settings['node_size'] = 0.5
     
     ...

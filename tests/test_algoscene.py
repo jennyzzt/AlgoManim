@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import DEFAULT_SETTINGS, Shape
+from algomanim.settings import DEFAULT_SETTINGS
 
 
 mock_animation = Mock()
@@ -162,4 +162,4 @@ class AlgoSceneNodeColorHex(AlgoSceneMockList):
 
 class AlgoSceneNodeCircle(AlgoSceneMockList):
     def preconfig(self, settings):
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'

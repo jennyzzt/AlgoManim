@@ -1,7 +1,6 @@
 from manimlib.imports import *
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata, attach_metadata
-from algomanim.settings import Shape
 from algomanim.algoobject import AlgoObject
 
 class AlgoNode(AlgoObject):
@@ -9,29 +8,35 @@ class AlgoNode(AlgoObject):
         super().__init__(scene)
         self.scene = scene
 
-        # Get preconfig settings
+        # Use preconfig settings to determine node configuration
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
         node_size = float(scene.settings['node_size'])
         self.node_length = node_size
-        self.node = {
-            Shape.CIRCLE: Circle(
+
+        nodes = {
+            'circle': Circle(
                 color=self.node_color,
                 fill_opacity=1,
                 radius=self.node_length / 2,
             ),
-            Shape.SQUARE: Square(
+            'square': Square(
                 fill_color=self.node_color,
                 fill_opacity=1,
                 side_length=self.node_length
             ),
-            Shape.SQUIRCLE: RoundedRectangle(
+            'squircle': RoundedRectangle(
                 height=self.node_length,
                 width=self.node_length,
                 fill_color=self.node_color,
                 fill_opacity=1
             )
-        }[scene.settings['node_shape']]
+        }
+        try:
+            self.node = nodes[scene.settings['node_shape'].lower()]
+        except KeyError:
+            print("Unrecognized node shape, defaulting to Square")
+            self.node = nodes['square']
 
         # Set attributes
         self.val = val

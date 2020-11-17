@@ -19,10 +19,8 @@ Examples that show the usage of the customizations and data structures that we s
 The simplest algomanim program, only requires a single python file with a class that extends `AlgoScene` and overrides the `algoconstruct(self)` method (as seen below). This scene, implements the BubbleSort Algorithm.
 
 ```python
-from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import Shape
 
 class DefaultBubbleSortScene(AlgoScene):
     def algo(self):

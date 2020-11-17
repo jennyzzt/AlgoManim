@@ -24,7 +24,6 @@ class ShortBubbleSortScene(AlgoScene):
         return result
 
     def preconfig(self, settings):
-        # settings['node_shape'] = Shape.CIRCLE
         settings['highlight_color'] = "#FF0000"
 
     def customize(self, action_pairs):
