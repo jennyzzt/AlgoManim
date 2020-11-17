@@ -2,7 +2,7 @@
 Out of the box, we support `List` and `Binary Tree` data structures. Please find the supported operations on these data structures below.
 
 ## AlgoList
-On top of the standard operations supported by Python's list interface, we support further operations that make sorting algorithms work and also some animation functions that can be called in `algoconstruct` while the algorithm is executing.  
+On top of the standard operations supported by Python's list interface, we support further operations that make sorting algorithms work and also some animation functions that can be called in `algo` while the algorithm is executing.  
 
 | Method | Description |
 |---------|--------------------------|
@@ -16,11 +16,15 @@ On top of the standard operations supported by Python's list interface, we suppo
 | hide_list() | hides list from screen |
 | append(val) | appends value to list |
 | pop() | pops val from list |
-| slice(start, stop) | performs list[start:stop] |
-| concat(other_list) | concatenates this list with another list |
+| slice(start, stop) | performs list[start:stop] returns the slice|
+| concat(other_list) | concatenates this list with another list returns concatenated list|
 | merge(left_list, right_list) | merges left_list and right_list and returns merged list |
 | empty() | returns whether list is empty |
 | len() | returns length of list |
+
+**Note:** Refer to each function's in-line code documentation to check for extra parameters that
+ could be useful for your specific use case. 
+ Some functions with extra hidden parameters include `merge`, `slice` and `compare`.
   
 ## AlgoBinaryTree
 | Method | Description |
