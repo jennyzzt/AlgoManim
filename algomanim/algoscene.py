@@ -71,15 +71,15 @@ class AlgoScene(MovingCameraScene):
             else:
                 exec(f'import {names}')
         # get algo source lines
-        source_lines, _ = inspect.getsourcelines(self.algo)
+        sourcelines, _ = inspect.getsourcelines(self.algo)
 
-        algo_source_lines = []
-        modified_source_lines = []
+        display_sourcelines = []
+        exec_sourcelines = []
 
         # get redundant spacing for first code line that is not def
-        redundant_space_count = len(source_lines[1]) - len(source_lines[1].lstrip())
+        redundant_space_count = len(sourcelines[1]) - len(sourcelines[1].lstrip())
         # insert pin at every alternate source line
-        for i, line in enumerate(source_lines):
+        for i, line in enumerate(sourcelines):
             front_space_count = len(line) - len(line.lstrip())
 
             # Do not execute first def line, empty line, or comment
@@ -92,25 +92,25 @@ class AlgoScene(MovingCameraScene):
             if line[front_space_count:].split()[0] == 'def':
                 inner_fn_name = line[front_space_count:].split()[1]
                 inner_fn_name = inner_fn_name.split('(')[0]
-                modified_source_lines.append(f'{line_tab}global {inner_fn_name}\n')
+                exec_sourcelines.append(f'{line_tab}global {inner_fn_name}\n')
 
             # Insert pin if line is not a pin
             elif 'insert_pin' not in line:
-                pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(algo_source_lines)})\n'
-                modified_source_lines.append(pin)
+                pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
+                exec_sourcelines.append(pin)
 
             # Add original code
-            algo_source_lines.append(line)
-            modified_source_lines.append(line[redundant_space_count:])
+            display_sourcelines.append(line)
+            exec_sourcelines.append(line[redundant_space_count:])
 
         # insert pin at the beginning to show all code
-        sourcecode = [line.replace('\n', '') for line in algo_source_lines]
-        pin_code_source = f'self.insert_pin(\'__sourcecode__\', {sourcecode})\n'
-        modified_source_lines.insert(0, pin_code_source)
+        display_sourcecode = [line.replace('\n', '') for line in display_sourcelines]
+        pin_sourcecode = f'self.insert_pin(\'__sourcecode__\', {display_sourcecode})\n'
+        exec_sourcelines.insert(0, pin_sourcecode)
 
         # get modified source code and execute
-        modified_source_code = ''.join(modified_source_lines)
-        exec(f'{modified_source_code}')
+        exec_sourcecode = ''.join(exec_sourcelines)
+        exec(f'{exec_sourcecode}')
 
     def algo_construct(self):
         # Add parallel code animation
