@@ -31,6 +31,9 @@ You can run the video-rendering GUI as follows:
 python3 -m cmdgui
 ```
 
+### Docs
+You can find documentation on how to use the library in `docs/`.
+
 ### Coding style and conventions
 All Python code should adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/). Pylint is used to enforce this, so it would probably be a good idea to select the linter in your editor if it allows you to.
 If there are any linting rules that you want to exclude (for good reason), disable it in `.pylintrc`.
