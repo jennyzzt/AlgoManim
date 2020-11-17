@@ -16,7 +16,7 @@ class DefaultBubbleSortScene(AlgoScene):
         settings['node_color'] = PURPLE
         settings['node_shape'] = 'circle'
         settings['node_size'] = 0.5
-    
+        settings['code_anim'] = True # show code alongside the animation
     ...
 ```
 
@@ -67,17 +67,17 @@ class DefaultBubbleSortScene(AlgoScene):
 
         self.add_fade_in_all(len(action_pairs))
 ```
-### Introducing your own Manim animations
+### Custom Animations
 If you want to take the extra step and introduce your own animations from the [Manim library](https://github.com/3b1b/manim),
 you can use `AlgoScene`'s `add_transform` method in `def customize(self, action_pairs):`.
 
-The basic idea is to append a new custom animation to an `action_pair`. 
-This is so that it gets animated with the rest of the animations in that `action_pair`.
-To achieve this, we have `add_transform(action_pair_index, transform)`.
+The basic idea is to provide a `transform` that we will execute later.
+A `transform` is simply a function that is executed in between the rendering of animations. It can take in any number of arguments but must return a list of `manim` Transforms (`FadeOut`, `FadeIn`, `ApplyMethod`, `GrowFromCenter`, `ScaleInPlace`, etc. - an entire list can be found in the `manim`  source code) that will be played (through the `scene.play` method). This is so that it gets animated with the rest of the animations.
+
+To achieve this, we have the utility function `add_transform(action_pair_index, transform)`.
 1. `action_pair_index` identifies the action_pair to append the new animation onto.
 2. `transform` identifies the Manim transformation to execute.
 3. Make sure to wrap the transform in a **lambda** so that the animation is not executed immediately.
-
 
 Here is a sample code snippet to add custom transforms:
 ```python
@@ -90,17 +90,13 @@ Here is a sample code snippet to add custom transforms:
         ...
 
         # Adding the text
-        title_text = TextMobject("My custom text")
-        title_text.to_edge(UP)
-        transform = lambda: Write(title_text)
-        self.add_transform(idx, transform)
+        title_text = self.add_text("Custom Text", idx, text_position)
 
+        ...
         
-        # Changing the text
-        new_text = TextMobject("My custom text with Manim's replacement transform animation")
-        new_text.to_edge(UP)
-        transform = lambda: [FadeOut(title_text), ReplacementTransform(title_text, new_text)]
-        self.add_transform(idx2, transform)
+        # Emphasizing the text
+        emphasize = lambda text: [ScaleInPlace(text, 2, rate_func = wiggle)]
+        self.add_transform(idx2, emphasize, [title_text])
         
         ...
 
@@ -114,15 +110,15 @@ Please note that these names and numbers can be identified by inspecting the tim
 
 ## Adding Customizations III
 ### Pinning framework
-To add more customisability, we have introduced a pinning framework that allows you to insert static `action_pairs`- action_pairs with no animations - in between other action_pairs.
+To add more customisability, we have introduced a pinning framework that allows you to insert your own custom animations (`transforms`) in between other animations.
 This allows you to do various things:
 1. Introduce markers which shows which part of the algorithm is being executed in the GUI
-2. Add non-static animations at these pins later in `customize(self, action_pairs)`.
-3. Change animations of `action_pairs` around these pins in `customize(self, action_pairs)`.
+2. Add custom animations at these pins later in `customize(self, action_pairs)`.
+3. Change default animations (`action_pairs`) around these pins in `customize(self, action_pairs)`.
 
-### Adding Pins to your algorithm
+### Adding Pins to Your Algorithm
 ```python
-\\ Binary Tree Sort Algorithm
+# Binary Tree Sort Algorithm
 
     def algo(self):
         unsorted_list = [25, 43, 5, 18, 30, 3, 50]
@@ -141,7 +137,7 @@ This allows you to do various things:
         self.inorder_traversal(root, sorted_list)
 ```
 
-### Customising using pins
+### Customising Using Pins
 ```python
     # Customising the Binary Tree Sort Algorithm
     def customize(self, action_pairs):
@@ -151,14 +147,12 @@ This allows you to do various things:
         pin = self.find_pin("list_elems")[0]
         idx = pin.get_index()
 
-        title_text = TextMobject("First, we insert the elements of the list into a binary tree")
-        title_text.to_edge(UP)
-        transform = lambda: Write(title_text)
-        self.add_transform(idx, transform)
+        title_text = self.add_text("First, we insert the elements of the list \
+            into a binary tree", idx, text_position)
 
         self.add_wait(idx + 1, wait_time = 0.25)
         
-        # 2. Add non-static animations at these pins
+        # 2. Add custom animations at these pins
         # Highlight the arguments passed to the pin "inserted_node"
         self.chain_pin_highlight("inserted_node")
 
@@ -167,37 +161,46 @@ This allows you to do various things:
         tree_finished_pin = self.find_pin("finished_tree_build")[0]
         idx2 = tree_finished_pin.get_index()
         self.fast_forward(idx + 2, idx2)
-        new_text = TextMobject("Now, we do an INORDER traversal of the tree")
-        new_text.to_edge(UP)
-        transform = lambda: [FadeOut(title_text), ReplacementTransform(title_text, new_text)]
-        self.add_transform(idx2, transform)
+        title_text = self.change_text("Now, we do an INORDER traversal of the tree",
+            title_text, idx2)
 
 
-        # 2. Add non-static animations at these pins
+        # 2. Add custom animations at these pins
         # Highlight the arguments passed to the pin "visited_node"
         self.chain_pin_highlight("visited_node")
     
 
-        # 3. Change animations of `action_pairs` around these pins
+        # 3. Change default animations around these pins
         # Add text straight after the "finished_tree_build" pin 
         self.fast_forward(idx2 + 1)
-        end_text = TextMobject("We have a sorted list!")
-        end_text.to_edge(UP)
-        transform = lambda: [FadeOut(new_text), ReplacementTransform(new_text, end_text)]
-        self.add_transform(None, transform)
+        self.change_text("We have a sorted list!", title_text)
+    
+    def chain_pin_highlight(self, pin_str):
+        pins = self.find_pin(pin_str)
+        prev_node = None
+        node_highlight = lambda node: \
+            [ApplyMethod(node.node.set_fill, self.settings['highlight_color'])]
+        node_dehighlight = lambda node: \
+            [ApplyMethod(node.node.set_fill, self.settings['node_color'])]
+        for pin in pins:
+            node = pin.get_args()[0]
+            self.add_transform(pin.get_index(), node_highlight, [node])
+            if prev_node is not None:
+                self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
+            prev_node = node
 ```
 
-### Utility functions
+### Utility Functions
 Here are some of the pre-defined utility functions that you can use:
 - Insert a pin in your algorithm, acceps a variable list argument
   which can be used later on (`insert_pin`)
-- Find all `action_pairs` from a pin (`find_pin`)
-- all of the utility customisations in **Adding Customizations II**
-- utilities that affect ALL pins with the specified name
-    - introduce highlighting (`chain_pin_highlight`)
+- Retrieve all pins and their corresponding arguments (`find_pin`)
+- Extract index of where pin was placed (`get_index`)
+- Extract arguments passed into `insert_pin` (`get_args`)
+- All of the utility customisations in **Adding Customizations II**
 
 ## Adding Customizations IV
-### Adding text
+### Attaching Text to Objects
 
 For any `AlgoObject` like `AlgoNode`, `AlgoList`, `AlgoBinaryTree`, we can generate text animations by using the `add_text(text, key, vector=UP)` function. 
 1. The `text` parameter indicates the text that will be shown

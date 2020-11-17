@@ -273,7 +273,8 @@ class AlgoScene(MovingCameraScene):
     # Convenience function to edit existing text objects via a ReplacementTransform
     # Requires the previous text object to be edited
     # Returns the replacement text object
-    def change_text(self, new_text_string, old_text_object, index, position=UP):
+    def change_text(self, new_text_string, old_text_object, index=None):
+        position = old_text_object.get_center()
         new_text_object = TextMobject(new_text_string)
         new_text_object.shift(position)
 
