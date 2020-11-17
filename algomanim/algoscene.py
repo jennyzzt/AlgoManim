@@ -1,6 +1,7 @@
 # pylint: disable=R0914, W0122, W0105, R0904
 import ast
 import inspect
+import re
 from collections import namedtuple
 from manimlib.imports import *
 from algomanim.settings import DEFAULT_SETTINGS
@@ -99,8 +100,10 @@ class AlgoScene(MovingCameraScene):
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
                 exec_sourcelines.append(pin)
 
-            # Add original code
-            display_sourcelines.append(line)
+            # Remove flags and add display code
+            display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))', r'\1\2', line)
+            display_sourcelines.append(display_line)
+            # Add code to be executed
             exec_sourcelines.append(line[redundant_space_count:])
 
         # insert pin at the beginning to show all code
