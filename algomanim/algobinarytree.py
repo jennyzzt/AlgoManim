@@ -16,14 +16,19 @@ class AlgoBinaryTreeNode(AlgoNode):
         if parent:
             self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
 
+    def set_parent(self, parent):
+        self.parent = parent
+        self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
+
     def set_left(self, left):
         self.left = left
-        self.left.parent = self
+        self.left.set_parent(self)
+
         self.recursive_update_depth()
 
     def set_right(self, right):
         self.right = right
-        self.right.parent = self
+        self.right.set_parent(self)
         self.recursive_update_depth()
 
     def recursive_size(self):
