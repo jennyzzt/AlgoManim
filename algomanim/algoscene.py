@@ -197,9 +197,8 @@ class AlgoScene(MovingCameraScene):
     Factory method to return a Text-kind object depending on the current configuration.
     Defaults to the manim-configured default font if "font" is not a valid installed font.
     '''
-    def create_text(self, text_string):
+    def create_text(self, text_string, font_color=WHITE):
         font = self.settings['font'].lower()
-        font_color = self.settings['font_color']
         if font == 'latex':
             return TextMobject(text_string, color=font_color)
         return Text(text_string, color=font_color, font=font)
@@ -277,7 +276,7 @@ class AlgoScene(MovingCameraScene):
     # Convenience function to add a text object and the Write transform
     # Returns the created text object
     def add_text(self, text, index, position=ORIGIN):
-        text = self.create_text(text)
+        text = self.create_text(text, self.settings['text_color'])
         text.shift(position)
         transform = lambda: Write(text)
         self.add_transform(index, transform)
@@ -288,7 +287,7 @@ class AlgoScene(MovingCameraScene):
     # Returns the replacement text object
     def change_text(self, new_text_string, old_text_object, index=None, position=ORIGIN):
         position = old_text_object.get_center()
-        new_text_object = self.create_text(new_text_string)
+        new_text_object = self.create_text(new_text_string, self.settings['text_color'])
         new_text_object.shift(position)
 
         # Create the transform to be run at that point

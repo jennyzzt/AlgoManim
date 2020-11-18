@@ -6,6 +6,7 @@ DEFAULT_SETTINGS = {
     'background_color': BLACK, # Changeable via GUI only
     'font': 'latex',
     'font_color': BLACK,
+    'text_color': WHITE,
     'highlight_color': YELLOW,
     'node_color': WHITE,
     'node_shape': 'square',
