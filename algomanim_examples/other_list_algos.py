@@ -23,14 +23,10 @@ class FindMaxScene(AlgoScene):
 
     def customize(self, action_pairs):
         # add title to beginning
-        text = TextMobject('Find Maximum Value')
-        text.shift(2 * UP)
-        transform = lambda: Write(text)
-        self.add_transform(0, transform)
+        text = self.add_text('Find Maximum Value', 0, position=2*UP)
 
         # search for pins that were previously set
         pins = self.find_pin('max_changed')
-        prev_text = text
         for pin in pins:
             # extract val from list of args
             max_val = pin.get_args()[0]
@@ -39,15 +35,7 @@ class FindMaxScene(AlgoScene):
             index = pin.get_index()
 
             # create new text object to morph to
-            new_text = TextMobject(f'Current Max Value: {max_val}')
-            new_text.shift(2 * UP)
-
-            # create transform to be run at that point
-            transform = lambda old_text, new_text: \
-                [ReplacementTransform(old_text, new_text)]
-            self.add_transform(index, transform, args=[prev_text, new_text])
-
-            prev_text = new_text
+            text = self.change_text(f'Current Max Value: {max_val}', text, index, position=2*UP)
 
 
 class BinarySearchScene(AlgoScene):
@@ -90,10 +78,7 @@ class BinarySearchScene(AlgoScene):
         intro_pin = self.find_pin('intro')[0]
         index = intro_pin.get_index()
         val = intro_pin.get_args()[0]
-        intro_text = TextMobject(f'Find value, {val}, in Sorted List')
-        intro_text.shift(2*UP)
-        intro_transform = lambda: Write(intro_text)
-        self.add_transform(index, intro_transform)
+        self.add_text(f'Find value, {val}, in Sorted List', 0, position=2*UP)
 
         # add animation for searching range box
         searching_range_pins = self.find_pin('searching_range')
@@ -121,9 +106,9 @@ class BinarySearchScene(AlgoScene):
             index = pin.get_index()
             val1 = pin.get_args()[0]
             val2 = pin.get_args()[1]
-            new_text = TextMobject(f'{val1}' \
-                                   + ('<' if val1<val2 else ('>' if val1>val2 else '==')) \
-                                   + f'{val2}')
+            new_text = self.create_text(f'{val1}' \
+                + ('<' if val1<val2 else ('>' if val1>val2 else '==')) \
+                + f'{val2}')
             new_text.shift(UP)
             self.add_static(index, self.update_text, [old_text, new_text])
             old_text = new_text
@@ -140,7 +125,7 @@ class BinarySearchScene(AlgoScene):
         found_pin = self.find_pin('found_val')[0]
         index = found_pin.get_index()
         found_index = found_pin.get_args()[0]
-        new_text = TextMobject(f'Found Value {val} at index {found_index}!')
+        new_text = self.create_text(f'Found Value {val} at index {found_index}!')
         new_text.shift(UP)
         self.add_static(index, self.update_text, [old_text, new_text])
         old_text = new_text

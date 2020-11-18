@@ -44,9 +44,8 @@ class AlgoNode(AlgoObject):
         self.grp = VGroup(self.node, self.txt)
 
     def generate_text(self, val):
-        text = TextMobject(str(val))
+        text = self.scene.create_text(str(val))
         text.scale(self.node_length * 1.5)
-        text.set_color(self.scene.settings['font_color'])
         return text
 
     def static_replace_text(self, old_text, new_text):

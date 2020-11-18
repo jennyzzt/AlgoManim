@@ -10,9 +10,9 @@ algoscene.settings = DEFAULT_SETTINGS
 
 
 @patch("algomanim.algolist.VGroup", Mock())
-@patch("algomanim.algoobject.TexMobject", Mock())
 @patch("algomanim.algonode.VGroup", Mock())
-@patch("algomanim.algonode.TextMobject", Mock())
+@patch("algomanim.algoscene.TextMobject", Mock())
+@patch("algomanim.algoobject.TexMobject", Mock())
 class TestAlgoList:
     @patch("algomanim.algolist.AlgoList.show_list")
     def test_constructor_calls_show(self, show_list):

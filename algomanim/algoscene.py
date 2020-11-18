@@ -193,6 +193,17 @@ class AlgoScene(MovingCameraScene):
     def post_config(self, settings):
         settings.update(self.post_config_settings)
 
+    '''
+    Factory method to return a Text-kind object depending on the current configuration.
+    Defaults to the manim-configured default font if "font" is not a valid installed font.
+    '''
+    def create_text(self, text_string):
+        font = self.settings['font'].lower()
+        font_color = self.settings['font_color']
+        if font == 'latex':
+            return TextMobject(text_string, color=font_color)
+        return Text(text_string, color=font_color, font=font)
+
     def create_play_action(self, transform, w_prev=False):
         return AlgoSceneAction(
             self.play, transform,
@@ -265,8 +276,8 @@ class AlgoScene(MovingCameraScene):
 
     # Convenience function to add a text object and the Write transform
     # Returns the created text object
-    def add_text(self, text, index, position=UP):
-        text = TextMobject(text)
+    def add_text(self, text, index, position=ORIGIN):
+        text = self.create_text(text)
         text.shift(position)
         transform = lambda: Write(text)
         self.add_transform(index, transform)
@@ -275,9 +286,9 @@ class AlgoScene(MovingCameraScene):
     # Convenience function to edit existing text objects via a ReplacementTransform
     # Requires the previous text object to be edited
     # Returns the replacement text object
-    def change_text(self, new_text_string, old_text_object, index=None):
+    def change_text(self, new_text_string, old_text_object, index=None, position=ORIGIN):
         position = old_text_object.get_center()
-        new_text_object = TextMobject(new_text_string)
+        new_text_object = self.create_text(new_text_string)
         new_text_object.shift(position)
 
         # Create the transform to be run at that point

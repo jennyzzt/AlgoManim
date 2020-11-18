@@ -22,7 +22,7 @@ class InsertionSortScene(AlgoScene):
         # add introduction
         intro_pin = self.find_pin('intro')[0]
         index = intro_pin.get_index()
-        intro_text = TextMobject('Insertion Sort Algorithm')
+        intro_text = self.create_text('Insertion Sort Algorithm')
         intro_text.shift(2*UP)
         intro_transform = lambda: Write(intro_text)
         self.add_transform(index, intro_transform)
@@ -54,7 +54,7 @@ class InsertionSortScene(AlgoScene):
         self.custom_box = new_box
 
     def add_sorted_text(self):
-        text = TextMobject('Sorted')
+        text = self.create_text('Sorted')
         text.next_to(self.custom_box, UP)
         text.align_to(self.custom_box, LEFT)
         self.play(Write(text))

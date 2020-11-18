@@ -14,6 +14,15 @@ SHAPES = [
     'squircle'
 ]
 
+FONTS = [
+    'latex',
+    'serif',
+    'sans-serif',
+    'cursive',
+    'fantasy',
+    'monospace'
+]
+
 SETTINGS = ([
     ('code_anim', InputCheckBox, QCheckBox),
     ('background_color', InputColorButton, QColorButton),
@@ -21,6 +30,7 @@ SETTINGS = ([
     ('node_shape', InputDropdown, QComboBox),
     ('node_size', InputTextBox, QLineEdit),
     ('highlight_color', InputColorButton, QColorButton),
+    ('font', InputDropdown, QComboBox),
     ('font_color', InputColorButton, QColorButton)
 ])
 
@@ -59,11 +69,16 @@ class PreconfigPanel(BaseChangesPanel):
             self.change_widgets[label_title] = widget_wrapper(widget)
 
         # Initialise node shape dropdown with Shapes
-        dropdown = self.change_widgets['node_shape'].get_widget()
-        dropdown.clear()
-        dropdown.addItems(SHAPES)
+        self.add_dropdown_items('node_shape', SHAPES)
+        # Initialise font dropdown with CSS2 generic font families, and latex
+        self.add_dropdown_items('font', FONTS)
 
         self.form_frame.setLayout(form_layout)
+
+    def add_dropdown_items(self, widget_key, items):
+        dropdown = self.change_widgets[widget_key].get_widget()
+        dropdown.clear()
+        dropdown.addItems(items)
 
     def load_settings(self, settings):
         for label in settings:

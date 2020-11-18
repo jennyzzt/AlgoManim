@@ -7,11 +7,11 @@ test_vals = [3, 2, 1, 4, 5]
 algoscene =Mock()
 algoscene.settings = DEFAULT_SETTINGS
 
-@patch("algomanim.algoobject.TexMobject", Mock())
-@patch("algomanim.algobinarytree.TextMobject", Mock())
-@patch("algomanim.algonode.TextMobject", Mock())
 @patch("algomanim.algonode.VGroup", Mock())
 @patch("algomanim.algobinarytree.VGroup", Mock())
+@patch("algomanim.algobinarytree.TextMobject", Mock())
+@patch("algomanim.algoscene.TextMobject", Mock())
+@patch("algomanim.algoobject.TexMobject", Mock())
 class TestAlgoTree:
 
     # --------------- Show tests --------------- #
