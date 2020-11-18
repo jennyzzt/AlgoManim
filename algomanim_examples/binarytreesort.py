@@ -8,6 +8,7 @@ class BinaryTreeSortScene(AlgoScene):
         settings['node_size'] = 0.5
         settings['node_shape'] = 'circle'
         settings['highlight_color'] = "#e74c3c" # red
+        # settings['font'] = 'sans-serif'
 
     def inorder_traversal(self, node, curr_list):
         if node is None:
