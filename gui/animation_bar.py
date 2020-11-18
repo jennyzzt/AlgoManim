@@ -2,7 +2,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.video_player import VIDEO_BASE_WIDTH
-from textwrap import dedent
 
 
 # Scrollbar base height
@@ -11,6 +10,9 @@ BAR_BASE_HEIGHT = 125
 # Box width constraints
 BOX_MIN_WIDTH = 80
 BOX_MAX_WIDTH = 320
+
+# Add-text button takes up 1/8 of the box
+TEXT_BTN_FRAC = 8
 
 
 # Placeholder for custom animations
@@ -98,31 +100,32 @@ class AnimationBar(QWidget):
         """
         Create a single anim box from the properties of anim
         """
-        if is_empty_anim(anim_meta_block):
-            desc = anim_meta_block['desc']
-        else:
-            desc = format_anim_block_str(anim_meta_block)
+
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
 
-        anim_box_layout = QVBoxLayout()
+        anim_box_layout = QGridLayout()
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Animation label using metadata
+        if is_empty_anim(anim_meta_block):
+            desc = anim_meta_block['desc']
+        else:
+            desc = format_anim_block_str(anim_meta_block)
+        anim_lbl = QLabel(desc)
+        anim_lbl.setAlignment(Qt.AlignCenter)  # center-align text
+        anim_lbl.setWordWrap(True)
+        anim_box_layout.addWidget(anim_lbl, 0, 0, 1, TEXT_BTN_FRAC - 1)
+
+        # Create text animation button
         if not is_empty_anim(anim_meta_block) \
                 and anim_meta_block.start_position() != anim_meta_block.end_position():
-            # Create text animation button
             add_anim_button = QPushButton(text='+')
             add_anim_button.setStyleSheet("border:1px solid black;")
-            add_anim_button.clicked.connect(lambda event: \
-                self.add_anim(index + 1, anim_meta_block.end_index()))
-            anim_box_layout.addWidget(add_anim_button, alignment=Qt.AlignRight)
-
-        # Animation label using metadata
-        anim_lbl = QLabel(desc)
-        anim_lbl.setAlignment(Qt.AlignCenter)
-        anim_lbl.setWordWrap(True)
-        anim_box_layout.addWidget(anim_lbl)
+            add_anim_button.clicked.connect(lambda event:
+                                            self.add_anim(index + 1, anim_meta_block.end_index()))
+            anim_box_layout.addWidget(add_anim_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
 
         # Size and layout box
         if is_empty_anim(anim_meta_block):
