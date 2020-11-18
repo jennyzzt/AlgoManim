@@ -27,4 +27,4 @@ class MergeSortScene(AlgoScene):
         mergesort(self, algolist)
 
     def preconfig(self, settings):
-        settings['code_anim'] = True
+        settings['show_code'] = True

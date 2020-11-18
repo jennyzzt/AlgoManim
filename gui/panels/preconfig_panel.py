@@ -24,7 +24,7 @@ FONTS = [
 ]
 
 SETTINGS = ([
-    ('code_anim', InputCheckBox, QCheckBox),
+    ('show_code', InputCheckBox, QCheckBox),
     ('background_color', InputColorButton, QColorButton),
     ('node_color', InputColorButton, QColorButton),
     ('node_shape', InputDropdown, QComboBox),

@@ -19,7 +19,7 @@ class InsertionSortScene(AlgoScene):
             self.insert_pin('sorted')
 
     def preconfig(self, settings):
-        settings['code_anim'] = True
+        settings['show_code'] = True
 
     def customize(self, action_pairs):
         # add introduction

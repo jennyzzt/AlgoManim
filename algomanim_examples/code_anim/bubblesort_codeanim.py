@@ -15,4 +15,4 @@ class DefaultBubbleSortScene(AlgoScene):
                     algolist.swap(i, j)
 
     def preconfig(self, settings):
-        settings['code_anim'] = True
+        settings['show_code'] = True

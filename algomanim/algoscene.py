@@ -12,7 +12,7 @@ from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
 
 
-# ----- import utility used for code_anim ----- #
+# ----- import utility used for show_code ----- #
 Import = namedtuple("Import", ["module", "name", "alias"])
 
 def get_imports(path):
@@ -53,8 +53,8 @@ class AlgoScene(MovingCameraScene):
 
         MovingCameraScene.__init__(self, **kwargs)
 
-    def is_code_anim(self):
-        return self.settings['code_anim']
+    def is_show_code(self):
+        return self.settings['show_code']
 
     ''' For user to overwrite '''
     def preconfig(self, settings):
@@ -117,7 +117,7 @@ class AlgoScene(MovingCameraScene):
 
     def algo_construct(self):
         # Add parallel code animation
-        if self.is_code_anim():
+        if self.is_show_code():
             self.algo_codeanim()
         # Run normal algo animation
         else:
@@ -181,7 +181,7 @@ class AlgoScene(MovingCameraScene):
 
     def customize_construct(self, action_pairs):
         # Add customisation needed for parallel code anim
-        if self.is_code_anim():
+        if self.is_show_code():
             self.customize_codeanim()
         # Run user-defined customize fn
         self.customize(action_pairs)
