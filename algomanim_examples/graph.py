@@ -2,7 +2,7 @@ from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algograph import AlgoGraph
 
-class GraphScene(AlgoScene):
+class AlgoGraphScene(AlgoScene):
     def preconfig(self, settings):
         settings['node_size'] = 0.5
         settings['node_shape'] = 'circle'
