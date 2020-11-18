@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import *
 from gui.animation_bar import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
-from .widgets.frame_layout import FrameLayout
 from gui.anim_utils import format_anim_block_str
+from .widgets.frame_layout import FrameLayout
 
 
 OPTION_HEIGHT = 35
@@ -72,7 +72,7 @@ class CustomisePanel(BaseChangesPanel):
 
         # initialize new frame
         self.menu_frame = QWidget()
-        
+
         self.menu_layout = QVBoxLayout()
         self.menu_layout.setSpacing(0)
         self.menu_layout.setContentsMargins(0, 0, 0, 0)

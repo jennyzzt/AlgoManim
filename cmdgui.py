@@ -321,7 +321,8 @@ class GuiWindow(QDialog):
         self.scene_name = "ToyScene"
 
         # Render video programmatically
-        self.scene = custom_renderer("algomanim_examples/toyexample.py", self.scene_name, VideoQuality.low,
+        self.scene = custom_renderer("algomanim_examples/toyexample.py",
+                                     self.scene_name, VideoQuality.low,
                                      self.post_customize_fns, self.post_config_settings)
         self.anims = self.scene.metadata_blocks
 
@@ -386,6 +387,7 @@ class GuiWindow(QDialog):
 
 if __name__ == '__main__':
     # set global debug flag
+    # pylint: disable=simplifiable-if-statement
     if len(sys.argv) > 1 and sys.argv[1] == "-debug":
         DEBUG = True
     else:
