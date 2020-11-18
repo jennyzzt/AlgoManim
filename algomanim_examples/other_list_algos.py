@@ -23,11 +23,10 @@ class FindMaxScene(AlgoScene):
 
     def customize(self, action_pairs):
         # add title to beginning
-        self.add_text('Find Maximum Value', 0, position=2*UP)
+        text = self.add_text('Find Maximum Value', 0, position=2*UP)
 
         # search for pins that were previously set
         pins = self.find_pin('max_changed')
-        prev_text = text
         for pin in pins:
             # extract val from list of args
             max_val = pin.get_args()[0]
@@ -36,15 +35,7 @@ class FindMaxScene(AlgoScene):
             index = pin.get_index()
 
             # create new text object to morph to
-            new_text = self.create_text(f'Current Max Value: {max_val}')
-            new_text.shift(2 * UP)
-
-            # create transform to be run at that point
-            transform = lambda old_text, new_text: \
-                [ReplacementTransform(old_text, new_text)]
-            self.add_transform(index, transform, args=[prev_text, new_text])
-
-            prev_text = new_text
+            text = self.change_text(f'Current Max Value: {max_val}', text, index, position=2*UP)
 
 
 class BinarySearchScene(AlgoScene):
