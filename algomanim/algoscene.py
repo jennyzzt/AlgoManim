@@ -327,7 +327,7 @@ class AlgoScene(MovingCameraScene):
         old_text = None
         for i, pin in enumerate(relevant_pins):
             index = pin.get_index()
-            new_text = custom_text if custom_text else f'Line {linenum} called: {i} times'
+            new_text = custom_text if custom_text else f'Line {linenum} called: {i+1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     # Displays the number of times a fn_method, specified by a pin or metadata, is called
@@ -336,7 +336,7 @@ class AlgoScene(MovingCameraScene):
         old_text = None
         for i, pin in enumerate(action_pairs):
             index = pin.get_index()
-            new_text = custom_text if custom_text else f'{fn_method} called: {i} times'
+            new_text = custom_text if custom_text else f'{fn_method} called: {i+1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     def add_slide(self, text, index, text_position=ORIGIN, duration=1.0):
