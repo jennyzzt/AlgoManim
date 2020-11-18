@@ -225,14 +225,14 @@ class AlgoScene(MovingCameraScene):
         if algo_item in self.algo_objs:
             self.algo_objs.remove(algo_item)
 
-    def shift_scene(self, vector, metadata=None):
+    def shift_scene(self, vector, metadata=None, w_prev=False):
         first = True
 
         for algo_obj in self.algo_objs:
             # Shift all items UP
             if first:
                 algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=False)
+                    w_prev=w_prev)
                 first = False
             else:
                 algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
