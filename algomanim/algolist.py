@@ -4,7 +4,7 @@ from algomanim.algonode import AlgoNode
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata
 from algomanim.algoobject import AlgoObject
-from algomanim.metadata import attach_metadata
+from algomanim.metadata import Metadata, attach_metadata
 
 
 class AlgoList(AlgoObject):
@@ -24,14 +24,14 @@ class AlgoList(AlgoObject):
         self.grp = None
         self.group(immediate_effect=True)
 
-        # Initial positioning
-        self.center(animated=False)
-
         # Subscribe to the scene for scene transformations like Shifts
         scene.track_algoitem(self)
 
         if show:
-            self.show_list(animated=False)
+            initialisation_meta = Metadata("create_list")
+            self.center(animated=False, metadata=initialisation_meta)
+            self.show_list(animated=False, metadata=initialisation_meta)
+            self.scene.add_metadata(initialisation_meta)
 
     ''' Swaps the nodes at indexes i and j '''
     @attach_metadata
