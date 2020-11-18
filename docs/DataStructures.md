@@ -1,5 +1,5 @@
 # Data Structures
-Out of the box, we support `List` and `Binary Tree` data structures. Please find the supported operations on these data structures below. First, let's look at how you could extend the library for your data structure.
+Out of the box, we support `List` and `Binary Tree` data structures. Supported operations on these data structures can be found below. But first, let's look at how you could extend the library for your data structure.
 
 ## Extending Data Structures
 In order to extend the library to the data structure of your choice, you must first create a class that extends the `AlgoObject` base class. For this example, let's look at how we can extend the library to `LinkedLists`. Firstly, let us extend the `AlgoNode` object so that each node of our `LinkedList` can have an arrow attached to it.
@@ -31,7 +31,7 @@ def show(self, metadata=None, animated=True, w_prev=False):
     super().show(metadata=metadata, animated=animated, w_prev=True)
 ...
 ```
-There are a couple of things to note here. Firstly, every operation that you would like to animate on a Data Structure has to have the decorator `attach_metadata` and these 3 flags: `metadata`, `animated` and `w_prev`.
+There are a couple of things to note here. Firstly, every operation that you would like to animate on a Data Structure minimally must have the decorator `attach_metadata` and these 3 flags: `metadata`, `animated` and `w_prev`.
 - The `attach_metadata` decorator and `metadata` flag are used in the GUI to identify animations in the timeline.
 - The `animated` flag informs the library on whether to run this operation statically or animate it. 
 - Finally, the `w_prev` flag informs whether this operation should be animated concurrently with the previous operation.  
