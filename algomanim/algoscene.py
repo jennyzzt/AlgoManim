@@ -94,15 +94,19 @@ class AlgoScene(MovingCameraScene):
                 inner_fn_name = line[front_space_count:].split()[1]
                 inner_fn_name = inner_fn_name.split('(')[0]
                 exec_sourcelines.append(f'{line_tab}global {inner_fn_name}\n')
+                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
+                                      r'\1\2', line)
+                display_sourcelines.append(display_line)
 
             # Insert pin if line is not a pin
             elif 'insert_pin' not in line:
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
                 exec_sourcelines.append(pin)
+                # Remove flags and add display code
+                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
+                                      r'\1\2', line)
+                display_sourcelines.append(display_line)
 
-            # Remove flags and add display code
-            display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))', r'\1\2', line)
-            display_sourcelines.append(display_line)
             # Add code to be executed
             exec_sourcelines.append(line[redundant_space_count:])
 
@@ -139,8 +143,8 @@ class AlgoScene(MovingCameraScene):
                 return
             # move first line to the desired position
             mid_index = len(textobjs)/2
-            textobjs[0].move_to((self.camera_frame.get_center() +
-                                 self.camera_frame.get_right()) / 2)
+            textobjs[0].move_to(self.camera_frame.get_center() + RIGHT*0.2
+                                + RIGHT*textobjs[0].get_width()/2)
             textobjs[0].shift(mid_index * UP * 0.7)
             # arrange text group downwards aligned to the left
             text = VGroup(*textobjs)
