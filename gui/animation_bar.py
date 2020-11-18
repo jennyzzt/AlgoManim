@@ -122,9 +122,12 @@ class AnimationBar(QWidget):
         if not is_empty_anim(anim_meta_block) \
                 and anim_meta_block.start_position() != anim_meta_block.end_position():
             add_anim_button = QPushButton(text='+')
+            add_anim_button.setToolTip("Add custom animation")
             add_anim_button.setStyleSheet("border:1px solid black;")
+
             add_anim_button.clicked.connect(lambda event:
                                             self.add_anim(index + 1, anim_meta_block.end_index()))
+
             anim_box_layout.addWidget(add_anim_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
 
         # Size and layout box
