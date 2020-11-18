@@ -19,8 +19,17 @@ class AlgoGraph:
         return algograph
 
     def show_graph(self, animated=True):
+        self.arrange_nodes()
         self.show_nodes(animated=animated)
         self.show_lines(animated=animated)
+
+    def arrange_nodes(self):
+        angle = 2 * np.pi / (AlgoGraphNode.n_id)
+
+        for key in self.graph:
+            node = self.graph[key]
+            new_angle = angle*node.n_id
+            node.grp.move_to(2*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
 
     def show_nodes(self, animated=True):
         w_prev = False
@@ -44,21 +53,8 @@ class AlgoGraphNode(AlgoNode):
         self.graph = graph
         self.adjs = adjs
         self.n_id = AlgoGraphNode.n_id
-        self.lines = {}
         AlgoGraphNode.n_id += 1
         super().__init__(scene, val)
-
-        steps = (1 + self.n_id // 4)
-        quadrant = self.n_id % 4
-        print(self.n_id, steps)
-        if quadrant == 0:
-            self.grp.move_to(UL*steps)
-        elif quadrant == 1:
-            self.grp.move_to(UR*steps)
-        elif quadrant == 2:
-            self.grp.move_to(DR*steps)
-        elif quadrant == 3:
-            self.grp.move_to(DL*steps)
 
     def show_with_line(self, line_done, metadata=None, animated=True, w_prev=False):
         if self.adjs is not None:
@@ -75,7 +71,7 @@ class AlgoGraphNode(AlgoNode):
                         line_done[self.val].append(adj)
 
                     new_line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
-                    self.lines[adj] = new_line
+                    self.lines[self.graph[adj]] = new_line
 
                     action = AlgoSceneAction.create_static_action(self.set_line_start_end,
                                                                             [self.graph[adj]])
@@ -86,19 +82,3 @@ class AlgoGraphNode(AlgoNode):
                     static_action = AlgoSceneAction.create_static_action(self.scene.add,
                                                                                 [new_line])
                     self.scene.add_action_pair(anim_action, static_action, animated=animated)
-
-    def set_line_start_end(self, parent):
-        if parent is None:
-            # reset line
-            self.lines[parent.val].set_opacity(0)
-        else:
-            center = self.grp.get_center()
-            parent_center = parent.grp.get_center()
-            pos_y = center[1] - parent_center[1]
-            pos_x = center[0] - parent_center[0]
-            angle = np.arctan2(pos_y, pos_x)
-            start = center - \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            end = parent_center + \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            self.lines[parent.val].put_start_and_end_on(start, end)

@@ -10,11 +10,12 @@ class GraphScene(AlgoScene):
         settings['highlight_color'] = "#e74c3c" # red
 
     def algoconstruct(self):
-        graph = { 'A' : [ 'B', 'C' ],
-                  'B' : [ 'A', 'C' ],
-                  'C' : [ 'A', 'B' ],
-                  'D' : [ 'B' ],
+        graph = { 'A' : [ 'B', 'C', 'F', 'G' ],
+                  'B' : [ 'A', 'C', 'D', 'G' ],
+                  'C' : [ 'A', 'B', 'G' ],
+                  'D' : [ 'B', 'G' ],
                   'E' : [ ],
-                  'F' : [ 'A' ] }
+                  'F' : [ 'A', 'G' ],
+                  'G' : [ 'A', 'B', 'C', 'D', 'F' ] }
 
         AlgoGraph(self, graph)

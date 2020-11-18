@@ -6,7 +6,6 @@ from algomanim.metadata import Metadata
 
 class AlgoBinaryTreeNode(AlgoNode):
     def __init__(self, scene, val, parent=None):
-        self.line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
         self.parent = parent
         self.left = None
         self.right = None
@@ -15,6 +14,8 @@ class AlgoBinaryTreeNode(AlgoNode):
         self.recursive_update_depth()
 
         super().__init__(scene, val)
+        if parent:
+            self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
 
     def set_left(self, left):
         self.left = left
@@ -80,22 +81,6 @@ class AlgoBinaryTreeNode(AlgoNode):
             self.right.recursive_show(max_depth, metadata=metadata, animated=animated,
                 w_prev=w_prev)
 
-    def set_line_start_end(self, parent):
-        if parent is None:
-            # reset line
-            self.line.set_opacity(0)
-        else:
-            center = self.grp.get_center()
-            parent_center = parent.grp.get_center()
-            pos_y = center[1] - parent_center[1]
-            pos_x = center[0] - parent_center[0]
-            angle = np.arctan2(pos_y, pos_x)
-            start = center - \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            end = parent_center + \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            self.line.put_start_and_end_on(start, end)
-
     def get_x_pos(self, node_id, max_depth):
         # finding the id of the middle leaf node OF THE WHOLE TREE
         total_leaf_nodes = 2 ** (max_depth - 1)
@@ -120,9 +105,9 @@ class AlgoBinaryTreeNode(AlgoNode):
             action = AlgoSceneAction.create_static_action(self.set_line_start_end, [self.parent])
             self.scene.add_action_pair(action, action, animated=False)
 
-            anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(self.line)),
+            anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(self.lines[self.parent])),
                 w_prev=w_prev)
-            static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
+            static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.lines[self.parent]])
             self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         super().show(metadata, animated, True)

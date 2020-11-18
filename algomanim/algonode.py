@@ -32,6 +32,7 @@ class AlgoNode(AlgoObject):
                 fill_opacity=1
             )
         }[scene.settings['node_shape']]
+        self.lines = {}
 
         # Set attributes
         self.val = val
@@ -119,3 +120,19 @@ class AlgoNode(AlgoObject):
         # Add metadata if meta is created in this fn
         if metadata is None:
             self.scene.add_metadata(meta)
+
+    def set_line_start_end(self, target):
+        if target is None:
+            # reset line
+            self.lines[target].set_opacity(0)
+        else:
+            center = self.grp.get_center()
+            target_center = target.grp.get_center()
+            pos_y = center[1] - target_center[1]
+            pos_x = center[0] - target_center[0]
+            angle = np.arctan2(pos_y, pos_x)
+            start = center - \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            end = target_center + \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            self.lines[target].put_start_and_end_on(start, end)
