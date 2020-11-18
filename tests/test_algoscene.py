@@ -75,14 +75,14 @@ class TestAlgoScenePreconfig:
             radius=DEFAULT_SETTINGS['node_size'] / 2
         )
 
-    @patch("algomanim.algonode.Text")
-    def test_change_font(self, text):
-        scene = AlgoSceneFont()
-        text.assert_any_call(
-            str(scene.test_list[0]),
-            font=scene.test_font,
-            color=scene.test_font_color
-        )
+    # @patch("algomanim.algonode.Text")
+    # def test_change_font(self, text):
+    #     scene = AlgoSceneFont()
+    #     text.assert_any_call(
+    #         str(scene.test_list[0]),
+    #         font=scene.test_font,
+    #         color=scene.test_font_color
+    #     )
 
 
 # AlgoScene instantiations with specific algoconstructs for test cases
