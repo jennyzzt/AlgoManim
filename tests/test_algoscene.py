@@ -75,6 +75,15 @@ class TestAlgoScenePreconfig:
             radius=DEFAULT_SETTINGS['node_size'] / 2
         )
 
+    @patch("algomanim.algonode.Text")
+    def test_change_font(self, text):
+        scene = AlgoSceneFont()
+        text.assert_any_call(
+            str(scene.test_list[0]),
+            font=scene.test_font,
+            color=scene.test_font_color
+        )
+
 
 # AlgoScene instantiations with specific algoconstructs for test cases
 default_transform = AlgoTransform([], transform=mock_animation)
@@ -163,3 +172,12 @@ class AlgoSceneNodeColorHex(AlgoSceneMockList):
 class AlgoSceneNodeCircle(AlgoSceneMockList):
     def preconfig(self, settings):
         settings['node_shape'] = 'circle'
+
+
+class AlgoSceneFont(AlgoSceneMockList):
+    test_font = 'Helvetica'
+    test_font_color = "#FFFF00"
+
+    def preconfig(self, settings):
+        settings['font'] = self.test_font
+        settings['font_color'] = self.test_font_color
