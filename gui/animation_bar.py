@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.video_player import VIDEO_BASE_WIDTH
+from gui.anim_utils import format_anim_block_str
 
 
 # Scrollbar base height
@@ -26,17 +27,6 @@ def empty_animation(index):
 
 def is_empty_anim(anim):
     return not hasattr(anim, 'start_position')
-
-
-# Formats text on animation blocks
-def format_anim_block_str(metablock, sep='\n'):
-    # extract metadata from the block
-    meta = metablock.metadata
-
-    w_prev = f"w_prev{sep}" if meta.w_prev else ""
-    return f"{meta.meta_name}{sep}" \
-           f"{w_prev}" \
-           f"#{meta.fid}"
 
 
 class AnimationBar(QWidget):
@@ -100,7 +90,6 @@ class AnimationBar(QWidget):
         """
         Create a single anim box from the properties of anim
         """
-
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
