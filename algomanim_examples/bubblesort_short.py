@@ -3,7 +3,7 @@ from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
 class ShortBubbleSortScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, [25, 43])
         swaps_made = True
         while swaps_made:
@@ -24,7 +24,6 @@ class ShortBubbleSortScene(AlgoScene):
         return result
 
     def preconfig(self, settings):
-        # settings['node_shape'] = Shape.CIRCLE
         settings['highlight_color'] = "#FF0000"
 
     def customize(self, action_pairs):

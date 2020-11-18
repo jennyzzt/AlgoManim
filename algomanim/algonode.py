@@ -1,7 +1,7 @@
+import numpy as np
 from manimlib.imports import *
-from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata, LowerMetadata
-from algomanim.settings import Shape
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
+from algomanim.metadata import LowerMetadata, attach_metadata
 from algomanim.algoobject import AlgoObject
 
 class AlgoNode(AlgoObject):
@@ -9,40 +9,44 @@ class AlgoNode(AlgoObject):
         super().__init__(scene)
         self.scene = scene
 
-        # Get preconfig settings
+        # Use preconfig settings to determine node configuration
         self.node_color = scene.settings['node_color']
         self.highlight_color = scene.settings['highlight_color']
         node_size = float(scene.settings['node_size'])
         self.node_length = node_size
-        self.node = {
-            Shape.CIRCLE: Circle(
+        nodes = {
+            'circle': Circle(
                 color=self.node_color,
                 fill_opacity=1,
                 radius=self.node_length / 2,
             ),
-            Shape.SQUARE: Square(
+            'square': Square(
                 fill_color=self.node_color,
                 fill_opacity=1,
                 side_length=self.node_length
             ),
-            Shape.SQUIRCLE: RoundedRectangle(
+            'squircle': RoundedRectangle(
                 height=self.node_length,
                 width=self.node_length,
                 fill_color=self.node_color,
                 fill_opacity=1
             )
-        }[scene.settings['node_shape']]
-        self.lines = {}
+        }
+        try:
+            self.node = nodes[scene.settings['node_shape'].lower()]
+        except KeyError:
+            print("Unrecognized node shape, defaulting to Square")
+            self.node = nodes['square']
 
         # Set attributes
+        self.lines = {}
         self.val = val
         self.txt = self.generate_text(val)
         self.grp = VGroup(self.node, self.txt)
 
     def generate_text(self, val):
-        text = TextMobject(str(val))
+        text = self.scene.create_text(str(val))
         text.scale(self.node_length * 1.5)
-        text.set_color(self.scene.settings['font_color'])
         return text
 
     def static_replace_text(self, old_text, new_text):
@@ -55,9 +59,8 @@ class AlgoNode(AlgoObject):
         new_text.move_to(old_text.get_center())
         return [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
 
+    @attach_metadata
     def change_value(self, val, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
-
         old_text = self.txt
         new_text = self.generate_text(val)
         new_text.move_to(self.txt.get_center())
@@ -79,14 +82,10 @@ class AlgoNode(AlgoObject):
 
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
+        metadata.add_lower(lower_meta)
 
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
-
+    @attach_metadata
     def highlight(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.highlight_color], transform=ApplyMethod,
@@ -98,13 +97,10 @@ class AlgoNode(AlgoObject):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        metadata.add_lower(lower_meta)
 
+    @attach_metadata
     def dehighlight(self, metadata=None, animated=True, w_prev=False):
-        meta = Metadata.check_and_create(metadata)
         # Create action pair
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.node.set_fill, self.node_color], transform=ApplyMethod,
@@ -116,10 +112,7 @@ class AlgoNode(AlgoObject):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
-        meta.add_lower(lower_meta)
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+        metadata.add_lower(lower_meta)
 
     def set_line_start_end(self, target):
         if target is None:

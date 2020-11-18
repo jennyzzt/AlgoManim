@@ -1,8 +1,7 @@
-import numpy as np
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
-from algomanim.algoscene import AlgoTransform, AlgoSceneAction
-from algomanim.metadata import Metadata
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
+from algomanim.metadata import attach_metadata
 
 class AlgoBinaryTreeNode(AlgoNode):
     def __init__(self, scene, val, parent=None):
@@ -81,6 +80,18 @@ class AlgoBinaryTreeNode(AlgoNode):
             self.right.recursive_show(max_depth, metadata=metadata, animated=animated,
                 w_prev=w_prev)
 
+    @attach_metadata
+    def recursive_find(self, val, metadata=None, animated=True, w_prev=False):
+        if self.val == val:
+            super().highlight(metadata=metadata, animated=animated, w_prev=w_prev)
+            super().dehighlight(metadata=metadata, animated=animated, w_prev=False)
+            return self
+
+        if val > self.val:
+            return self.right.recursive_find(val)
+
+        return self.left.recursive_find(val)
+
     def get_x_pos(self, node_id, max_depth):
         # finding the id of the middle leaf node OF THE WHOLE TREE
         total_leaf_nodes = 2 ** (max_depth - 1)
@@ -105,12 +116,13 @@ class AlgoBinaryTreeNode(AlgoNode):
             action = AlgoSceneAction.create_static_action(self.set_line_start_end, [self.parent])
             self.scene.add_action_pair(action, action, animated=False)
 
-            anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(self.lines[self.parent])),
-                w_prev=w_prev)
-            static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.lines[self.parent]])
+            anim_action = self.scene.create_play_action(
+                        AlgoTransform(FadeIn(self.lines[self.parent])),w_prev=w_prev)
+            static_action = AlgoSceneAction.create_static_action(
+                                            self.scene.add, [self.lines[self.parent]])
             self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
-        super().show(metadata, animated, True)
+        super().show(metadata=metadata, animated=animated, w_prev=True)
 
 
 class AlgoBinaryTree:
@@ -122,29 +134,23 @@ class AlgoBinaryTree:
         if show:
             self.show_tree(animated=False)
 
+    @attach_metadata
     def show_tree(self, metadata=None, animated=True, w_prev=False):
         ''' Display Tree on Sceen '''
         if self.root is not None:
-            meta = Metadata.check_and_create(metadata)
-
-            self.root.recursive_show(self.max_depth, metadata=meta, animated=animated,
+            self.root.recursive_show(self.max_depth, metadata=metadata, animated=animated,
                 w_prev=w_prev)
 
-            # Add metadata if meta is created in this fn
-            if metadata is None:
-                self.scene.add_metadata(meta)
-
+    @attach_metadata
     def insert(self, val, metadata=None, animated=True, w_prev=False):
         ''' Insert element into tree '''
-        meta = Metadata.check_and_create(metadata)
-
         new_node = self.root.recursive_insert(val)
-        new_node.recursive_show(self.max_depth, metadata=meta, animated=animated,
+        new_node.recursive_show(self.max_depth, metadata=metadata, animated=animated,
             w_prev=w_prev)
 
-        # Add metadata if meta is created in this fn
-        if metadata is None:
-            self.scene.add_metadata(meta)
+    @attach_metadata
+    def find(self, val, metadata=None, animated=True, w_prev=False):
+        return self.root.recursive_find(val, metadata=metadata, animated=animated, w_prev=w_prev)
 
     def size(self):
         ''' Returns the total number of nodes of the tree '''

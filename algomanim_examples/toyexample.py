@@ -1,12 +1,16 @@
 # pylint: skip-file
 
+from manimlib.imports import *
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 
 
 class ToyScene(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         algolist = AlgoList(self, [1, 3, 5, 2, 4])
 
-        algolist.highlight(*[0, 2, 4])
-        algolist.dehighlight(*[0, 2, 4])
+        # algolist.highlight(*[0, 2, 4])
+        algolist.pop(4)
+
+        left = algolist.slice(0, 5 // 2, move=LEFT, shift=True, w_prev=True)
+        # left.hide()

@@ -13,3 +13,6 @@ class DefaultBubbleSortScene(AlgoScene):
                 if algolist.compare(i, j, text=True):
                     swaps_made = True
                     algolist.swap(i, j)
+
+    def preconfig(self, settings):
+        settings['code_anim'] = True

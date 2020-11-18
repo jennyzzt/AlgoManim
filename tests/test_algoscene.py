@@ -1,8 +1,9 @@
 # pylint: disable=R0201
 from unittest.mock import patch, Mock
-from algomanim.algoscene import AlgoScene, AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform, AlgoSceneAction
+from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
-from algomanim.settings import DEFAULT_SETTINGS, Shape
+from algomanim.settings import DEFAULT_SETTINGS
 
 
 mock_animation = Mock()
@@ -54,7 +55,8 @@ class TestAlgoScene:
 
 
 @patch("algomanim.algonode.VGroup", Mock())
-@patch("algomanim.algonode.TextMobject", Mock())
+@patch("algomanim.algoscene.TextMobject", Mock())
+@patch("algomanim.algoobject.TexMobject", Mock())
 class TestAlgoScenePreconfig:
     @patch("algomanim.algonode.Square")
     def test_change_node_color(self, square):
@@ -74,18 +76,27 @@ class TestAlgoScenePreconfig:
             radius=DEFAULT_SETTINGS['node_size'] / 2
         )
 
+    @patch("algomanim.algoscene.Text")
+    def test_change_font(self, text):
+        scene = AlgoSceneFont()
+        text.assert_any_call(
+            str(scene.test_list[0]),
+            color=scene.test_font_color,
+            font=scene.test_font
+        )
+
 
 # AlgoScene instantiations with specific algoconstructs for test cases
 default_transform = AlgoTransform([], transform=mock_animation)
 
 class AlgoSceneTestSingle(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
 
 class AlgoSceneTestDoubleTogether(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
         action = self.create_play_action(default_transform, w_prev=True)
@@ -93,14 +104,14 @@ class AlgoSceneTestDoubleTogether(AlgoScene):
 
 
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
         self.add_action_pair(action, action)
 
 
 class AlgoSceneCustomColor(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         original_color = Mock()
         action = self.create_play_action(
             AlgoTransform([original_color], transform=mock_animation, color_index=0)
@@ -112,7 +123,7 @@ class AlgoSceneCustomColor(AlgoScene):
 
 
 class AlgoSceneFastForward(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
@@ -121,7 +132,7 @@ class AlgoSceneFastForward(AlgoScene):
 
 
 class AlgoSceneSkip(AlgoScene):
-    def algoconstruct(self):
+    def algo(self):
         self.add_action_pair(
             AlgoSceneAction(self.play, default_transform),
             AlgoSceneAction(self.add, default_transform)
@@ -144,12 +155,11 @@ class AlgoSceneClear(AlgoScene):
 class AlgoSceneMockList(AlgoScene):
     test_list = [1]
 
-
-    @patch("algomanim.algoobject.TexMobject", Mock())
+    @patch("algomanim.algoscene.TexMobject", Mock())
     @patch("algomanim.algolist.AlgoList.group", Mock())
     @patch("algomanim.algolist.AlgoList.center", Mock())
     @patch("algomanim.algolist.AlgoList.show_list", Mock())
-    def algoconstruct(self):
+    def algo(self):
         AlgoList(self, self.test_list)
 
 
@@ -162,4 +172,13 @@ class AlgoSceneNodeColorHex(AlgoSceneMockList):
 
 class AlgoSceneNodeCircle(AlgoSceneMockList):
     def preconfig(self, settings):
-        settings['node_shape'] = Shape.CIRCLE
+        settings['node_shape'] = 'circle'
+
+
+class AlgoSceneFont(AlgoSceneMockList):
+    test_font = 'sans-serif'
+    test_font_color = "#FFFF00"
+
+    def preconfig(self, settings):
+        settings['font'] = self.test_font
+        settings['font_color'] = self.test_font_color

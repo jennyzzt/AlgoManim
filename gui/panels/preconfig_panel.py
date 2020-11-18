@@ -2,20 +2,35 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
+from gui.panels.widgets.input_check_box import InputCheckBox
 from gui.panels.widgets.input_color_button import InputColorButton
 from gui.panels.widgets.input_dropdown import InputDropdown
 from gui.panels.widgets.input_text_box import InputTextBox
 from gui.panels.widgets.qcolor_button import QColorButton
 
-from algomanim.shape import Shape
+SHAPES = [
+    'square',
+    'circle',
+    'squircle'
+]
 
+FONTS = [
+    'latex',
+    'serif',
+    'sans-serif',
+    'cursive',
+    'fantasy',
+    'monospace'
+]
 
 SETTINGS = ([
+    ('code_anim', InputCheckBox, QCheckBox),
     ('background_color', InputColorButton, QColorButton),
     ('node_color', InputColorButton, QColorButton),
     ('node_shape', InputDropdown, QComboBox),
     ('node_size', InputTextBox, QLineEdit),
     ('highlight_color', InputColorButton, QColorButton),
+    ('font', InputDropdown, QComboBox),
     ('font_color', InputColorButton, QColorButton)
 ])
 
@@ -52,25 +67,27 @@ class PreconfigPanel(BaseChangesPanel):
             widget = widget_class()
             form_layout.addRow(label, widget)
             self.change_widgets[label_title] = widget_wrapper(widget)
+
+        # Initialise node shape dropdown with Shapes
+        self.add_dropdown_items('node_shape', SHAPES)
+        # Initialise font dropdown with CSS2 generic font families, and latex
+        self.add_dropdown_items('font', FONTS)
+
         self.form_frame.setLayout(form_layout)
 
-    def load_settings(self, settings):
-        # Initialise node shape dropdown with Shapes
-        if settings['node_shape']:
-            dropdown = self.change_widgets['node_shape'].get_widget()
-            dropdown.clear()
-            dropdown.addItems([e.name for e in Shape])
-            dropdown.setCurrentText(settings['node_shape'].name)
+    def add_dropdown_items(self, widget_key, items):
+        dropdown = self.change_widgets[widget_key].get_widget()
+        dropdown.clear()
+        dropdown.addItems(items)
 
+    def load_settings(self, settings):
         for label in settings:
             self.change_widgets[label].set_value(settings[label])
 
         self.form_frame.show()
 
-
     def save_changes(self):
         for label in self.change_widgets:
             change_widget = self.change_widgets[label]
-            value = Shape[change_widget.get_value()] \
-                if label == 'node_shape' else change_widget.get_value()
+            value = change_widget.get_value()
             self.gui_window.set_settings(label, value)
