@@ -19,8 +19,8 @@ from anim_change import AnimChange
 WORKING_DIR = Path().absolute()
 ERROR_MSG_STYLESHEET = "font: bold 13pt"
 
-# Testing parameter
-TEST_VIDEO_ONLY = False
+# controls whether shortcut button to load toyexample.py is shown
+DEBUG = False
 
 
 # ======== Main GUI ========
@@ -92,6 +92,10 @@ class GuiWindow(QDialog):
         self.render_button = QPushButton("Render")
         self.render_button.clicked.connect(self.render_video)
 
+        if DEBUG:
+            self.debug_button = QPushButton("ToyExample")
+            self.debug_button.clicked.connect(self.render_toyexample)
+
         # Show video in browser button
         self.show_video_button = QPushButton("Show video in explorer")
         self.show_video_button.clicked.connect(self.show_video_in_explorer)
@@ -108,6 +112,8 @@ class GuiWindow(QDialog):
             quality_layout.addWidget(btn)
         quality_layout.addStretch(1)
         quality_layout.addWidget(self.show_video_button)
+        if DEBUG:
+            quality_layout.addWidget(self.debug_button)
         quality_layout.addWidget(self.render_button)
 
         # ========= Groupbox =========
@@ -311,12 +317,29 @@ class GuiWindow(QDialog):
 
         return scene_names
 
-    def render_video(self):
-        if TEST_VIDEO_ONLY:
-            self.video_player.open_video(WORKING_DIR /
-                                         "media/algomanim/videos/BubbleSortScene.mp4")
-            return
+    def render_toyexample(self):
+        self.scene_name = "ToyScene"
 
+        # Render video programmatically
+        self.scene = custom_renderer("algomanim_examples/toyexample.py",
+                                     self.scene_name, VideoQuality.low,
+                                     self.post_customize_fns, self.post_config_settings)
+        self.anims = self.scene.metadata_blocks
+
+        # Add animation boxes to scrollbar
+        self.animation_bar.fill_bar(self.anims)
+
+        # Add preconfig settings to panel
+        self.preconfig_panel.load_settings(self.scene.settings)
+
+        # Display video
+        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
+        self.video_player.open_video(video_fp=video_fp)
+
+        # Display button
+        self.show_video_button.show()
+
+    def render_video(self):
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
         self.scene_name = self.scene_combobox.currentText()
@@ -345,7 +368,7 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality,
-            self.post_customize_fns, self.post_config_settings)
+                                     self.post_customize_fns, self.post_config_settings)
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
@@ -363,6 +386,13 @@ class GuiWindow(QDialog):
 
 
 if __name__ == '__main__':
+    # set global debug flag
+    # pylint: disable=simplifiable-if-statement
+    if len(sys.argv) > 1 and sys.argv[1] == "-debug":
+        DEBUG = True
+    else:
+        DEBUG = False
+
     app = QApplication([])  # no cmd line params
     gui = GuiWindow()
     gui.show()

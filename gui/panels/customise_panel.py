@@ -4,7 +4,12 @@ from PyQt5.QtWidgets import *
 from gui.animation_bar import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
+from gui.anim_utils import format_anim_block_str
 from .widgets.frame_layout import FrameLayout
+
+
+OPTION_HEIGHT = 35
+
 
 # pylint: disable=too-few-public-methods
 class CustomisePanel(BaseChangesPanel):
@@ -44,7 +49,7 @@ class CustomisePanel(BaseChangesPanel):
     def save_changes(self):
         # save changes for customisations
         for (action_pair_index, change_name, change_type), (change_widget, default_val) \
-            in self.change_widgets.items():
+                in self.change_widgets.items():
             if default_val != change_widget.get_value():
                 self.gui_window.add_change(
                     action_pair_index,
@@ -67,58 +72,69 @@ class CustomisePanel(BaseChangesPanel):
 
         # initialize new frame
         self.menu_frame = QWidget()
+
         self.menu_layout = QVBoxLayout()
+        self.menu_layout.setSpacing(0)
+        self.menu_layout.setContentsMargins(0, 0, 0, 0)
+        self.menu_layout.setAlignment(Qt.AlignTop)
+
         self.menu_frame.setLayout(self.menu_layout)
 
-    def set_animation(self, anim): # pylint: disable=too-many-locals
+    def set_animation(self, anim):
         if is_empty_anim(anim):
-            self.reset_frame(title = "custom")
-            collapsible_box = FrameLayout(title="Text animations")
-            form_layout = QFormLayout()
-            collapsible_box.addLayout(form_layout)
-
-            # Add text section
-            add_text_widget = QLineEdit()
-            form_layout.addRow(QLabel("Add Text"), add_text_widget)
-            self.text_widgets[anim['index']] = add_text_widget
-
-            self.menu_layout.addWidget(collapsible_box)
-            self.save_button.setEnabled(True)
-            self.inner_scroll_layout.addWidget(self.menu_frame)
+            self.set_empty_animation(anim)
         else:
-            self.reset_frame(title = anim.desc())
+            self.set_nonempty_animation(anim)
 
-            change_possible = False
-            for lower_meta in anim.metadata.children:
-                action_pair = lower_meta.action_pair
-                action_pair_index = action_pair.get_index()
-                lower_meta_name = lower_meta.metadata
-                change_name = f'{anim.desc(sep=" ")} > {lower_meta_name}'
+    def set_empty_animation(self, anim):
+        self.reset_frame(title="custom")
+        collapsible_box = FrameLayout(title="Text animations")
+        form_layout = QFormLayout()
+        collapsible_box.addLayout(form_layout)
 
-                collapsible_box = FrameLayout(title=lower_meta_name)
-                form_layout = QFormLayout()
+        # Add text section
+        add_text_widget = QLineEdit()
+        form_layout.addRow(QLabel("Add Text"), add_text_widget)
+        self.text_widgets[anim['index']] = add_text_widget
 
-                # for each customization available in action_pair
-                for (change_type, original_val) in action_pair.customizations().items():
-                    change_possible = True
+        self.menu_layout.addWidget(collapsible_box)
+        self.save_button.setEnabled(True)
+        self.inner_scroll_layout.addWidget(self.menu_frame)
 
-                    # create input widget and set default value to last changed value
-                    # or original value
-                    widget = change_type.get_widget()
-                    wrapped_widget = change_type.wrap_input_widget(widget)
-                    change_key = (action_pair_index, change_type)
-                    if change_key in self.changes:
-                        wrapped_widget.set_value(self.changes[change_key].get_value())
-                    else:
-                        wrapped_widget.set_value(original_val)
+    def set_nonempty_animation(self, anim_meta_block):  # pylint: disable=too-many-locals
+        self.reset_frame(title=format_anim_block_str(anim_meta_block))
 
-                    form_layout.addRow(QLabel(change_type.desc), widget)
+        change_possible = False
+        for lower_meta in anim_meta_block.metadata.children:
+            action_pair = lower_meta.action_pair
+            action_pair_index = action_pair.get_index()
+            lower_meta_name = lower_meta.meta_name
+            change_name = f'{anim_meta_block.desc(sep=" ")} > {lower_meta_name}'
 
-                    widget_key = (action_pair_index, change_name, change_type)
-                    self.change_widgets[widget_key] = wrapped_widget, wrapped_widget.get_value()
+            collapsible_box = FrameLayout(title=lower_meta_name)
+            form_layout = QFormLayout()
 
-                collapsible_box.addLayout(form_layout)
-                self.menu_layout.addWidget(collapsible_box)
+            # for each customization available in action_pair
+            for (change_type, original_val) in action_pair.customizations().items():
+                change_possible = True
 
-            self.save_button.setEnabled(change_possible)
-            self.inner_scroll_layout.addWidget(self.menu_frame)
+                # create input widget and set default value to last changed value
+                # or original value
+                widget = change_type.get_widget()
+                wrapped_widget = change_type.wrap_input_widget(widget)
+                change_key = (action_pair_index, change_type)
+                if change_key in self.changes:
+                    wrapped_widget.set_value(self.changes[change_key].get_value())
+                else:
+                    wrapped_widget.set_value(original_val)
+
+                form_layout.addRow(QLabel(change_type.desc), widget)
+
+                widget_key = (action_pair_index, change_name, change_type)
+                self.change_widgets[widget_key] = wrapped_widget, wrapped_widget.get_value()
+
+            collapsible_box.addLayout(form_layout)
+            self.menu_layout.addWidget(collapsible_box)
+
+        self.save_button.setEnabled(change_possible)
+        self.inner_scroll_layout.addWidget(self.menu_frame)
