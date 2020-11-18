@@ -266,7 +266,7 @@ class AlgoScene(MovingCameraScene):
         else:
             self.add_metadata(metadata)
 
-    def find_action_pairs(self, method, occurence=None, lower_level=None):
+    def find_action_pairs(self, method, occurence=None, lower_level=None, w_children=True):
         action_pairs = []
         for meta_tree in self.meta_trees:
             if method == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
@@ -274,9 +274,13 @@ class AlgoScene(MovingCameraScene):
                     for lower in meta_tree.children:
                         if lower_level == lower.meta_name:
                             action_pairs.append(lower.action_pair)
-                else:
+                elif w_children:
+                    # if w_children is True, add all action_pairs of this metadata
                     for action_pair in meta_tree.get_all_action_pairs():
                         action_pairs.append(action_pair)
+                else:
+                    # else, add only the first action_pair of this metadata
+                    action_pairs.append(meta_tree.get_all_action_pairs()[0])
         return action_pairs
 
     # -------- Text customisation functions -------- #
@@ -293,7 +297,9 @@ class AlgoScene(MovingCameraScene):
     # Convenience function to edit existing text objects via a ReplacementTransform
     # Requires the previous text object to be edited
     # Returns the replacement text object
-    def change_text(self, new_text_string, old_text_object, index=None, position=ORIGIN):
+    def change_text(self, new_text_string, old_text_object=None, index=None, position=ORIGIN):
+        if old_text_object is None:
+            return self.add_text(new_text_string, index, position)
         position = old_text_object.get_center()
         new_text_object = self.create_text(new_text_string, self.settings['text_color'])
         new_text_object.shift(position)
@@ -311,6 +317,27 @@ class AlgoScene(MovingCameraScene):
     # ---------------------------------------------- #
 
     # -------- Common customisation functions -------- #
+
+    # Displays the number of times a line is called
+    # Note that the linenum inputted should be the linenum in display_sourcecode,
+    # not the linenum in algo(), so this can only be used if show_anim is on
+    def add_complexity_analysis_line(self, linenum, position=2*DOWN, custom_text=None):
+        codeindex_pins = self.find_pin('__codeindex__')
+        relevant_pins = list(filter(lambda pin:pin.get_args()[0]==linenum, codeindex_pins))
+        old_text = None
+        for i, pin in enumerate(relevant_pins):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'Line {linenum} called: {i} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
+
+    # Displays the number of times a fn_method, specified by a pin or metadata, is called
+    def add_complexity_analysis_fn(self, fn_method, position=2*DOWN, custom_text=None):
+        action_pairs = self.find_action_pairs(method=fn_method, w_children=False)
+        old_text = None
+        for i, pin in enumerate(action_pairs):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'{fn_method} called: {i} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     def add_slide(self, text, index, text_position=ORIGIN, duration=1.0):
         self.add_fade_out_all(index)

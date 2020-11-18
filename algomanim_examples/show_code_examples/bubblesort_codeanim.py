@@ -4,7 +4,7 @@ from algomanim.algolist import AlgoList
 
 class DefaultBubbleSortScene(AlgoScene):
     def algo(self):
-        algolist = AlgoList(self, [25, 43, 5, 18, 30])
+        algolist = AlgoList(self, [25, 43, 5])
         swaps_made = True
         while swaps_made:
             swaps_made = False
@@ -18,14 +18,5 @@ class DefaultBubbleSortScene(AlgoScene):
         settings['show_code'] = True
 
     def customize(self, action_pairs):
-        # add complexity analysis for a particular function at index
-        fn_line_num = 4
-        codeindex_pins = self.find_pin('__codeindex__')
-        pins = list(filter(lambda pin:pin.get_args()[0]==fn_line_num, codeindex_pins))
-        text = None
-        for i, pin in enumerate(pins):
-            index = pin.get_index()
-            if text is None:
-                text = self.add_text(f'Fn used: {i}', index=index, position=2*DOWN)
-            else:
-                text = self.change_text(f'Fn used: {i}', text, index=index, position=2*DOWN)
+        self.add_complexity_analysis_line(4, position=2*DOWN)
+        self.add_complexity_analysis_fn('compare', position=3*DOWN)
