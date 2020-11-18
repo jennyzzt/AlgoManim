@@ -235,26 +235,6 @@ class AlgoScene(MovingCameraScene):
         if algo_item in self.algo_objs:
             self.algo_objs.remove(algo_item)
 
-    def shift_scene(self, vector, metadata=None):
-        first = True
-
-        for algo_obj in self.algo_objs:
-            # Shift all items UP
-            if first:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=False)
-                first = False
-            else:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=True)
-
-    def skip(self, start, end=None):
-        if end is None:
-            end = len(self.action_pairs)
-
-        for action_pair in self.action_pairs[start:end]:
-            action_pair.skip()
-
     def push_back_action_pair_indices(self, index):
         for action_pair in self.action_pairs[index:]:
             action_pair.attach_index(action_pair.get_index() + 1)
@@ -272,6 +252,34 @@ class AlgoScene(MovingCameraScene):
             self.add_metadata(curr_metadata)
         else:
             self.add_metadata(metadata)
+
+    def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
+        static_action = AlgoSceneAction.create_static_action(static_fn, args)
+        action_pair = AlgoSceneActionPair(static_action, static_action)
+        self.insert_action_pair(action_pair, index)
+
+        if metadata is None:
+            curr_metadata = Metadata('custom')
+            lower_meta = LowerMetadata('custom', action_pair)
+            curr_metadata.add_lower(lower_meta)
+            self.add_metadata(curr_metadata)
+        else:
+            self.add_metadata(metadata)
+
+    def find_action_pairs(self, method, occurence=None, lower_level=None):
+        action_pairs = []
+        for meta_tree in self.meta_trees:
+            if method == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
+                if lower_level:
+                    for lower in meta_tree.children:
+                        if lower_level == lower.meta_name:
+                            action_pairs.append(lower.action_pair)
+                else:
+                    for action_pair in meta_tree.get_all_action_pairs():
+                        action_pairs.append(action_pair)
+        return action_pairs
+
+    # -------- Text customisation functions -------- #
 
     # Convenience function to add a text object and the Write transform
     # Returns the created text object
@@ -300,19 +308,9 @@ class AlgoScene(MovingCameraScene):
     def remove_text(self, old_text_object, index):
         transform = lambda: FadeOut(old_text_object)
         self.add_transform(index, transform)
+    # ---------------------------------------------- #
 
-    def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
-        static_action = AlgoSceneAction.create_static_action(static_fn, args)
-        action_pair = AlgoSceneActionPair(static_action, static_action)
-        self.insert_action_pair(action_pair, index)
-
-        if metadata is None:
-            curr_metadata = Metadata('custom')
-            lower_meta = LowerMetadata('custom', action_pair)
-            curr_metadata.add_lower(lower_meta)
-            self.add_metadata(curr_metadata)
-        else:
-            self.add_metadata(metadata)
+    # -------- Common customisation functions -------- #
 
     def add_slide(self, text, index, text_position=ORIGIN, duration=1.0):
         self.add_fade_out_all(index)
@@ -342,6 +340,18 @@ class AlgoScene(MovingCameraScene):
         curr_metadata.add_lower(lower_meta)
 
         self.add_metadata(curr_metadata)
+
+    def shift_scene(self, vector, metadata=None):
+        first = True
+        for algo_obj in self.algo_objs:
+            # Shift all items UP
+            if first:
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=False)
+                first = False
+            else:
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=True)
 
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
@@ -373,6 +383,14 @@ class AlgoScene(MovingCameraScene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.fast_forward(speed_up)
 
+    def skip(self, start, end=None):
+        if end is None:
+            end = len(self.action_pairs)
+
+        for action_pair in self.action_pairs[start:end]:
+            action_pair.skip()
+    # ------------------------------------------------ #
+
     def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
         # convert action_pairs into anim_blocks
         start_time = 0
@@ -392,6 +410,46 @@ class AlgoScene(MovingCameraScene):
             # attach block to action pair so that time data can be
             # extracted later to be used in GUI
             action_pair.attach_block(anim_blocks[-1])
+
+    def create_metadata_blocks(self):
+        self.metadata_blocks = []
+
+        for tree in self.meta_trees:
+            action_pairs = tree.get_all_action_pairs()
+
+            blocks = {action_pair.get_block() for action_pair in action_pairs}
+            if not blocks:
+                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
+                    has no action_pairs attached to it!')
+            else:
+                start_time = min(map(lambda block: block.start_time, blocks))
+                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
+
+                runtime = end_time - start_time
+
+                self.metadata_blocks.append(
+                    MetadataBlock(tree, action_pairs, start_time, runtime)
+                )
+
+        # some metadata might be added out of order, sort the blocks by start_time
+        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+
+    # -------- Pin functions -------- #
+
+    def insert_pin(self, desc, *args):
+        empty_action = AlgoSceneAction.create_empty_action(list(args))
+        empty_pair = self.add_action_pair(empty_action)
+
+        lower_meta = LowerMetadata(desc, empty_pair)
+        metadata = Metadata(desc)
+        metadata.add_lower(lower_meta)
+
+        self.add_metadata(metadata)
+
+    def find_pin(self, desc):
+        action_pairs = self.find_action_pairs(desc)
+        return action_pairs
+    # ------------------------------- #
 
     def execute_action_pairs(self, action_pairs, anim_blocks):
         # wait action is required at the end if last animation is not
@@ -422,56 +480,7 @@ class AlgoScene(MovingCameraScene):
         for anim_block in self.anim_blocks:
             anim_block.run()
 
-    def create_metadata_blocks(self):
-        self.metadata_blocks = []
-
-        for tree in self.meta_trees:
-            action_pairs = tree.get_all_action_pairs()
-
-            blocks = {action_pair.get_block() for action_pair in action_pairs}
-            if not blocks:
-                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
-                    has no action_pairs attached to it!')
-            else:
-                start_time = min(map(lambda block: block.start_time, blocks))
-                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
-
-                runtime = end_time - start_time
-
-                self.metadata_blocks.append(
-                    MetadataBlock(tree, action_pairs, start_time, runtime)
-                )
-
-        # some metadata might be added out of order, sort the blocks by start_time
-        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
-
-    def insert_pin(self, desc, *args):
-        empty_action = AlgoSceneAction.create_empty_action(list(args))
-        empty_pair = self.add_action_pair(empty_action)
-
-        lower_meta = LowerMetadata(desc, empty_pair)
-        metadata = Metadata(desc)
-        metadata.add_lower(lower_meta)
-
-        self.add_metadata(metadata)
-
-    def find_pin(self, desc):
-        action_pairs = self.find_action_pairs(desc)
-        return action_pairs
-
-    def find_action_pairs(self, method, occurence=None, lower_level=None):
-        action_pairs = []
-        for meta_tree in self.meta_trees:
-            if method == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
-                if lower_level:
-                    for lower in meta_tree.children:
-                        if lower_level == lower.meta_name:
-                            action_pairs.append(lower.action_pair)
-                else:
-                    for action_pair in meta_tree.get_all_action_pairs():
-                        action_pairs.append(action_pair)
-        return action_pairs
-
+    # Function called by manim to generate animations
     def construct(self):
         Metadata.reset_counter()
         self.preconfig(self.settings)
