@@ -55,7 +55,8 @@ class TestAlgoScene:
 
 
 @patch("algomanim.algonode.VGroup", Mock())
-@patch("algomanim.algonode.TextMobject", Mock())
+@patch("algomanim.algoscene.TextMobject", Mock())
+@patch("algomanim.algoobject.TexMobject", Mock())
 class TestAlgoScenePreconfig:
     @patch("algomanim.algonode.Square")
     def test_change_node_color(self, square):
@@ -75,14 +76,14 @@ class TestAlgoScenePreconfig:
             radius=DEFAULT_SETTINGS['node_size'] / 2
         )
 
-    # @patch("algomanim.algonode.Text")
-    # def test_change_font(self, text):
-    #     scene = AlgoSceneFont()
-    #     text.assert_any_call(
-    #         str(scene.test_list[0]),
-    #         font=scene.test_font,
-    #         color=scene.test_font_color
-    #     )
+    @patch("algomanim.algoscene.Text")
+    def test_change_font(self, text):
+        scene = AlgoSceneFont()
+        text.assert_any_call(
+            str(scene.test_list[0]),
+            color=scene.test_font_color,
+            font=scene.test_font
+        )
 
 
 # AlgoScene instantiations with specific algoconstructs for test cases
@@ -154,7 +155,7 @@ class AlgoSceneClear(AlgoScene):
 class AlgoSceneMockList(AlgoScene):
     test_list = [1]
 
-    @patch("algomanim.algoobject.TexMobject", Mock())
+    @patch("algomanim.algoscene.TexMobject", Mock())
     @patch("algomanim.algolist.AlgoList.group", Mock())
     @patch("algomanim.algolist.AlgoList.center", Mock())
     @patch("algomanim.algolist.AlgoList.show_list", Mock())
@@ -175,7 +176,7 @@ class AlgoSceneNodeCircle(AlgoSceneMockList):
 
 
 class AlgoSceneFont(AlgoSceneMockList):
-    test_font = 'Helvetica'
+    test_font = 'sans-serif'
     test_font_color = "#FFFF00"
 
     def preconfig(self, settings):
