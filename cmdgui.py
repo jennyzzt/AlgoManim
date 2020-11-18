@@ -19,9 +19,6 @@ from anim_change import AnimChange
 WORKING_DIR = Path().absolute()
 ERROR_MSG_STYLESHEET = "font: bold 13pt"
 
-# Testing parameter
-TEST_VIDEO_ONLY = False
-
 
 # ======== Main GUI ========
 
@@ -312,11 +309,6 @@ class GuiWindow(QDialog):
         return scene_names
 
     def render_video(self):
-        if TEST_VIDEO_ONLY:
-            self.video_player.open_video(WORKING_DIR /
-                                         "media/algomanim/videos/BubbleSortScene.mp4")
-            return
-
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
         self.scene_name = self.scene_combobox.currentText()

@@ -86,13 +86,13 @@ class CustomisePanel(BaseChangesPanel):
             self.save_button.setEnabled(True)
             self.inner_scroll_layout.addWidget(self.menu_frame)
         else:
-            self.reset_frame(title = anim.desc())
+            self.reset_frame(title=anim.desc())
 
             change_possible = False
             for lower_meta in anim.metadata.children:
                 action_pair = lower_meta.action_pair
                 action_pair_index = action_pair.get_index()
-                lower_meta_name = lower_meta.metadata
+                lower_meta_name = lower_meta.meta_name
                 change_name = f'{anim.desc(sep=" ")} > {lower_meta_name}'
 
                 collapsible_box = FrameLayout(title=lower_meta_name)
