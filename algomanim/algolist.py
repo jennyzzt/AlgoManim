@@ -175,7 +175,7 @@ class AlgoList(AlgoObject):
         left_node = self.nodes[i - 1] if i != 0 else None
         right_nodes = self.nodes[i + 1:] if i != len(self.nodes) - 1 else None
 
-        self.nodes[i].hide(metadata, animated)
+        self.nodes[i].hide(metadata=metadata, animated=animated)
         self.nodes.remove(self.nodes[i])
 
         # Update the VGroup of the list

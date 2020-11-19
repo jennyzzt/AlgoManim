@@ -4,6 +4,7 @@ __author__ = 'Caroline Beyne'
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
 
+
 class FrameLayout(QWidget):
     def __init__(self, parent=None, title=None):
         QWidget.__init__(self, parent=parent)

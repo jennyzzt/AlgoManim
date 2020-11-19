@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.video_player import VIDEO_BASE_WIDTH
+from gui.anim_utils import format_anim_block_str
 
 
 # Scrollbar base height
@@ -11,6 +12,11 @@ BAR_BASE_HEIGHT = 125
 BOX_MIN_WIDTH = 80
 BOX_MAX_WIDTH = 320
 
+# Add-text button takes up 1/8 of the box
+TEXT_BTN_FRAC = 8
+
+
+# Placeholder for custom animations
 def empty_animation(index):
     return {
         'index': index,
@@ -18,8 +24,10 @@ def empty_animation(index):
         'runtime': 0.5
     }
 
+
 def is_empty_anim(anim):
     return not hasattr(anim, 'start_position')
+
 
 class AnimationBar(QWidget):
 
@@ -78,43 +86,53 @@ class AnimationBar(QWidget):
 
         return width, height
 
-    def create_anim_box(self, index, anim):
+    def create_anim_box(self, index, anim_meta_block):
         """
         Create a single anim box from the properties of anim
         """
-        desc = anim['desc'] if is_empty_anim(anim) else anim.desc()
 
         anim_box = QGroupBox()
         anim_box.setStyleSheet("border-style: none; background-color: white; color: black")
 
-        anim_box_layout = QVBoxLayout()
+        anim_box_layout = QGridLayout()
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Animation blocks with runtime act as the markers to add custom animation can be added
-        if not is_empty_anim(anim) and anim.start_position() != anim.end_position():
-            # Create text animation button
-            add_anim_button = QPushButton(text='+')
-            add_anim_button.setStyleSheet("border:1px solid black;")
-            add_anim_button.clicked.connect(lambda event: \
-                self.add_anim(index + 1, anim.end_index()))
-            anim_box_layout.addWidget(add_anim_button, alignment=Qt.AlignRight)
-
         # Animation label using metadata
+        if is_empty_anim(anim_meta_block):
+            desc = anim_meta_block['desc']
+        else:
+            desc = format_anim_block_str(anim_meta_block)
         anim_lbl = QLabel(desc)
-        anim_lbl.setAlignment(Qt.AlignCenter)
+        anim_lbl.setAlignment(Qt.AlignCenter)  # center-align text
         anim_lbl.setWordWrap(True)
-        anim_box_layout.addWidget(anim_lbl)
+        anim_box_layout.addWidget(anim_lbl, 0, 0, 1, TEXT_BTN_FRAC - 1)
+
+        # Create text animation button
+        if not is_empty_anim(anim_meta_block) \
+                and anim_meta_block.start_position() != anim_meta_block.end_position():
+            add_anim_button = QPushButton(text='+')
+            add_anim_button.setToolTip("Add custom animation")
+            add_anim_button.setStyleSheet("border:1px solid black;")
+
+            add_anim_button.clicked.connect(lambda event:
+                                            self.add_anim(index + 1, anim_meta_block.end_index()))
+
+            anim_box_layout.addWidget(add_anim_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
 
         # Size and layout box
-        width, height = AnimationBar.get_anim_box_size(anim.runtime \
-            if not is_empty_anim(anim) else anim['runtime'])
+        if is_empty_anim(anim_meta_block):
+            runtime = anim_meta_block['runtime']
+        else:
+            runtime = anim_meta_block.runtime
+        width, height = AnimationBar.get_anim_box_size(runtime)
+
         anim_box.setFixedHeight(height)
         anim_box.setFixedWidth(width)
         anim_box.setLayout(anim_box_layout)
 
         # Clicking on anim box jumps video to anim
         anim_box.mouseReleaseEvent = lambda event: \
-            self.set_mouse_clicked(anim)
+            self.set_mouse_clicked(anim_meta_block)
 
         return anim_box
 

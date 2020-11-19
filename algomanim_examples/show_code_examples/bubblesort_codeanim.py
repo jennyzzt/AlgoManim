@@ -15,4 +15,8 @@ class DefaultBubbleSortScene(AlgoScene):
                     algolist.swap(i, j)
 
     def preconfig(self, settings):
-        settings['code_anim'] = True
+        settings['show_code'] = True
+
+    def customize(self, action_pairs):
+        self.add_complexity_analysis_line(4, position=2*DOWN)
+        self.add_complexity_analysis_fn('compare', position=3*DOWN)

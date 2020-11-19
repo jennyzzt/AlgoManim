@@ -12,7 +12,7 @@ from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
 
 
-# ----- import utility used for code_anim ----- #
+# ----- import utility used for show_code ----- #
 Import = namedtuple("Import", ["module", "name", "alias"])
 
 def get_imports(path):
@@ -53,8 +53,8 @@ class AlgoScene(MovingCameraScene):
 
         MovingCameraScene.__init__(self, **kwargs)
 
-    def is_code_anim(self):
-        return self.settings['code_anim']
+    def is_show_code(self):
+        return self.settings['show_code']
 
     ''' For user to overwrite '''
     def preconfig(self, settings):
@@ -94,15 +94,19 @@ class AlgoScene(MovingCameraScene):
                 inner_fn_name = line[front_space_count:].split()[1]
                 inner_fn_name = inner_fn_name.split('(')[0]
                 exec_sourcelines.append(f'{line_tab}global {inner_fn_name}\n')
+                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
+                                      r'\1\2', line)
+                display_sourcelines.append(display_line)
 
             # Insert pin if line is not a pin
             elif 'insert_pin' not in line:
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
                 exec_sourcelines.append(pin)
+                # Remove flags and add display code
+                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
+                                      r'\1\2', line)
+                display_sourcelines.append(display_line)
 
-            # Remove flags and add display code
-            display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))', r'\1\2', line)
-            display_sourcelines.append(display_line)
             # Add code to be executed
             exec_sourcelines.append(line[redundant_space_count:])
 
@@ -117,7 +121,7 @@ class AlgoScene(MovingCameraScene):
 
     def algo_construct(self):
         # Add parallel code animation
-        if self.is_code_anim():
+        if self.is_show_code():
             self.algo_codeanim()
         # Run normal algo animation
         else:
@@ -139,8 +143,8 @@ class AlgoScene(MovingCameraScene):
                 return
             # move first line to the desired position
             mid_index = len(textobjs)/2
-            textobjs[0].move_to((self.camera_frame.get_center() +
-                                 self.camera_frame.get_right()) / 2)
+            textobjs[0].move_to(self.camera_frame.get_center() + RIGHT*0.2
+                                + RIGHT*textobjs[0].get_width()/2)
             textobjs[0].shift(mid_index * UP * 0.7)
             # arrange text group downwards aligned to the left
             text = VGroup(*textobjs)
@@ -181,7 +185,7 @@ class AlgoScene(MovingCameraScene):
 
     def customize_construct(self, action_pairs):
         # Add customisation needed for parallel code anim
-        if self.is_code_anim():
+        if self.is_show_code():
             self.customize_codeanim()
         # Run user-defined customize fn
         self.customize(action_pairs)
@@ -192,6 +196,16 @@ class AlgoScene(MovingCameraScene):
 
     def post_config(self, settings):
         settings.update(self.post_config_settings)
+
+    '''
+    Factory method to return a Text-kind object depending on the current configuration.
+    Defaults to the manim-configured default font if "font" is not a valid installed font.
+    '''
+    def create_text(self, text_string, font_color=WHITE):
+        font = self.settings['font'].lower()
+        if font == 'latex':
+            return TextMobject(text_string, color=font_color)
+        return Text(text_string, color=font_color, font=font)
 
     def create_play_action(self, transform, w_prev=False):
         return AlgoSceneAction(
@@ -225,26 +239,6 @@ class AlgoScene(MovingCameraScene):
         if algo_item in self.algo_objs:
             self.algo_objs.remove(algo_item)
 
-    def shift_scene(self, vector, metadata=None):
-        first = True
-
-        for algo_obj in self.algo_objs:
-            # Shift all items UP
-            if first:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=False)
-                first = False
-            else:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=True)
-
-    def skip(self, start, end=None):
-        if end is None:
-            end = len(self.action_pairs)
-
-        for action_pair in self.action_pairs[start:end]:
-            action_pair.skip()
-
     def push_back_action_pair_indices(self, index):
         for action_pair in self.action_pairs[index:]:
             action_pair.attach_index(action_pair.get_index() + 1)
@@ -263,34 +257,6 @@ class AlgoScene(MovingCameraScene):
         else:
             self.add_metadata(metadata)
 
-    # Convenience function to add a text object and the Write transform
-    # Returns the created text object
-    def add_text(self, text, index, position=UP):
-        text = TextMobject(text)
-        text.shift(position)
-        transform = lambda: Write(text)
-        self.add_transform(index, transform)
-        return text
-
-    # Convenience function to edit existing text objects via a ReplacementTransform
-    # Requires the previous text object to be edited
-    # Returns the replacement text object
-    def change_text(self, new_text_string, old_text_object, index=None):
-        position = old_text_object.get_center()
-        new_text_object = TextMobject(new_text_string)
-        new_text_object.shift(position)
-
-        # Create the transform to be run at that point
-        transform = lambda old_text, new_text: \
-            [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
-        self.add_transform(index, transform, args=[old_text_object, new_text_object])
-        return new_text_object
-
-    # Convenience function to FadeOut an existing text object
-    def remove_text(self, old_text_object, index):
-        transform = lambda: FadeOut(old_text_object)
-        self.add_transform(index, transform)
-
     def add_static(self, index, static_fn, args=[], metadata=None): # pylint: disable=W0102
         static_action = AlgoSceneAction.create_static_action(static_fn, args)
         action_pair = AlgoSceneActionPair(static_action, static_action)
@@ -303,6 +269,79 @@ class AlgoScene(MovingCameraScene):
             self.add_metadata(curr_metadata)
         else:
             self.add_metadata(metadata)
+
+    def find_action_pairs(self, method, occurence=None, lower_level=None, w_children=True):
+        action_pairs = []
+        for meta_tree in self.meta_trees:
+            if method == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
+                if lower_level:
+                    for lower in meta_tree.children:
+                        if lower_level == lower.meta_name:
+                            action_pairs.append(lower.action_pair)
+                elif w_children:
+                    # if w_children is True, add all action_pairs of this metadata
+                    for action_pair in meta_tree.get_all_action_pairs():
+                        action_pairs.append(action_pair)
+                else:
+                    # else, add only the first action_pair of this metadata
+                    action_pairs.append(meta_tree.get_all_action_pairs()[0])
+        return action_pairs
+
+    # -------- Text customisation functions -------- #
+
+    # Convenience function to add a text object and the Write transform
+    # Returns the created text object
+    def add_text(self, text, index, position=ORIGIN):
+        text = self.create_text(text, self.settings['text_color'])
+        text.shift(position)
+        transform = lambda: Write(text)
+        self.add_transform(index, transform)
+        return text
+
+    # Convenience function to edit existing text objects via a ReplacementTransform
+    # Requires the previous text object to be edited
+    # Returns the replacement text object
+    def change_text(self, new_text_string, old_text_object=None, index=None, position=ORIGIN):
+        if old_text_object is None:
+            return self.add_text(new_text_string, index, position)
+        position = old_text_object.get_center()
+        new_text_object = self.create_text(new_text_string, self.settings['text_color'])
+        new_text_object.shift(position)
+
+        # Create the transform to be run at that point
+        transform = lambda old_text, new_text: \
+            [FadeOut(old_text), ReplacementTransform(old_text, new_text)]
+        self.add_transform(index, transform, args=[old_text_object, new_text_object])
+        return new_text_object
+
+    # Convenience function to FadeOut an existing text object
+    def remove_text(self, old_text_object, index):
+        transform = lambda: FadeOut(old_text_object)
+        self.add_transform(index, transform)
+    # ---------------------------------------------- #
+
+    # -------- Common customisation functions -------- #
+
+    # Displays the number of times a line is called
+    # Note that the linenum inputted should be the linenum in display_sourcecode,
+    # not the linenum in algo(), so this can only be used if show_anim is on
+    def add_complexity_analysis_line(self, linenum, position=2*DOWN, custom_text=None):
+        codeindex_pins = self.find_pin('__codeindex__')
+        relevant_pins = list(filter(lambda pin:pin.get_args()[0]==linenum, codeindex_pins))
+        old_text = None
+        for i, pin in enumerate(relevant_pins):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'Line {linenum} called: {i+1} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
+
+    # Displays the number of times a fn_method, specified by a pin or metadata, is called
+    def add_complexity_analysis_fn(self, fn_method, position=2*DOWN, custom_text=None):
+        action_pairs = self.find_action_pairs(method=fn_method, w_children=False)
+        old_text = None
+        for i, pin in enumerate(action_pairs):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'{fn_method} called: {i+1} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     def add_slide(self, text, index, text_position=ORIGIN, duration=1.0):
         self.add_fade_out_all(index)
@@ -332,6 +371,18 @@ class AlgoScene(MovingCameraScene):
         curr_metadata.add_lower(lower_meta)
 
         self.add_metadata(curr_metadata)
+
+    def shift_scene(self, vector, metadata=None):
+        first = True
+        for algo_obj in self.algo_objs:
+            # Shift all items UP
+            if first:
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=False)
+                first = False
+            else:
+                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
+                    w_prev=True)
 
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
@@ -363,6 +414,14 @@ class AlgoScene(MovingCameraScene):
         for action_pair in self.action_pairs[start:end]:
             action_pair.fast_forward(speed_up)
 
+    def skip(self, start, end=None):
+        if end is None:
+            end = len(self.action_pairs)
+
+        for action_pair in self.action_pairs[start:end]:
+            action_pair.skip()
+    # ------------------------------------------------ #
+
     def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
         # convert action_pairs into anim_blocks
         start_time = 0
@@ -382,6 +441,46 @@ class AlgoScene(MovingCameraScene):
             # attach block to action pair so that time data can be
             # extracted later to be used in GUI
             action_pair.attach_block(anim_blocks[-1])
+
+    def create_metadata_blocks(self):
+        self.metadata_blocks = []
+
+        for tree in self.meta_trees:
+            action_pairs = tree.get_all_action_pairs()
+
+            blocks = {action_pair.get_block() for action_pair in action_pairs}
+            if not blocks:
+                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
+                    has no action_pairs attached to it!')
+            else:
+                start_time = min(map(lambda block: block.start_time, blocks))
+                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
+
+                runtime = end_time - start_time
+
+                self.metadata_blocks.append(
+                    MetadataBlock(tree, action_pairs, start_time, runtime)
+                )
+
+        # some metadata might be added out of order, sort the blocks by start_time
+        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+
+    # -------- Pin functions -------- #
+
+    def insert_pin(self, desc, *args):
+        empty_action = AlgoSceneAction.create_empty_action(list(args))
+        empty_pair = self.add_action_pair(empty_action)
+
+        lower_meta = LowerMetadata(desc, empty_pair)
+        metadata = Metadata(desc)
+        metadata.add_lower(lower_meta)
+
+        self.add_metadata(metadata)
+
+    def find_pin(self, desc):
+        action_pairs = self.find_action_pairs(desc)
+        return action_pairs
+    # ------------------------------- #
 
     def execute_action_pairs(self, action_pairs, anim_blocks):
         # wait action is required at the end if last animation is not
@@ -412,56 +511,7 @@ class AlgoScene(MovingCameraScene):
         for anim_block in self.anim_blocks:
             anim_block.run()
 
-    def create_metadata_blocks(self):
-        self.metadata_blocks = []
-
-        for tree in self.meta_trees:
-            action_pairs = tree.get_all_action_pairs()
-
-            blocks = {action_pair.get_block() for action_pair in action_pairs}
-            if not blocks:
-                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
-                    has no action_pairs attached to it!')
-            else:
-                start_time = min(map(lambda block: block.start_time, blocks))
-                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
-
-                runtime = end_time - start_time
-
-                self.metadata_blocks.append(
-                    MetadataBlock(tree, action_pairs, start_time, runtime)
-                )
-
-        # some metadata might be added out of order, sort the blocks by start_time
-        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
-
-    def insert_pin(self, desc, *args):
-        empty_action = AlgoSceneAction.create_empty_action(list(args))
-        empty_pair = self.add_action_pair(empty_action)
-
-        lower_meta = LowerMetadata(desc, empty_pair)
-        metadata = Metadata(desc)
-        metadata.add_lower(lower_meta)
-
-        self.add_metadata(metadata)
-
-    def find_pin(self, desc):
-        action_pairs = self.find_action_pairs(desc)
-        return action_pairs
-
-    def find_action_pairs(self, method, occurence=None, lower_level=None):
-        action_pairs = []
-        for meta_tree in self.meta_trees:
-            if method == meta_tree.metadata and (occurence is None or occurence == meta_tree.fid):
-                if lower_level:
-                    for lower in meta_tree.children:
-                        if lower_level == lower.metadata:
-                            action_pairs.append(lower.action_pair)
-                else:
-                    for action_pair in meta_tree.get_all_action_pairs():
-                        action_pairs.append(action_pair)
-        return action_pairs
-
+    # Function called by manim to generate animations
     def construct(self):
         Metadata.reset_counter()
         self.preconfig(self.settings)
