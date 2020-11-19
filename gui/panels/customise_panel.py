@@ -113,7 +113,7 @@ class CustomisePanel(BaseChangesPanel):
             action_pair = lower_meta.action_pair
             action_pair_index = action_pair.get_index()
             lower_meta_name = format_customise_name(lower_meta)
-            change_name = f'{anim_meta_block.desc(sep=" ")}\n-> {lower_meta_name}'
+            change_name = f'{anim_meta_block.desc(sep=" ")} > {lower_meta_name}'
 
             collapsible_box = FrameLayout(title=lower_meta_name)
             form_layout = QFormLayout()

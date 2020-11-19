@@ -7,7 +7,6 @@ from gui.panels.widgets.input_color_button import InputColorButton
 from gui.panels.widgets.input_text_box import InputTextBox
 from gui.panels.widgets.qcolor_button import QColorButton
 
-
 class CustomisationType(Enum):
 
     # pylint: disable=R0913

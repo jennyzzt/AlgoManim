@@ -56,7 +56,7 @@ class Metadata:
         return list(map(lambda lower: lower.action_pair, self.children))
 
     def desc(self, sep='\n'):
-        return f'{self.meta_name}{sep}{self.fid}'
+        return f'{self.meta_name}{sep}#{self.fid}'
 
     @staticmethod
     def reset_counter():
