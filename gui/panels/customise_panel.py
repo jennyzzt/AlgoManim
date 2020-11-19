@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from gui.animation_bar import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
-from gui.anim_utils import format_anim_block_str
+from gui.anim_utils import *
 from .widgets.frame_layout import FrameLayout
 
 
@@ -108,8 +108,8 @@ class CustomisePanel(BaseChangesPanel):
         for lower_meta in anim_meta_block.metadata.children:
             action_pair = lower_meta.action_pair
             action_pair_index = action_pair.get_index()
-            lower_meta_name = lower_meta.meta_name
-            change_name = f'{anim_meta_block.desc(sep=" ")} > {lower_meta_name}'
+            lower_meta_name = format_customise_name(lower_meta)
+            change_name = f'{anim_meta_block.desc(sep=" ")}\n-> {lower_meta_name}'
 
             collapsible_box = FrameLayout(title=lower_meta_name)
             form_layout = QFormLayout()

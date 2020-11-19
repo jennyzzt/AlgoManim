@@ -76,8 +76,11 @@ class Metadata:
 class LowerMetadata:
 
     def __init__(self, meta_name, action_pair, val=None):
-        val = [] if val is None \
-            else filter(lambda v : v is not None, val)
+        if val is None:
+            # default to empty list
+            val = []
+        else:
+            val = list(filter(lambda v: v is not None, val))
         self.meta_name = meta_name
         self.action_pair = action_pair
         self.val = val  # list of values affected by function
