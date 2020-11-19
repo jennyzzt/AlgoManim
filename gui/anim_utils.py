@@ -11,4 +11,8 @@ def format_anim_block_str(metablock, sep='\n'):
 
 # Formats title of a customisation panel option
 def format_customise_name(lower_meta):
-    return f"{lower_meta.meta_name}: {lower_meta.val}"
+    if lower_meta.val is None or not lower_meta.val:
+        # no value to show
+        return lower_meta.meta_name
+    else:
+        return f"{lower_meta.meta_name}: {lower_meta.val}"

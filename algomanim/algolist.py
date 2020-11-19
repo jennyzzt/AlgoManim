@@ -262,8 +262,9 @@ class AlgoList(AlgoObject):
                                              metadata=metadata, animated=False)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=metadata)
 
-        sublist.set_next_to(hidden_sublist, vector=0, metadata=metadata,
-                            animated=True, w_prev=w_prev)
+        sublist.set_next_to(hidden_sublist, vector=0,
+                            panel_name="move_slice", specific_val=[n.val for n in sublist.nodes],
+                            metadata=metadata, animated=True, w_prev=w_prev)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=metadata, animated=False)
@@ -349,6 +350,7 @@ class AlgoList(AlgoObject):
             # highlight and move the node
             node_to_move.highlight(metadata=metadata, animated=animated)
             node_to_move.set_next_to(hidden_merged_list.nodes[curr_index],
+                                     panel_name="merge_item", specific_val=[node_to_move.val],
                                      vector=0, animated=animated, metadata=metadata)
 
             # track the added value
@@ -366,10 +368,12 @@ class AlgoList(AlgoObject):
             right_list_copy.highlight(*range(right_index, right_len),
                                       metadata=metadata, animated=animated)
 
-            merged_list_vals += [n.val for n in right_list_copy.nodes[right_index:]]
+            vals_to_move = [n.val for n in right_list_copy.nodes[right_index:]]
+            merged_list_vals += vals_to_move
 
             # move it accordingly
             AlgoObject.move_group_to_group(self.scene, rem_right, rem_hidden,
+                                           panel_name="merge_rest", specific_val=vals_to_move,
                                            animated=animated, metadata=metadata)
         elif right_index == right_len and left_index != left_len:
             # right list was exhausted
@@ -380,10 +384,12 @@ class AlgoList(AlgoObject):
             left_list_copy.highlight(*range(left_index, left_len),
                                      metadata=metadata, animated=animated)
 
-            merged_list_vals += [n.val for n in left_list_copy.nodes[left_index:]]
+            vals_to_move = [n.val for n in left_list_copy.nodes[left_index:]]
+            merged_list_vals += vals_to_move
 
             # move it accordingly
             AlgoObject.move_group_to_group(self.scene, rem_left, rem_hidden,
+                                           panel_name="merge_rest", specific_val=vals_to_move,
                                            animated=animated, metadata=metadata)
 
         # silently create the final merged list and arrange it
@@ -418,6 +424,7 @@ class AlgoList(AlgoObject):
 
         # move this list to the middle pt found
         self.move_to_calculated_pt(self, lists, pt_fn=AlgoObject.center_up_pt,
+                                   panel_name="replace",
                                    metadata=metadata, animated=animated)
 
         if shift:
