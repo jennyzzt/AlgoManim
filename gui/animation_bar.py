@@ -10,7 +10,7 @@ BAR_BASE_HEIGHT = 125
 
 # Box width constraints
 BOX_MIN_WIDTH = 80
-BOX_MAX_WIDTH = 320
+BOX_MAX_WIDTH = 240
 
 # Add-text button takes up 1/8 of the box
 TEXT_BTN_FRAC = 8
@@ -59,15 +59,22 @@ class AnimationBar(QWidget):
         self.gui_window = gui_window
 
     def fill_bar(self, anims):
-        self.anims = anims
+        # this may not be exactly anims if there are some hidden animations
+        self.anims = []
         self.anim_boxes = []
         self.anim_box_list = QHBoxLayout()
         self.anim_box_list.setContentsMargins(0, 0, 0, 0)
 
-        for index, anim in enumerate(self.anims):
-            anim_box = self.create_anim_box(index, anim)
-            self.anim_box_list.addWidget(anim_box)
-            self.anim_boxes.append(anim_box)
+        # track index separately
+        index = 0
+        for anim in anims:
+            if anim.metadata.animated:
+                self.anims.append(anim)
+                # only display if animated
+                anim_box = self.create_anim_box(index, anim)
+                self.anim_box_list.addWidget(anim_box)
+                self.anim_boxes.append(anim_box)
+                index += 1
 
         # Group boxes together
         anim_group_box = QGroupBox()
