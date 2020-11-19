@@ -50,14 +50,14 @@ class AlgoObject(ABC):
         metadata.add_lower(lower_meta)
 
     # Static function of set_relative_of to be executed later
-    def static_set_relative_of(self, obj, vector):
+    def static_set_relative_to(self, obj, vector):
         self.grp.move_to(obj.grp.get_center() + vector)
 
     ''' Set obj position relative to the given obj by a vector '''
     @attach_metadata
-    def set_relative_of(self, obj, vector, metadata=None, animated=False, w_prev=False):
+    def set_relative_to(self, obj, vector, metadata=None, animated=False, w_prev=False):
         # Create action pair
-        action = AlgoSceneAction.create_static_action(self.static_set_relative_of, [obj, vector])
+        action = AlgoSceneAction.create_static_action(self.static_set_relative_to, [obj, vector])
         anim_action = self.scene.create_play_action(
             AlgoTransform(
                 [obj],
