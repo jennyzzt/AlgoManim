@@ -205,14 +205,16 @@ class AlgoList(AlgoObject):
     @staticmethod
     def align_nodes_from_first_node(algolist, metadata):
         for i in range(1, algolist.len()):
-            algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT, metadata=metadata)
+            algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT,
+                                          metadata=metadata, animated=False)
 
     ''' Re-aligns nodes starting from the node at the end of the list.
     No need for w_prev as it is currently non-animated.'''
     @staticmethod
     def align_nodes_from_last_node(algolist, metadata):
         for i in reversed(range(0, algolist.len() - 1)):
-            algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT, metadata=metadata)
+            algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT,
+                                          metadata=metadata, animated=False)
 
     ''' Slices the list, returning the equivalent of list[start: stop].
     Set move to LEFT, RIGHT or 0 (no movement) to denote which direction
@@ -292,10 +294,10 @@ class AlgoList(AlgoObject):
               replace=False, shift=False, shift_vec=UP):
         # make hidden copies of left_list and right_list at their respective positions
         left_list_copy = AlgoList(self.scene, [n.val for n in left_list.nodes], show=False)
-        left_list_copy.set_next_to(left_list, vector=0)
+        left_list_copy.set_next_to(left_list, vector=0, animated=False)
 
         right_list_copy = AlgoList(self.scene, [n.val for n in right_list.nodes], show=False)
-        right_list_copy.set_next_to(right_list, vector=0)
+        right_list_copy.set_next_to(right_list, vector=0, animated=False)
 
         # reveal the copies silently
         left_list_copy.show(animated=False)
@@ -309,7 +311,8 @@ class AlgoList(AlgoObject):
         hidden_merged_list = AlgoList(self.scene, [0 for _ in range(0, final_len)], show=False)
 
         # arrange the hidden list between and below the two lists
-        hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN, metadata=metadata)
+        hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN,
+                                                metadata=metadata, animated=False)
         AlgoList.align_nodes_from_first_node(hidden_merged_list, metadata=metadata)
         self.center_x(hidden_merged_list, [left_list_copy, right_list_copy],
                       metadata=metadata, animated=False)
@@ -383,10 +386,11 @@ class AlgoList(AlgoObject):
 
         # silently create the final merged list and arrange it
         merged_list = AlgoList(self.scene, merged_list_vals, show=False)
-        merged_list.set_next_to(hidden_merged_list, vector=0, metadata=metadata)
+        merged_list.set_next_to(hidden_merged_list, vector=0,
+                                metadata=metadata, animated=False)
 
         # show the final merged list and hide the list copies
-        merged_list.show(animated=False, metadata=metadata)
+        merged_list.show(metadata=metadata, animated=False)
 
         left_list_copy.hide_list(metadata=metadata, animated=False)
         right_list_copy.hide_list(metadata=metadata, animated=False)
