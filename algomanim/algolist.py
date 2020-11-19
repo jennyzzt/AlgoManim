@@ -311,8 +311,8 @@ class AlgoList(AlgoObject):
         # arrange the hidden list between and below the two lists
         hidden_merged_list.nodes[0].set_next_to(left_list_copy.nodes[0], DOWN, metadata=metadata)
         AlgoList.align_nodes_from_first_node(hidden_merged_list, metadata=metadata)
-        self.center_x(hidden_merged_list, [left_list_copy, right_list_copy],
-                      metadata=metadata, animated=False)
+        hidden_merged_list.center_x([left_list_copy, right_list_copy],
+                                    metadata=metadata, animated=False)
 
         # show the merge by moving the copied nodes to the respective places
         left_index = 0
@@ -411,7 +411,7 @@ class AlgoList(AlgoObject):
                                   animated=animated, metadata=metadata, init_w_prev=w_prev)
 
         # move this list to the middle pt found
-        self.move_to_calculated_pt(self, lists, pt_fn=AlgoObject.center_up_pt,
+        self.move_to_calculated_pt(lists, pt_fn=AlgoObject.center_up_pt,
                                    metadata=metadata, animated=animated)
 
         if shift:

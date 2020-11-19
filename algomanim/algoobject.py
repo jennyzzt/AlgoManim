@@ -228,7 +228,8 @@ class AlgoObject(ABC):
 
     ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
     @staticmethod
-    def move_group_to_group(scene, grp_start, grp_end, animated=True, metadata=None):
+    @attach_metadata
+    def move_group_to_group(scene, grp_start, grp_end, metadata=None, animated=True):
         move_pt = grp_end.get_center
         anim_action = scene.create_play_action(
             AlgoTransform(
@@ -260,22 +261,23 @@ class AlgoObject(ABC):
         return np.array([new_x, new_y, obj.grp.get_z()])
 
     ''' Aligns obj_to_move vertically with the midpoint of all relative_objs '''
-    def center_x(self, obj_to_move, relative_objs, metadata=None, animated=True):
-        self.move_to_calculated_pt(obj_to_move, relative_objs,
-                                   pt_fn=AlgoObject.center_pt, metadata=metadata, animated=animated)
+    def center_x(self, relative_objs, metadata=None, animated=True):
+        self.move_to_calculated_pt(relative_objs, pt_fn=AlgoObject.center_pt,
+                                   metadata=metadata, animated=animated)
 
     ''' Moves obj_to_move to a point calculated by pt_fn, in relation to relative_objs '''
-    def move_to_calculated_pt(self, obj_to_move, relative_objs, pt_fn,
+    @attach_metadata
+    def move_to_calculated_pt(self, relative_objs, pt_fn,
                               metadata=None, animated=True):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [obj_to_move],
+                [self],
                 transform=lambda obj: ApplyMethod(obj.grp.move_to, pt_fn(obj, relative_objs))
             )
         )
         static_action = AlgoSceneAction.create_static_action(
             function=lambda obj: obj.grp.move_to(pt_fn(obj, relative_objs)),
-            args=[obj_to_move]
+            args=[self]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
