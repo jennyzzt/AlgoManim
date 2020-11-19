@@ -18,7 +18,7 @@ class DefaultBubbleSortScene(AlgoScene):
         settings['node_color'] = PURPLE # set color of nodes / elements
         settings['node_shape'] = 'circle' # set shape of nodes / elements
         settings['node_size'] = 0.5 # set size of nodes / elements
-        settings['code_anim'] = True # show code alongside the animation
+        settings['show_code'] = True # show code alongside the animation
     ...
 ```
 
