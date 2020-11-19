@@ -13,22 +13,36 @@ other_algo_object = Mock()
 @patch.object(AlgoObject, '__abstractmethods__', set())
 class TestAlgoObject:
 
-    def test_set_next_to_adds_action_pair(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_set_next_to_adds_action_pair(self, create_static_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.set_next_to(other_algo_object, RIGHT)
+        create_static_action.assert_called_once_with(
+            algo_object.grp.next_to, [other_algo_object.grp, RIGHT]
+        )
         algoscene.add_action_pair.assert_called_once()
 
-    def test_set_relative_to_adds_action_pair(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_set_relative_to_adds_action_pair(self, create_static_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.set_relative_to(other_algo_object, RIGHT)
+        create_static_action.assert_called_once_with(
+            algo_object.static_set_relative_to, [other_algo_object, RIGHT]
+        )
         algoscene.add_action_pair.assert_called_once()
 
-    def test_swap_with_adds_two_action_pairs(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_empty_action')
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_swap_with_adds_two_action_pairs(self, create_static_action, create_empty_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.swap_with(other_algo_object)
+        create_static_action.assert_called_once_with(
+            algo_object.static_swap_with, [other_algo_object]
+        )
+        create_empty_action.assert_called_once()
         assert algoscene.add_action_pair.call_count == 2
 
     def test_center_adds_action_pair(self):
@@ -37,16 +51,24 @@ class TestAlgoObject:
         algo_object.center()
         algoscene.add_action_pair.assert_called_once()
 
-    def test_show_adds_action_pair(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_show_adds_action_pair(self, create_static_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.show()
+        create_static_action.assert_called_once_with(
+            algo_object.scene.add, [algo_object.grp]
+        )
         algoscene.add_action_pair.assert_called_once()
 
-    def test_hide_adds_action_pair(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_hide_adds_action_pair(self, create_static_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.hide()
+        create_static_action.assert_called_once_with(
+            algo_object.scene.remove, [algo_object.grp]
+        )
         algoscene.add_action_pair.assert_called_once()
 
     def test_hide_group_adds_action_pair(self):
@@ -55,10 +77,14 @@ class TestAlgoObject:
         algo_object.hide_group(other_algo_object)
         algoscene.add_action_pair.assert_called_once()
 
-    def test_add_text_without_key_adds_two_action_pairs(self):
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_add_text_without_key_adds_two_action_pairs(self, create_static_action):
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.add_text('test', 'key')
+        create_static_action.assert_called_with(
+            algo_object.scene.add, [algo_object.text['key']]
+        )
         assert algoscene.add_action_pair.call_count == 2
 
     def test_add_text_with_existing_key_adds_three_action_pairs(self):
