@@ -106,6 +106,10 @@ class CustomisePanel(BaseChangesPanel):
 
         change_possible = False
         for lower_meta in anim_meta_block.metadata.children:
+            if not lower_meta.show_in_panel:
+                # do not display this customisation
+                continue
+
             action_pair = lower_meta.action_pair
             action_pair_index = action_pair.get_index()
             lower_meta_name = format_customise_name(lower_meta)

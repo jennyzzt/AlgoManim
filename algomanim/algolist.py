@@ -80,7 +80,8 @@ class AlgoList(AlgoObject):
 
             # Not designed to be a Higher level func
             if metadata:
-                lower_meta = LowerMetadata.create(dummy_action_pair, [n.val for n in self.nodes])
+                lower_meta = LowerMetadata.create(dummy_action_pair,
+                                                  [n.val for n in self.nodes], show_in_panel=False)
                 metadata.add_lower(lower_meta)
 
     ''' Display the list on screen '''
@@ -250,18 +251,19 @@ class AlgoList(AlgoObject):
                            [n.val for n in self.nodes][start:stop], show=False)
 
         # Align to its original position in the list
-        sublist.nodes[0].set_next_to(self.nodes[start], 0, metadata=metadata)
+        sublist.nodes[0].set_next_to(self.nodes[start], 0, metadata=metadata, animated=False)
         AlgoList.align_nodes_from_first_node(sublist, metadata=metadata)
 
         hidden_sublist = AlgoList(self.scene,
                                   [0 for _ in self.nodes][start:stop], show=False)
 
         # Position hidden sliced list by taking reference from last element
-        hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move, metadata=metadata)
+        hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move,
+                                             metadata=metadata, animated=False)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=metadata)
 
-        sublist.set_next_to(hidden_sublist, vector=0, metadata=metadata, animated=True,
-            w_prev=w_prev)
+        sublist.set_next_to(hidden_sublist, vector=0, metadata=metadata,
+                            animated=True, w_prev=w_prev)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=metadata, animated=False)

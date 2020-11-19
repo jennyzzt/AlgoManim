@@ -75,7 +75,7 @@ class Metadata:
 
 class LowerMetadata:
 
-    def __init__(self, meta_name, action_pair, val=None):
+    def __init__(self, meta_name, action_pair, val=None, show_in_panel=True):
         if val is None:
             # default to empty list
             val = []
@@ -84,6 +84,7 @@ class LowerMetadata:
         self.meta_name = meta_name
         self.action_pair = action_pair
         self.val = val  # list of values affected by function
+        self.show_in_panel = show_in_panel
 
     def __str__(self):
         return f'LowerMetadata(meta={self.meta_name}, val={self.val}' + \
@@ -91,7 +92,7 @@ class LowerMetadata:
 
     @staticmethod
     # Returns LowerMetadata with the name of the function that called this
-    def create(action_pair, val=None):
+    def create(action_pair, val=None, show_in_panel=True):
         currframe = inspect.currentframe()
         return LowerMetadata(inspect.getouterframes(currframe, 2)[1][3],
-                           action_pair, val)
+                             action_pair, val, show_in_panel)
