@@ -70,8 +70,23 @@ class AlgoScene(MovingCameraScene):
     def customize(self, action_pairs):
         pass
 
-    def post_config(self, settings):
-        settings.update(self.post_config_settings)
+    def add_transform(self, index, custom_transform=None, args=[], metadata=None): # pylint: disable=W0102
+
+        if custom_transform is None:
+            raise Exception("Specified transformation is None!")
+
+        anim_action = self.create_play_action(AlgoTransform(args, transform=custom_transform))
+        action_pair = AlgoSceneActionPair(anim_action, anim_action)
+        self.insert_action_pair(action_pair, index)
+
+        if metadata is None:
+            curr_metadata = Metadata('custom')
+            lower_meta = LowerMetadata('custom', action_pair)
+            curr_metadata.add_lower(lower_meta)
+
+            self.add_metadata(curr_metadata)
+        else:
+            self.add_metadata(metadata)
 
     def insert_pin(self, desc, *args):
         empty_action = AlgoSceneAction.create_empty_action(list(args))
@@ -87,10 +102,10 @@ class AlgoScene(MovingCameraScene):
         action_pairs = self.find_action_pairs(desc)
         return action_pairs
 
-    def find_action_pairs(self, method, occurence=None, lower_level=None):
+    def find_action_pairs(self, metadata_name, occurence=None, lower_level=None):
         action_pairs = []
         for meta_tree in self.meta_trees:
-            if method == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
+            if metadata_name == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
                 if lower_level:
                     for lower in meta_tree.children:
                         if lower_level == lower.meta_name:
@@ -100,19 +115,23 @@ class AlgoScene(MovingCameraScene):
                         action_pairs.append(action_pair)
         return action_pairs
 
-    def add_transform(self, index, transform, args=[], metadata=None): # pylint: disable=W0102
-        anim_action = self.create_play_action(AlgoTransform(args, transform=transform))
-        action_pair = AlgoSceneActionPair(anim_action, anim_action)
-        self.insert_action_pair(action_pair, index)
-
-        if metadata is None:
-            curr_metadata = Metadata('custom')
-            lower_meta = LowerMetadata('custom', action_pair)
-            curr_metadata.add_lower(lower_meta)
-
-            self.add_metadata(curr_metadata)
-        else:
-            self.add_metadata(metadata)
+    # ----------- AlgoObject customisability ---------
+    # Adds highlight animations to the animations immediately after the pins.
+    # insert_pin() must've been given an AlgoNode.
+    # Consult algomanim_examples/binarytreesort.py for an example
+    def chain_pin_highlight(self, pin_str):
+        pins = self.find_pin(pin_str)
+        prev_node = None
+        node_highlight = lambda node: \
+            ApplyMethod(node.node.set_fill, self.settings['highlight_color'])
+        node_dehighlight = lambda node: \
+            ApplyMethod(node.node.set_fill, self.settings['node_color'])
+        for pin in pins:
+            node = pin.get_args()[0]
+            self.add_transform(pin.get_index(), node_highlight, [node])
+            if prev_node is not None:
+                self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
+            prev_node = node
 
     # ------------ Text customizability --------------
     # Add a text object and the Write transform
@@ -403,6 +422,9 @@ class AlgoScene(MovingCameraScene):
         # Run user-defined customize fn
         self.customize(action_pairs)
 
+    def post_config(self, settings):
+        settings.update(self.post_config_settings)
+
     def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
         # convert action_pairs into anim_blocks
         start_time = 0
@@ -444,7 +466,7 @@ class AlgoScene(MovingCameraScene):
                 )
 
         # some metadata might be added out of order, sort the blocks by start_time
-        self.metadata_blocks.sort(key = lambda meta_block: meta_block.start_time)
+        self.metadata_blocks.sort(key=lambda meta_block: meta_block.start_time)
 
     def construct(self):
         Metadata.reset_counter()
