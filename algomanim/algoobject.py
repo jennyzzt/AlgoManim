@@ -238,6 +238,7 @@ class AlgoObject(ABC):
 
     ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
     @staticmethod
+    @attach_metadata
     def move_group_to_group(scene, grp_start, grp_end,
                             panel_name=None, specific_val=None, metadata=None, animated=True):
         move_pt = grp_end.get_center
@@ -254,11 +255,11 @@ class AlgoObject(ABC):
         action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
 
         if panel_name is None:
-            lower_meta = LowerMetadata.create(action_pair, val=specific_val, show_in_panel=animated)
+            lower_meta = LowerMetadata.create(action_pair, val=specific_val,
+                                              show_in_panel=animated)
         else:
-            lower_meta = LowerMetadata(panel_name, action_pair, specific_val, show_in_panel=animated)
-
-        metadata.add_lower(lower_meta)
+            lower_meta = LowerMetadata(panel_name, action_pair,
+                                       specific_val, show_in_panel=animated)
 
     ''' Returns a destination point for obj_to_move that is aligned vertically
      with all relative_objs, but still has the same y, z-coords. '''
@@ -298,9 +299,11 @@ class AlgoObject(ABC):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         if panel_name is None:
-            lower_meta = LowerMetadata.create(action_pair, specific_val, show_in_panel=animated)
+            lower_meta = LowerMetadata.create(action_pair, specific_val,
+                                              show_in_panel=animated)
         else:
-            lower_meta = LowerMetadata(panel_name, action_pair, specific_val, show_in_panel=animated)
+            lower_meta = LowerMetadata(panel_name, action_pair,
+                                       specific_val, show_in_panel=animated)
 
         metadata.add_lower(lower_meta)
 

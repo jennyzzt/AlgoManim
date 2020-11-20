@@ -14,5 +14,5 @@ def format_customise_name(lower_meta):
     if lower_meta.val is None or not lower_meta.val:
         # no value to show
         return lower_meta.meta_name
-    else:
-        return f"{lower_meta.meta_name}: {lower_meta.val}"
+
+    return f"{lower_meta.meta_name}: {lower_meta.val}"
