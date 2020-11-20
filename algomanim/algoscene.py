@@ -382,15 +382,19 @@ class AlgoScene(MovingCameraScene):
 
     def shift_scene(self, vector, metadata=None):
         first = True
+        panel_name = "shift_item"
+
         for algo_obj in self.algo_objs:
             # Shift all items UP
             if first:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=False)
+                algo_obj.set_next_to(algo_obj, vector,
+                                     panel_name=panel_name,
+                                     metadata=metadata, animated=True, w_prev=False)
                 first = False
             else:
-                algo_obj.set_next_to(algo_obj, vector, metadata=metadata, animated=True,
-                    w_prev=True)
+                algo_obj.set_next_to(algo_obj, vector,
+                                     panel_name=panel_name,
+                                     metadata=metadata, animated=True, w_prev=True)
 
     def add_wait(self, index, wait_time=1):
         anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))

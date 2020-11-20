@@ -33,7 +33,8 @@ class AlgoObject(ABC):
 
     ''' Set obj position next to the given obj at vector side '''
     @attach_metadata
-    def set_next_to(self, obj, vector, metadata=None, animated=False, w_prev=False):
+    def set_next_to(self, obj, vector, panel_name=None, specific_val=None,
+                    metadata=None, animated=False, w_prev=False):
         # Create action pair
         action = AlgoSceneAction.create_static_action(self.grp.next_to, [obj.grp, vector])
         anim_action = self.scene.create_play_action(
@@ -45,8 +46,17 @@ class AlgoObject(ABC):
         )
 
         action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
+
+        # customise the value to save
+        val_to_use = [self.val, obj.val] if specific_val is None else specific_val
+
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
+        if panel_name is None:
+            lower_meta = LowerMetadata.create(action_pair, val_to_use, show_in_panel=animated)
+        else:
+            # use the panel name
+            lower_meta = LowerMetadata(meta_name=panel_name, action_pair=action_pair,
+                                       val=val_to_use, show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     # Static function of set_relative_of to be executed later
@@ -68,7 +78,7 @@ class AlgoObject(ABC):
 
         action_pair = self.scene.add_action_pair(anim_action, action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val, obj.val], show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     # Static function of swap_with to be executed later
@@ -112,7 +122,7 @@ class AlgoObject(ABC):
             grp.move_to(ORIGIN + np.array([0, grp.get_center()[1], 0])), args=[self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     ''' Show object on screen '''
@@ -125,7 +135,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     ''' Hide object from screen '''
@@ -138,7 +148,7 @@ class AlgoObject(ABC):
         static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [self.val])
+        lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     @attach_metadata
@@ -151,7 +161,7 @@ class AlgoObject(ABC):
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         # Create LowerMetadata
-        lower_meta = LowerMetadata.create(action_pair, [TEMP_VAL])
+        lower_meta = LowerMetadata.create(action_pair, show_in_panel=animated)
         metadata.add_lower(lower_meta)
 
     ''' Add custom text associated to this obj '''
@@ -167,7 +177,7 @@ class AlgoObject(ABC):
                                                                  [self.text[key]])
             action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
             # Create hide LowerMetadata
-            lower_meta = LowerMetadata('hide', action_pair)
+            lower_meta = LowerMetadata('hide', action_pair, show_in_panel=False)
             metadata.add_lower(lower_meta)
         # Add new text object to text dictionary
         self.text[key] = self.scene.create_text(text)
@@ -179,7 +189,7 @@ class AlgoObject(ABC):
                                                              [self.grp, vector])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
         # Create set_next_to LowerMetadata
-        lower_meta = LowerMetadata('set_next_to', action_pair)
+        lower_meta = LowerMetadata('set_next_to', action_pair, show_in_panel=False)
         metadata.add_lower(lower_meta)
         # Add text to screen
         anim_action = self.scene.create_play_action(
@@ -228,8 +238,8 @@ class AlgoObject(ABC):
 
     ''' Moves the VGroup grp_start to the centre point of VGroup grp_end'''
     @staticmethod
-    @attach_metadata
-    def move_group_to_group(scene, grp_start, grp_end, metadata=None, animated=True):
+    def move_group_to_group(scene, grp_start, grp_end,
+                            panel_name=None, specific_val=None, metadata=None, animated=True):
         move_pt = grp_end.get_center
         anim_action = scene.create_play_action(
             AlgoTransform(
@@ -242,7 +252,12 @@ class AlgoObject(ABC):
             args=[grp_start]
         )
         action_pair = scene.add_action_pair(anim_action, static_action, animated=animated)
-        lower_meta = LowerMetadata("move_group_to_group", action_pair)
+
+        if panel_name is None:
+            lower_meta = LowerMetadata.create(action_pair, val=specific_val, show_in_panel=animated)
+        else:
+            lower_meta = LowerMetadata(panel_name, action_pair, specific_val, show_in_panel=animated)
+
         metadata.add_lower(lower_meta)
 
     ''' Returns a destination point for obj_to_move that is aligned vertically
@@ -268,6 +283,7 @@ class AlgoObject(ABC):
     ''' Moves obj_to_move to a point calculated by pt_fn, in relation to relative_objs '''
     @attach_metadata
     def move_to_calculated_pt(self, relative_objs, pt_fn,
+                              panel_name=None, specific_val=None,
                               metadata=None, animated=True):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
@@ -280,7 +296,12 @@ class AlgoObject(ABC):
             args=[self]
         )
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
-        lower_meta = LowerMetadata("move_to_calculated_pt", action_pair)
+
+        if panel_name is None:
+            lower_meta = LowerMetadata.create(action_pair, specific_val, show_in_panel=animated)
+        else:
+            lower_meta = LowerMetadata(panel_name, action_pair, specific_val, show_in_panel=animated)
+
         metadata.add_lower(lower_meta)
 
     ''' Applies a function to a list of objects such that the animation takes place at the same time

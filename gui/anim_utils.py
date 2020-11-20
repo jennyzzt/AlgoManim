@@ -5,7 +5,14 @@ def format_anim_block_str(metablock, sep='\n'):
     # extract metadata from the block
     meta = metablock.metadata
 
-    w_prev = f"w_prev{sep}" if meta.w_prev else ""
     return f"{meta.meta_name}{sep}" \
-           f"{w_prev}" \
            f"#{meta.fid}"
+
+
+# Formats title of a customisation panel option
+def format_customise_name(lower_meta):
+    if lower_meta.val is None or not lower_meta.val:
+        # no value to show
+        return lower_meta.meta_name
+    else:
+        return f"{lower_meta.meta_name}: {lower_meta.val}"

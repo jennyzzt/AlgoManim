@@ -1,6 +1,11 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from gui.panels.base_changes_panel import BaseChangesPanel
+
+
+CHANGE_BOX_WIDTH = 280
+
 
 class ChangeHistoryPanel(BaseChangesPanel):
 
@@ -18,24 +23,31 @@ class ChangeHistoryPanel(BaseChangesPanel):
 
         # Create box
         change_box = QGroupBox()
+        change_box.setMaximumWidth(CHANGE_BOX_WIDTH)
         change_box.setStyleSheet("margin-top: 6px")
         # change_box.setCheckable(True) # not fully supported
 
         # Set layout
-        change_box_layout = QHBoxLayout()
+        change_box_layout = QVBoxLayout()
         change_box.setLayout(change_box_layout)
 
         # Add title label
         change_box_layout.addWidget(QLabel(anim_desc))
 
+        # Add description of the change
+        desc_layout = QHBoxLayout()
+        change_box_layout.addLayout(desc_layout)
+
         # Add widgets
-        change_box_layout.addWidget(QLabel(change_desc))
+        desc_layout.addWidget(QLabel(change_desc))
+
         widget = anim_change.change_type.get_widget()
         input_widget = anim_change.change_type.wrap_input_widget(widget)
         input_widget.set_value(anim_change.get_value())
+
         read_only_widget = input_widget.get_widget()
         read_only_widget.setEnabled(False)
-        change_box_layout.addWidget(read_only_widget)
+        desc_layout.addWidget(read_only_widget, alignment=Qt.AlignLeft)
 
         return change_box
 

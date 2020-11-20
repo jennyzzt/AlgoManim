@@ -9,8 +9,8 @@ def attach_metadata(func):
         metadata = kwargs["metadata"] if "metadata" in kwargs else None
 
         # if metadata was not given in arguments, create it for the given function
-        w_prev = kwargs["w_prev"] if "w_prev" in kwargs else False
-        meta = Metadata(func.__name__, w_prev) if metadata is None else metadata
+        animated = kwargs["animated"] if "animated" in kwargs else True
+        meta = Metadata(func.__name__, animated) if metadata is None else metadata
 
         if metadata is None:
             # set metadata argument if it was not previously set
@@ -30,13 +30,13 @@ def attach_metadata(func):
 class Metadata:
     counter = Counter()
 
-    def __init__(self, meta_name, w_prev=False):
+    def __init__(self, meta_name, animated=True):
         self.meta_name = meta_name  # string
 
         Metadata.counter[meta_name] += 1
         self.fid = Metadata.counter[meta_name]
 
-        self.w_prev = w_prev  # whether this animation follows the previous one
+        self.animated = animated  # whether this animation follows the previous one
 
         self.children = []
 
@@ -56,7 +56,7 @@ class Metadata:
         return list(map(lambda lower: lower.action_pair, self.children))
 
     def desc(self, sep='\n'):
-        return f'{self.meta_name}{sep}{self.fid}'
+        return f'{self.meta_name}{sep}#{self.fid}'
 
     @staticmethod
     def reset_counter():
@@ -75,12 +75,16 @@ class Metadata:
 
 class LowerMetadata:
 
-    def __init__(self, meta_name, action_pair, val=None):
-        val = [] if val is None \
-            else filter(lambda v : v is not None, val)
+    def __init__(self, meta_name, action_pair, val=None, show_in_panel=True):
+        if val is None:
+            # default to empty list
+            val = []
+        else:
+            val = list(filter(lambda v: v is not None, val))
         self.meta_name = meta_name
         self.action_pair = action_pair
         self.val = val  # list of values affected by function
+        self.show_in_panel = show_in_panel
 
     def __str__(self):
         return f'LowerMetadata(meta={self.meta_name}, val={self.val}' + \
@@ -88,7 +92,7 @@ class LowerMetadata:
 
     @staticmethod
     # Returns LowerMetadata with the name of the function that called this
-    def create(action_pair, val=None):
+    def create(action_pair, val=None, show_in_panel=True):
         currframe = inspect.currentframe()
         return LowerMetadata(inspect.getouterframes(currframe, 2)[1][3],
-                           action_pair, val)
+                             action_pair, val, show_in_panel)

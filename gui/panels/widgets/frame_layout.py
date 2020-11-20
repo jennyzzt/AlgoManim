@@ -1,8 +1,13 @@
+from PyQt5.QtGui import QPainter, QFontMetrics
+from PyQt5.QtCore import Qt
 
 __author__ = 'Caroline Beyne'
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import *
+
+
+TITLE_MAX_WIDTH = 200
 
 
 class FrameLayout(QWidget):
@@ -47,6 +52,7 @@ class FrameLayout(QWidget):
         self._is_collasped = not self._is_collasped
         self._title_frame._arrow.setArrow(int(self._is_collasped))
 
+
     ############################
     #           TITLE          #
     ############################
@@ -77,7 +83,8 @@ class FrameLayout(QWidget):
             return self._arrow
 
         def initTitle(self, title=None):
-            self._title = QLabel(title)
+            self._title = ElidedLabel(title)
+            self._title.setMaximumWidth(TITLE_MAX_WIDTH)
             self._title.setMinimumHeight(24)
             self._title.move(QtCore.QPoint(24, 0))
             self._title.setStyleSheet("border:0px")
@@ -120,3 +127,14 @@ class FrameLayout(QWidget):
             painter.setPen(QtGui.QColor(64, 64, 64))
             painter.drawPolygon(*self._arrow)
             painter.end()
+
+
+# Extended QLabel which truncates text if it exceeds the max width of the widget
+class ElidedLabel(QLabel):
+    def paintEvent(self, event):
+        painter = QPainter(self)
+
+        metrics = QFontMetrics(self.font())
+        elided = metrics.elidedText(self.text(), Qt.ElideRight, self.width())
+
+        painter.drawText(self.rect(), self.alignment(), elided)
