@@ -21,12 +21,12 @@ class TestAlgoGraph:
     # --------------- Show tests --------------- #
     def test_empty_graph_no_action_pairs(self):
         algoscene.reset_mock()
-        AlgoGraph(self, {}, show=True, animated=True)
+        AlgoGraph(algoscene, {}, show=True, animated=True)
         # Check that only one action pair is created
         assert algoscene.add_action_pair.call_count == 0
 
     def test_non_empty_graph_adds_action_pairs(self):
         algoscene.reset_mock()
-        AlgoGraph(self, test_graph1, show=True, animated=True)
+        AlgoGraph(algoscene, test_graph1, show=True, animated=True)
         # Check that only one action pair is created
         assert algoscene.add_action_pair.call_count == 10

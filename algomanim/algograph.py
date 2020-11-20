@@ -24,6 +24,9 @@ class AlgoGraph:
         self.show_lines(animated=animated)
 
     def arrange_nodes(self):
+        if AlgoGraphNode.n_id == 0:
+            pass
+
         angle = 2 * np.pi / (AlgoGraphNode.n_id)
 
         for key in self.graph:
