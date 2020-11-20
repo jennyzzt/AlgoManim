@@ -24,15 +24,13 @@ class AlgoGraph:
         self.show_lines(animated=animated)
 
     def arrange_nodes(self):
-        if AlgoGraphNode.n_id == 0:
-            pass
+        if AlgoGraphNode.n_id > 0:
+            angle = 2 * np.pi / (AlgoGraphNode.n_id)
 
-        angle = 2 * np.pi / (AlgoGraphNode.n_id)
-
-        for key in self.graph:
-            node = self.graph[key]
-            new_angle = angle*node.n_id
-            node.grp.move_to(2*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
+            for key in self.graph:
+                node = self.graph[key]
+                new_angle = angle*node.n_id
+                node.grp.move_to(2*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
 
     def show_nodes(self, metadata=None, animated=True, w_prev=False):
         for node_key in self.graph:
