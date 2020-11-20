@@ -1,3 +1,4 @@
+import numpy as np
 from manimlib.imports import *
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata, attach_metadata
@@ -13,7 +14,6 @@ class AlgoNode(AlgoObject):
         self.highlight_color = scene.settings['highlight_color']
         node_size = float(scene.settings['node_size'])
         self.node_length = node_size
-
         nodes = {
             'circle': Circle(
                 color=self.node_color,
@@ -39,6 +39,7 @@ class AlgoNode(AlgoObject):
             self.node = nodes['square']
 
         # Set attributes
+        self.lines = {}
         self.val = val
         self.txt = self.generate_text(val)
         self.grp = VGroup(self.node, self.txt)
@@ -112,3 +113,19 @@ class AlgoNode(AlgoObject):
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val])
         metadata.add_lower(lower_meta)
+
+    def set_line_start_end(self, target):
+        if target is None:
+            # reset line
+            self.lines[target].set_opacity(0)
+        else:
+            center = self.grp.get_center()
+            target_center = target.grp.get_center()
+            pos_y = center[1] - target_center[1]
+            pos_x = center[0] - target_center[0]
+            angle = np.arctan2(pos_y, pos_x)
+            start = center - \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            end = target_center + \
+                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+            self.lines[target].put_start_and_end_on(start, end)
