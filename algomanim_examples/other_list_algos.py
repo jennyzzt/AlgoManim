@@ -25,8 +25,7 @@ class FindMaxScene(AlgoScene):
         # add title to beginning
         text = TextMobject('Find Maximum Value')
         text.shift(2 * UP)
-        transform = lambda: Write(text)
-        self.add_transform(0, transform)
+        self.add_transform(0, Write, args=[text])
 
         # search for pins that were previously set
         pins = self.find_pin('max_changed')
@@ -43,9 +42,7 @@ class FindMaxScene(AlgoScene):
             new_text.shift(2 * UP)
 
             # create transform to be run at that point
-            transform = lambda old_text, new_text: \
-                [ReplacementTransform(old_text, new_text)]
-            self.add_transform(index, transform, args=[prev_text, new_text])
+            self.add_transform(index, ReplacementTransform, args=[prev_text, new_text])
 
             prev_text = new_text
 
