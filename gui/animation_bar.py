@@ -21,6 +21,7 @@ def empty_animation(index):
     return {
         'index': index,
         'desc': "Add custom animations",
+        'animated': True,  # so it will be displayed
         'runtime': 0.5
     }
 
@@ -68,9 +69,9 @@ class AnimationBar(QWidget):
         # track index separately
         index = 0
         for anim in anims:
-            if anim.metadata.animated:
+            if is_empty_anim(anim) or anim.metadata.animated:
                 self.anims.append(anim)
-                # only display if animated
+                # only display if animated or empty
                 anim_box = self.create_anim_box(index, anim)
                 self.anim_box_list.addWidget(anim_box)
                 self.anim_boxes.append(anim_box)
