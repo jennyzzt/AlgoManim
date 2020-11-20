@@ -9,7 +9,7 @@ class AlgoGraph:
         self.scene = scene
         self.graph = self.dic_to_algograph(graph)
         if show:
-            self.show_graph(animated=animated)
+            self.show(animated=animated)
 
     def dic_to_algograph(self, graph):
         algograph = {}
@@ -18,7 +18,7 @@ class AlgoGraph:
         return algograph
 
     @attach_metadata
-    def show_graph(self, metadata=None, animated=True):
+    def show(self, metadata=None, animated=True):
         self.arrange_nodes()
         self.show_nodes(metadata, animated)
         self.show_lines(animated=animated)
