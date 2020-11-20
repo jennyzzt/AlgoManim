@@ -4,7 +4,7 @@ from algomanim.algonode import AlgoNode
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata
 from algomanim.algoobject import AlgoObject
-from algomanim.metadata import attach_metadata
+from algomanim.metadata import Metadata, attach_metadata
 
 
 class AlgoList(AlgoObject):
@@ -24,14 +24,14 @@ class AlgoList(AlgoObject):
         self.grp = None
         self.group(immediate_effect=True)
 
-        # Initial positioning
-        self.center(animated=False)
-
         # Subscribe to the scene for scene transformations like Shifts
         scene.track_algoitem(self)
 
         if show:
-            self.show_list(animated=False)
+            initialisation_meta = Metadata("create_list")
+            self.center(animated=False, metadata=initialisation_meta)
+            self.show_list(animated=False, metadata=initialisation_meta)
+            self.scene.add_metadata(initialisation_meta)
 
     ''' Swaps the nodes at indexes i and j '''
     @attach_metadata
@@ -204,25 +204,27 @@ class AlgoList(AlgoObject):
     ''' Re-aligns nodes starting from the node at the start of the list
     No need for w_prev as it is currently non-animated.'''
     @staticmethod
-    def align_nodes_from_first_node(algolist, metadata):
+    def align_nodes_from_first_node(algolist, metadata, w_prev=False):
         for i in range(1, algolist.len()):
             algolist.nodes[i].set_next_to(algolist.nodes[i - 1], RIGHT,
-                                          metadata=metadata, animated=False)
+                                          metadata=metadata, animated=False,
+                                          w_prev=w_prev)
 
     ''' Re-aligns nodes starting from the node at the end of the list.
     No need for w_prev as it is currently non-animated.'''
     @staticmethod
-    def align_nodes_from_last_node(algolist, metadata):
+    def align_nodes_from_last_node(algolist, metadata, w_prev=False):
         for i in reversed(range(0, algolist.len() - 1)):
             algolist.nodes[i].set_next_to(algolist.nodes[i + 1], LEFT,
-                                          metadata=metadata, animated=False)
+                                          metadata=metadata, animated=False,
+                                          w_prev=w_prev)
 
     ''' Slices the list, returning the equivalent of list[start: stop].
     Set move to LEFT, RIGHT or 0 (no movement) to denote which direction
     the slice should be shifted in. The slice must be contiguous. '''
     @attach_metadata
     def slice(self, start, stop, move=LEFT, metadata=None,
-              animated=True, w_prev=False, shift=False, shift_vec=UP):
+              animated=True, shift=False, shift_vec=UP):
         # Fix indices if needed
         if start < 0:
             start = 0
@@ -230,10 +232,10 @@ class AlgoList(AlgoObject):
             stop = self.len()
 
         # Highlight the sublist we want to keep
-        self.highlight(*range(start, stop), animated=animated, metadata=metadata, w_prev=w_prev)
+        self.highlight(*range(start, stop), animated=animated, metadata=metadata)
 
         # Dehighlight the sublist we want to keep
-        self.dehighlight(*range(start, stop), animated=animated, metadata=metadata, w_prev=w_prev)
+        self.dehighlight(*range(start, stop), animated=animated, metadata=metadata)
 
         """
         The sliced list is first aligned to its original position in the list.
@@ -251,7 +253,7 @@ class AlgoList(AlgoObject):
                            [n.val for n in self.nodes][start:stop], show=False)
 
         # Align to its original position in the list
-        sublist.nodes[0].set_next_to(self.nodes[start], 0, metadata=metadata, animated=False)
+        sublist.nodes[0].set_next_to(self.nodes[start], 0, metadata=metadata)
         AlgoList.align_nodes_from_first_node(sublist, metadata=metadata)
 
         hidden_sublist = AlgoList(self.scene,
@@ -259,12 +261,12 @@ class AlgoList(AlgoObject):
 
         # Position hidden sliced list by taking reference from last element
         hidden_sublist.nodes[-1].set_next_to(self.nodes[stop - 1], DOWN + move,
-                                             metadata=metadata, animated=False)
+                                             metadata=metadata)
         AlgoList.align_nodes_from_last_node(hidden_sublist, metadata=metadata)
 
         sublist.set_next_to(hidden_sublist, vector=0,
                             panel_name="move_slice", specific_val=[n.val for n in sublist.nodes],
-                            metadata=metadata, animated=True, w_prev=w_prev)
+                            metadata=metadata, animated=True)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=metadata, animated=False)
@@ -297,10 +299,10 @@ class AlgoList(AlgoObject):
               replace=False, shift=False, shift_vec=UP):
         # make hidden copies of left_list and right_list at their respective positions
         left_list_copy = AlgoList(self.scene, [n.val for n in left_list.nodes], show=False)
-        left_list_copy.set_next_to(left_list, vector=0, animated=False)
+        left_list_copy.set_next_to(left_list, vector=0)
 
         right_list_copy = AlgoList(self.scene, [n.val for n in right_list.nodes], show=False)
-        right_list_copy.set_next_to(right_list, vector=0, animated=False)
+        right_list_copy.set_next_to(right_list, vector=0)
 
         # reveal the copies silently
         left_list_copy.show(animated=False)
@@ -395,7 +397,7 @@ class AlgoList(AlgoObject):
         # silently create the final merged list and arrange it
         merged_list = AlgoList(self.scene, merged_list_vals, show=False)
         merged_list.set_next_to(hidden_merged_list, vector=0,
-                                metadata=metadata, animated=False)
+                                metadata=metadata)
 
         # show the final merged list and hide the list copies
         merged_list.show(metadata=metadata, animated=False)

@@ -261,6 +261,8 @@ class AlgoObject(ABC):
             lower_meta = LowerMetadata(panel_name, action_pair,
                                        specific_val, show_in_panel=animated)
 
+        metadata.add_lower(lower_meta)
+
     ''' Returns a destination point for obj_to_move that is aligned vertically
      with all relative_objs, but still has the same y, z-coords. '''
     @staticmethod

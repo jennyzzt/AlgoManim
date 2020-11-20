@@ -183,9 +183,9 @@ This allows you to do various things:
         pins = self.find_pin(pin_str)
         prev_node = None
         node_highlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['highlight_color'])]
+            ApplyMethod(node.node.set_fill, self.settings['highlight_color'])
         node_dehighlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['node_color'])]
+            ApplyMethod(node.node.set_fill, self.settings['node_color'])
         for pin in pins:
             node = pin.get_args()[0]
             self.add_transform(pin.get_index(), node_highlight, [node])

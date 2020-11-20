@@ -56,17 +56,3 @@ class BinaryTreeSortScene(AlgoScene):
 
         self.fast_forward(idx2 + 1)
         self.change_text("We have a sorted list!", title_text)
-
-    def chain_pin_highlight(self, pin_str):
-        pins = self.find_pin(pin_str)
-        prev_node = None
-        node_highlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['highlight_color'])]
-        node_dehighlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['node_color'])]
-        for pin in pins:
-            node = pin.get_args()[0]
-            self.add_transform(pin.get_index(), node_highlight, [node])
-            if prev_node is not None:
-                self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
-            prev_node = node
