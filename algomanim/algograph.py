@@ -29,7 +29,7 @@ class AlgoGraph:
             for key in self.graph:
                 node = self.graph[key]
                 new_angle = angle*node.n_id
-                node.grp.move_to(2*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
+                node.grp.move_to(3*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
 
     def show_nodes(self, metadata=None, animated=True, w_prev=False):
         for node_key in self.graph:
@@ -38,9 +38,9 @@ class AlgoGraph:
                 w_prev = True
 
     def show_lines(self, metadata=None, animated=True, w_prev = False):
-        line_done = {}
+        lines_done = {}
         for node_key in self.graph:
-            self.graph[node_key].show_lines(line_done, metadata, animated=animated, w_prev=w_prev)
+            self.graph[node_key].show_lines(lines_done, metadata, animated=animated, w_prev=w_prev)
             if not w_prev:
                 w_prev = True
 
@@ -54,19 +54,19 @@ class AlgoGraphNode(AlgoNode):
         AlgoGraphNode.n_id += 1
         super().__init__(scene, val)
 
-    def show_lines(self, line_done, metadata=None, animated=True, w_prev=False):
+    def show_lines(self, lines_done, metadata=None, animated=True, w_prev=False):
         if self.adjs is not None:
             for adj in self.adjs:
-                if adj not in line_done or self.val not in line_done[adj]:
-                    if adj not in line_done:
-                        line_done[adj] = [self.val]
-                    elif self.val not in line_done[adj]:
-                        line_done[adj].append(self.val)
+                if adj not in lines_done or self.val not in lines_done[adj]:
+                    if adj not in lines_done:
+                        lines_done[adj] = [self.val]
+                    elif self.val not in lines_done[adj]:
+                        lines_done[adj].append(self.val)
 
-                    if self.val not in line_done:
-                        line_done[self.val] = [adj]
-                    elif adj not in line_done[self.val]:
-                        line_done[self.val].append(adj)
+                    if self.val not in lines_done:
+                        lines_done[self.val] = [adj]
+                    elif adj not in lines_done[self.val]:
+                        lines_done[self.val].append(adj)
 
                     self.add_line(self.graph[adj], metadata=metadata,
                                                  animated=animated, w_prev=w_prev)

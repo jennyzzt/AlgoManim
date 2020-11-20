@@ -121,6 +121,7 @@ class AlgoNode(AlgoObject):
         else:
             line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
             self.lines[target_node] = line
+            target_node.lines[self] = line
 
         action = AlgoSceneAction.create_static_action(self.set_line_start_end,
                                                                     [target_node])

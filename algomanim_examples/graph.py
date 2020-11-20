@@ -18,3 +18,16 @@ class AlgoGraphScene(AlgoScene):
                   'G' : [ 'A', 'B', 'C', 'D', 'F' ] }
 
         AlgoGraph(self, graph, show=True, animated=True)
+
+class AlgoGraphSceneSimple(AlgoScene):
+    def preconfig(self, settings):
+        settings['node_size'] = 0.5
+        settings['node_shape'] = 'circle'
+        settings['highlight_color'] = "#e74c3c" # red
+
+    def algo(self):
+        graph = { 'A' : [ 'B', 'C' ],
+                  'B' : [ 'A', 'C' ],
+                  'C' : [ 'A', 'B' ]}
+
+        AlgoGraph(self, graph, show=True, animated=True)
