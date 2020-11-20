@@ -170,7 +170,7 @@ class AlgoObject(ABC):
             lower_meta = LowerMetadata('hide', action_pair)
             metadata.add_lower(lower_meta)
         # Add new text object to text dictionary
-        self.text[key] = TexMobject(text)
+        self.text[key] = self.scene.create_text(text)
         # Move it next to the obj with given vector
         anim_action = self.scene.create_play_action(
             AlgoTransform([self.text[key].next_to, self.grp, vector], transform=ApplyMethod)

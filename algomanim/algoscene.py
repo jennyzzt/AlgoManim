@@ -197,12 +197,20 @@ class AlgoScene(MovingCameraScene):
     def post_config(self, settings):
         settings.update(self.post_config_settings)
 
-    '''
-    Factory method to return a Text-kind object depending on the current configuration.
-    Defaults to the manim-configured default font if "font" is not a valid installed font.
-    '''
-    def create_text(self, text_string, font_color=WHITE):
-        font = self.settings['font'].lower()
+    def create_text(self, text_string, for_node=False):
+        '''
+        Factory method to return a Text-kind object depending on the current configuration.
+        Defaults to the manim-configured default font if configuration does not describe
+        a valid installed font.
+
+        Parameters:
+            text_string (str): The text to create
+            for_node (bool): To use the node font configuration
+        '''
+        font_key = 'node_font' if for_node else 'text_font'
+        color_key = 'node_font_color' if for_node else 'text_font_color'
+        font = self.settings[font_key].lower()
+        font_color = self.settings[color_key]
         if font == 'latex':
             return TextMobject(text_string, color=font_color)
         return Text(text_string, color=font_color, font=font)
@@ -291,8 +299,8 @@ class AlgoScene(MovingCameraScene):
 
     # Convenience function to add a text object and the Write transform
     # Returns the created text object
-    def add_text(self, text, index, position=ORIGIN):
-        text = self.create_text(text, self.settings['text_color'])
+    def add_text(self, text, index=None, position=ORIGIN):
+        text = self.create_text(text)
         text.shift(position)
         transform = lambda: Write(text)
         self.add_transform(index, transform)
@@ -305,7 +313,7 @@ class AlgoScene(MovingCameraScene):
         if old_text_object is None:
             return self.add_text(new_text_string, index, position)
         position = old_text_object.get_center()
-        new_text_object = self.create_text(new_text_string, self.settings['text_color'])
+        new_text_object = self.create_text(new_text_string)
         new_text_object.shift(position)
 
         # Create the transform to be run at that point

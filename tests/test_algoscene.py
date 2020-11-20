@@ -77,10 +77,21 @@ class TestAlgoScenePreconfig:
         )
 
     @patch("algomanim.algoscene.Text")
-    def test_change_font(self, text):
-        scene = AlgoSceneFont()
+    def test_change_node_font(self, text):
+        scene = AlgoSceneNodeFont()
         text.assert_any_call(
             str(scene.test_list[0]),
+            color=scene.test_font_color,
+            font=scene.test_font
+        )
+
+    @patch("algomanim.algoscene.AlgoScene.execute_action_pairs", Mock())
+    @patch("algomanim.algoscene.AlgoScene.create_metadata_blocks", Mock())
+    @patch("algomanim.algoscene.Text")
+    def test_change_text_font(self, text):
+        scene = AlgoSceneTextFont()
+        text.assert_any_call(
+            scene.test_text,
             color=scene.test_font_color,
             font=scene.test_font
         )
@@ -175,10 +186,23 @@ class AlgoSceneNodeCircle(AlgoSceneMockList):
         settings['node_shape'] = 'circle'
 
 
-class AlgoSceneFont(AlgoSceneMockList):
+class AlgoSceneNodeFont(AlgoSceneMockList):
     test_font = 'sans-serif'
     test_font_color = "#FFFF00"
 
     def preconfig(self, settings):
-        settings['font'] = self.test_font
-        settings['font_color'] = self.test_font_color
+        settings['node_font'] = self.test_font
+        settings['node_font_color'] = self.test_font_color
+
+
+class AlgoSceneTextFont(AlgoSceneMockList):
+    test_text = 'Test'
+    test_font = 'sans-serif'
+    test_font_color = "#FFFF00"
+
+    def preconfig(self, settings):
+        settings['text_font'] = self.test_font
+        settings['text_font_color'] = self.test_font_color
+
+    def customize(self, action_pairs):
+        self.add_text(self.test_text)

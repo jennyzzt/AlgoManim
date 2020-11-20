@@ -11,9 +11,10 @@ from algomanim.algolist import AlgoList
 
 class DefaultBubbleSortScene(AlgoScene):
     def preconfig(self, settings):
-        settings['font'] = 'sans-serif' # use sans-serif font instead of Latex
-        settings['font_color'] = BLACK # set color of text inside nodes
-        settings['text_color'] = WHITE # set color of text added as customization
+        settings['text_font'] = 'sans-serif' # use sans-serif font instead of Latex for external commentary text
+        settings['text_font_color'] = WHITE # set color of external commentary text
+        settings['node_font'] = 'latex' # use Latex font inside nodes (default)
+        settings['node_font_color'] = BLACK # set color of text inside nodes
         settings['highlight_color'] = "#e74c3c" # red
         settings['node_color'] = PURPLE # set color of nodes / elements
         settings['node_shape'] = 'circle' # set shape of nodes / elements
