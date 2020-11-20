@@ -66,12 +66,14 @@ class TestAlgoList:
         algolist.compare(1, 2,text=False)
         algolist.swap(1, 2)
 
-        action_pairs_len = len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2))
+        action_pairs_len = \
+            len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2))
 
-        sum_action_pairs = len(test_algoscene.find_action_pairs(occurence=2, metadata_name='compare',
-                                                                lower_level='dehighlight')) + \
-                           len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
-                                                                lower_level='highlight'))
+        sum_action_pairs = \
+            len(test_algoscene.find_action_pairs(occurence=2, metadata_name='compare',
+                                                 lower_level='dehighlight')) + \
+            len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
+                                                 lower_level='highlight'))
 
         assert action_pairs_len == sum_action_pairs
 
@@ -84,12 +86,14 @@ class TestAlgoList:
         algolist.compare(1, 2, text=False)
         algolist.swap(1, 2)
 
-        action_pairs_len = len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
-                                                                lower_level='dehighlight'))
+        action_pairs_len = \
+            len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
+                                                 lower_level='dehighlight'))
 
-        sum_action_pairs = len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2, )) - \
-                           len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
-                                                                lower_level='highlight'))
+        sum_action_pairs = \
+            len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2)) - \
+            len(test_algoscene.find_action_pairs(metadata_name='compare', occurence=2,
+                                                 lower_level='highlight'))
 
         assert action_pairs_len == sum_action_pairs
 

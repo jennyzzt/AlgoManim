@@ -73,8 +73,6 @@ class AlgoScene(MovingCameraScene):
 
     ''' Add your own custom Manim animation to a particular action_pair '''
     def add_transform(self, index, custom_transform=None, args=[], metadata=None):  # pylint: disable=W0102
-        if custom_transform is None:
-            raise Exception("Specified transformation is None!")
 
         anim_action = self.create_play_action(AlgoTransform(args, transform=custom_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
@@ -153,8 +151,8 @@ class AlgoScene(MovingCameraScene):
     Add a text object and the Write transform
     Returns the created text object
     '''
-    def add_text(self, text, index, position=UP):
-        text = TextMobject(text)
+    def add_text(self, text, index=None, position=ORIGIN):
+        text = self.create_text(text)
         text.shift(position)
         transform = lambda: Write(text)
         self.add_transform(index, transform)

@@ -56,4 +56,3 @@ class BinaryTreeSortScene(AlgoScene):
 
         self.fast_forward(idx2 + 1)
         self.change_text("We have a sorted list!", title_text)
-
