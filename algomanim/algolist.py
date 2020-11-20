@@ -266,7 +266,7 @@ class AlgoList(AlgoObject):
 
         sublist.set_next_to(hidden_sublist, vector=0,
                             panel_name="move_slice", specific_val=[n.val for n in sublist.nodes],
-                            metadata=metadata, animated=True, w_prev=w_prev)
+                            metadata=metadata, animated=True)
 
         # Get rid of hidden_sublist
         hidden_sublist.hide_list(metadata=metadata, animated=False)

@@ -29,7 +29,6 @@ def get_imports(path):
 
         for node_name in node.names:
             yield Import(module, node_name.name.split('.'), node_name.asname)
-# --------------------------------------------- #
 
 # ------------- AlgoScene functions -------------
 class AlgoScene(MovingCameraScene):
@@ -58,8 +57,6 @@ class AlgoScene(MovingCameraScene):
     ''' For user to overwrite '''
     def algo(self):
         pass
-    def is_show_code(self):
-        return self.settings['show_code']
 
     # ---------- Customizability utilities ----------- #
     ''' For user to overwrite '''
@@ -102,20 +99,26 @@ class AlgoScene(MovingCameraScene):
         action_pairs = self.find_action_pairs(desc)
         return action_pairs
 
-    def find_action_pairs(self, metadata_name, occurence=None, lower_level=None):
+    def find_action_pairs(self, metadata_name, occurence=None, lower_level=None, w_children=True):
         action_pairs = []
         for meta_tree in self.meta_trees:
-            if metadata_name == meta_tree.meta_name and (occurence is None or occurence == meta_tree.fid):
+            if metadata_name == meta_tree.meta_name and\
+                    (occurence is None or occurence == meta_tree.fid):
                 if lower_level:
                     for lower in meta_tree.children:
                         if lower_level == lower.meta_name:
                             action_pairs.append(lower.action_pair)
-                else:
+                elif w_children:
+                    # if w_children is True, add all action_pairs of this metadata
                     for action_pair in meta_tree.get_all_action_pairs():
                         action_pairs.append(action_pair)
+                else:
+                    # else, add only the first action_pair of this metadata
+                    action_pairs.append(meta_tree.get_all_action_pairs()[0])
         return action_pairs
 
     # ----------- AlgoObject customisability ---------
+
     # Adds highlight animations to the animations immediately after the pins.
     # insert_pin() must've been given an AlgoNode.
     # Consult algomanim_examples/binarytreesort.py for an example
@@ -143,12 +146,32 @@ class AlgoScene(MovingCameraScene):
         self.add_transform(index, transform)
         return text
 
+    def create_text(self, text_string, for_node=False):
+        '''
+        Factory metadata_name to return a Text-kind object depending on the current configuration.
+        Defaults to the manim-configured default font if configuration does not describe
+        a valid installed font.
+
+        Parameters:
+            text_string (str): The text to create
+            for_node (bool): To use the node font configuration
+        '''
+        font_key = 'node_font' if for_node else 'text_font'
+        color_key = 'node_font_color' if for_node else 'text_font_color'
+        font = self.settings[font_key].lower()
+        font_color = self.settings[color_key]
+        if font == 'latex':
+            return TextMobject(text_string, color=font_color)
+        return Text(text_string, color=font_color, font=font)
+
     # Edit existing text objects via Manim's ReplacementTransform
     # Requires the previous text object to be edited
     # Returns the replacement text object
-    def change_text(self, new_text_string, old_text_object, index=None):
+    def change_text(self, new_text_string, old_text_object=None, index=None, position=ORIGIN):
+        if old_text_object is None:
+            return self.add_text(new_text_string, index, position)
         position = old_text_object.get_center()
-        new_text_object = TextMobject(new_text_string)
+        new_text_object = self.create_text(new_text_string)
         new_text_object.shift(position)
 
         # Create the transform to be run at that point
@@ -163,6 +186,28 @@ class AlgoScene(MovingCameraScene):
         self.add_transform(index, transform)
 
     # ------------ Scene customizability --------------
+
+    # Displays the number of times a line is called
+    # Note that the linenum inputted should be the linenum in display_sourcecode,
+    # not the linenum in algo(), so this can only be used if show_anim is on
+    def add_complexity_analysis_line(self, linenum, position=2 * DOWN, custom_text=None):
+        codeindex_pins = self.find_pin('__codeindex__')
+        relevant_pins = list(filter(lambda pin: pin.get_args()[0] == linenum, codeindex_pins))
+        old_text = None
+        for i, pin in enumerate(relevant_pins):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'Line {linenum} called: {i + 1} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
+
+        # Displays the number of times a fn_method, specified by a pin or metadata, is called
+    def add_complexity_analysis_fn(self, fn_method, position=2 * DOWN, custom_text=None):
+        action_pairs = self.find_action_pairs(metadata_name=fn_method, w_children=False)
+        old_text = None
+        for i, pin in enumerate(action_pairs):
+            index = pin.get_index()
+            new_text = custom_text if custom_text else f'{fn_method} called: {i + 1} times'
+            old_text = self.change_text(new_text, old_text, index=index, position=position)
+
     def shift_scene(self, vector, metadata=None, w_prev=False):
         first = True
 
@@ -293,8 +338,8 @@ class AlgoScene(MovingCameraScene):
         self.meta_trees.append(metadata)
 
     # ------------ AlgoScene Internal Wiring --------------
-    def is_code_anim(self):
-        return self.settings['code_anim']
+    def is_show_code(self):
+        return self.settings['show_code']
 
     def algo_codeanim(self):
         # import necessary modules
@@ -467,6 +512,35 @@ class AlgoScene(MovingCameraScene):
 
         # some metadata might be added out of order, sort the blocks by start_time
         self.metadata_blocks.sort(key=lambda meta_block: meta_block.start_time)
+
+    def execute_action_pairs(self, action_pairs, anim_blocks):
+        # wait action is required at the end if last animation is not
+        # a play/wait, else the last animation will not be rendered
+
+        if action_pairs:
+            # action_pairs should not be empty
+            last_action_pair = action_pairs[-1]
+            last_act = last_action_pair.act()
+            if last_act != self.play or last_act != self.wait:  # pylint: disable=W0143
+                # wait action is required at the end if last animation is not
+                # a play/wait, else the last animation will not be rendered
+                self.add_wait(len(self.action_pairs))
+
+        # attach indexes to action_pair to be used in GUI
+        # customizations
+        for (i, action_pair) in enumerate(action_pairs):
+            action_pair.attach_index(i)
+
+        # run post customize functions from the GUI
+        for post_customize in self.post_customize_fns:
+            post_customize(self)
+
+        # bundle animations together according to time
+        self.create_animation_blocks(action_pairs, anim_blocks)
+
+        # and run them
+        for anim_block in self.anim_blocks:
+            anim_block.run()
 
     def construct(self):
         Metadata.reset_counter()
