@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
+from algomanim.empty_animation import is_empty_anim
 from gui.video_player import VIDEO_BASE_WIDTH
 from gui.anim_utils import format_anim_block_str
 
@@ -17,17 +18,16 @@ TEXT_BTN_FRAC = 8
 
 
 # Placeholder for custom animations
-def empty_animation(index):
-    return {
-        'index': index,
-        'desc': "Add custom animations",
-        'animated': True,  # so it will be displayed
-        'runtime': 0.5
-    }
+# def empty_animation(index):
+#     return {
+#         'index': index,
+#         'desc': "Add custom animations",
+#         'animated': True,  # so it will be displayed
+#         'runtime': 0.5
+#     }
 
-
-def is_empty_anim(anim):
-    return not hasattr(anim, 'start_position')
+# def is_empty_anim(anim):
+#     return not hasattr(anim, 'start_position')
 
 
 class AnimationBar(QWidget):
@@ -69,7 +69,7 @@ class AnimationBar(QWidget):
         # track index separately
         index = 0
         for anim in anims:
-            if is_empty_anim(anim) or anim.metadata.animated:
+            if anim.metadata.animated:
                 self.anims.append(anim)
                 # only display if animated or empty
                 anim_box = self.create_anim_box(index, anim)
@@ -106,10 +106,8 @@ class AnimationBar(QWidget):
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
         # Animation label using metadata
-        if is_empty_anim(anim_meta_block):
-            desc = anim_meta_block['desc']
-        else:
-            desc = format_anim_block_str(anim_meta_block)
+        desc = format_anim_block_str(anim_meta_block)
+
         anim_lbl = QLabel(desc)
         anim_lbl.setAlignment(Qt.AlignCenter)  # center-align text
         anim_lbl.setWordWrap(True)
@@ -128,10 +126,7 @@ class AnimationBar(QWidget):
             anim_box_layout.addWidget(add_anim_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
 
         # Size and layout box
-        if is_empty_anim(anim_meta_block):
-            runtime = anim_meta_block['runtime']
-        else:
-            runtime = anim_meta_block.runtime
+        runtime = anim_meta_block.runtime
         width, height = AnimationBar.get_anim_box_size(runtime)
 
         anim_box.setFixedHeight(height)

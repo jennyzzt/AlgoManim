@@ -7,10 +7,11 @@ from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl
 
+from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
-from gui.animation_bar import AnimationBar, empty_animation
+from gui.animation_bar import AnimationBar
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel

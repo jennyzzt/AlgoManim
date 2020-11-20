@@ -1,10 +1,10 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
-from gui.animation_bar import is_empty_anim
+from algomanim.empty_animation import is_empty_anim
 from gui.panels.base_changes_panel import BaseChangesPanel
 
-from gui.anim_utils import *
+from gui.anim_utils import format_anim_block_str, format_customise_name
 from .widgets.frame_layout import FrameLayout
 
 
@@ -86,7 +86,7 @@ class CustomisePanel(BaseChangesPanel):
         else:
             self.set_nonempty_animation(anim)
 
-    def set_empty_animation(self, anim):
+    def set_empty_animation(self, empty_anim):
         self.reset_frame(title="custom")
         collapsible_box = FrameLayout(title="Text animations")
         form_layout = QFormLayout()
@@ -95,7 +95,7 @@ class CustomisePanel(BaseChangesPanel):
         # Add text section
         add_text_widget = QLineEdit()
         form_layout.addRow(QLabel("Add Text"), add_text_widget)
-        self.text_widgets[anim['index']] = add_text_widget
+        self.text_widgets[empty_anim.index] = add_text_widget
 
         self.menu_layout.addWidget(collapsible_box)
         self.save_button.setEnabled(True)

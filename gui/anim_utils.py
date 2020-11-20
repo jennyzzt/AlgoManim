@@ -1,7 +1,11 @@
+from algomanim.empty_animation import is_empty_anim
 
 
 # Formats text on animation blocks
 def format_anim_block_str(metablock, sep='\n'):
+    if is_empty_anim(metablock):
+        return metablock.desc()
+
     # extract metadata from the block
     meta = metablock.metadata
 
