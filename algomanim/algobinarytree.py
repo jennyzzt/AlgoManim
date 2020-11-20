@@ -118,14 +118,8 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         self.grp.move_to(pos_x + pos_y)
         if self.parent is not None:
-            action = AlgoSceneAction.create_static_action(self.set_line_start_end, [self.parent])
-            self.scene.add_action_pair(action, action, animated=False)
-
-            anim_action = self.scene.create_play_action(
-                        AlgoTransform(FadeIn(self.lines[self.parent])),w_prev=w_prev)
-            static_action = AlgoSceneAction.create_static_action(
-                                            self.scene.add, [self.lines[self.parent]])
-            self.scene.add_action_pair(anim_action, static_action, animated=animated)
+            self.add_line(self.parent, metadata=metadata,
+                                             animated=animated, w_prev=w_prev)
 
         super().show(metadata=metadata, animated=animated, w_prev=True)
 

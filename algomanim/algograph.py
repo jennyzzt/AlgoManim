@@ -21,7 +21,7 @@ class AlgoGraph:
     def show(self, metadata=None, animated=True):
         self.arrange_nodes()
         self.show_nodes(metadata, animated)
-        self.show_lines(animated=animated)
+        self.show_lines(metadata, animated=animated)
 
     def arrange_nodes(self):
         if AlgoGraphNode.n_id > 0:
@@ -38,10 +38,10 @@ class AlgoGraph:
             if not w_prev:
                 w_prev = True
 
-    def show_lines(self, animated=True, w_prev = False):
+    def show_lines(self, metadata=None, animated=True, w_prev = False):
         line_done = {}
         for node_key in self.graph:
-            self.graph[node_key].show_lines(line_done, animated=animated, w_prev=w_prev)
+            self.graph[node_key].show_lines(line_done, metadata, animated=animated, w_prev=w_prev)
             if not w_prev:
                 w_prev = True
 
@@ -55,7 +55,7 @@ class AlgoGraphNode(AlgoNode):
         AlgoGraphNode.n_id += 1
         super().__init__(scene, val)
 
-    def show_lines(self, line_done, animated=True, w_prev=False):
+    def show_lines(self, line_done, metadata=None, animated=True, w_prev=False):
         if self.adjs is not None:
             for adj in self.adjs:
                 if adj not in line_done or self.val not in line_done[adj]:
@@ -69,15 +69,5 @@ class AlgoGraphNode(AlgoNode):
                     elif adj not in line_done[self.val]:
                         line_done[self.val].append(adj)
 
-                    new_line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
-                    self.lines[self.graph[adj]] = new_line
-
-                    action = AlgoSceneAction.create_static_action(self.set_line_start_end,
-                                                                            [self.graph[adj]])
-                    self.scene.add_action_pair(action, action, animated=False)
-
-                    anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(new_line)),
-                        w_prev=w_prev)
-                    static_action = AlgoSceneAction.create_static_action(self.scene.add,
-                                                                                [new_line])
-                    self.scene.add_action_pair(anim_action, static_action, animated=animated)
+                    self.add_line(self.graph[adj], metadata=metadata,
+                                                 animated=animated, w_prev=w_prev)

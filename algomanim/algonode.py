@@ -114,6 +114,30 @@ class AlgoNode(AlgoObject):
         lower_meta = LowerMetadata.create(action_pair, [self.val])
         metadata.add_lower(lower_meta)
 
+    @attach_metadata
+    def add_line(self, target_node, metadata=None, animated=True, w_prev=False):
+        if target_node in self.lines:
+            line = self.lines[target_node]
+        else:
+            line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
+            self.lines[target_node] = line
+
+        action = AlgoSceneAction.create_static_action(self.set_line_start_end,
+                                                                    [target_node])
+        action_pair = self.scene.add_action_pair(action, action, animated=False)
+
+        lower_meta = LowerMetadata.create(action_pair, [self.val], False)
+        metadata.add_lower(lower_meta)
+
+        anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(line)),
+                                                                    w_prev=w_prev)
+        static_action = AlgoSceneAction.create_static_action(self.scene.add,
+                                                                    [line])
+        action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        lower_meta = LowerMetadata.create(action_pair, [self.val])
+        metadata.add_lower(lower_meta)
+
     def set_line_start_end(self, target):
         if target is None:
             # reset line
