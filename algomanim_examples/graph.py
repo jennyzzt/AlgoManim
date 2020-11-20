@@ -17,4 +17,4 @@ class AlgoGraphScene(AlgoScene):
                   'F' : [ 'A', 'G' ],
                   'G' : [ 'A', 'B', 'C', 'D', 'F' ] }
 
-        AlgoGraph(self, graph, animated=True)
+        AlgoGraph(self, graph, show=True, animated=True)

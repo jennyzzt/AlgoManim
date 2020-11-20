@@ -5,10 +5,11 @@ from algomanim.algoscene import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import attach_metadata
 
 class AlgoGraph:
-    def __init__(self, scene, graph, animated=False):
+    def __init__(self, scene, graph, show=False, animated=False):
         self.scene = scene
         self.graph = self.dic_to_algograph(graph)
-        self.show_graph(animated=animated)
+        if show:
+            self.show_graph(animated=animated)
 
     def dic_to_algograph(self, graph):
         algograph = {}
@@ -31,15 +32,15 @@ class AlgoGraph:
             node.grp.move_to(2*np.array([np.cos(new_angle), np.sin(new_angle), 0]))
 
     def show_nodes(self, metadata=None, animated=True, w_prev=False):
-        for node in self.graph:
-            self.graph[node].show(metadata=metadata, animated=animated, w_prev=w_prev)
+        for node_key in self.graph:
+            self.graph[node_key].show(metadata=metadata, animated=animated, w_prev=w_prev)
             if not w_prev:
                 w_prev = True
 
     def show_lines(self, animated=True, w_prev = False):
         line_done = {}
-        for node in self.graph:
-            self.graph[node].show_lines(line_done, animated=animated, w_prev=w_prev)
+        for node_key in self.graph:
+            self.graph[node_key].show_lines(line_done, animated=animated, w_prev=w_prev)
             if not w_prev:
                 w_prev = True
 
