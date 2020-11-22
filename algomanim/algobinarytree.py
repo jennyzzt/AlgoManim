@@ -129,6 +129,18 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         super().show(metadata=metadata, animated=animated, w_prev=True)
 
+    def hide(self, metadata=None, animated=True, w_prev=False):
+        if self.parent is not None:
+            anim_action = self.scene.create_play_action(
+                AlgoTransform(FadeOut(self.lines[self.parent])), w_prev=w_prev)
+            static_action = AlgoSceneAction.create_static_action(
+                self.scene.remove, [self.lines[self.parent]])
+
+            self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+        super().hide(metadata=metadata, animated=animated, w_prev=True)
+
+
 
 class AlgoBinaryTree:
     def __init__(self, scene, max_depth, root=None, show=True):

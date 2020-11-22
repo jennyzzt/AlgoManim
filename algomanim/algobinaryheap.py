@@ -47,9 +47,12 @@ class AlgoBinaryHeap(AlgoBinaryTree):
 
     @attach_metadata
     def swap(self, i, j, metadata=None, animated=True, w_prev=False):
-        temp = self.arr[i]
-        self.arr[i] = self.arr[j]
-        self.arr[j] = temp
+
+        tempVal = self.arr[i].val
+
+        self.arr[i].val = self.arr[j].val
+        self.arr[j].val = tempVal
+
         self.arr[i].swap_with(self.arr[j], metadata=metadata, animated=animated, w_prev=w_prev)
 
     @attach_metadata
@@ -65,7 +68,6 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             largest = r
 
         if i is not largest:
-            print(i, self.arr[i].val,  self.arr[largest].val)
             self.swap(i, largest, metadata=metadata, animated=animated, w_prev=w_prev)
             self.heapify(largest, n, metadata=metadata, animated=animated, w_prev=w_prev)
 
@@ -82,7 +84,6 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             lIdx = 2 * i + 1
             if lIdx < self.size:
                 left = self.arr[lIdx]
-                left.set_parent(curr)
                 curr.set_left(left)
 
                 stack.append((left, lIdx))
@@ -90,7 +91,6 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             rIdx = 2 * i + 2
             if rIdx < self.size:
                 right = self.arr[rIdx]
-                right.set_parent(curr)
                 curr.set_right(right)
 
                 stack.append((right, rIdx))
@@ -106,7 +106,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.swap(0, -1, metadata=metadata, animated=animated, w_prev=w_prev)
 
         # hide the last node
-        self.arr[-1].hide(metadata=None, animated=True, w_prev=False)
+        self.arr[-1].hide(metadata=metadata, animated=animated, w_prev=w_prev)
 
         # Update the internal representation
         self.arr = self.arr[:-1]
@@ -114,8 +114,8 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.max_depth = ceil(log(self.size, 2)) + 1
 
         # heapify the root node
-        self.heapify(0, self.size)
+        self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
         return True
 
     def peek(self):
-        return self.arr[0]
+        return self.arr[0].val
