@@ -20,13 +20,13 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.type = type
         self.root = None
 
-        #  Convert to AlgoNode representation
+        # Convert to AlgoTreeNode representation
         self.arr = self.convert_num_array()
 
-        #  Initialise the structure for the tree
+        # Initialise the structure for the tree
         self.buildheap_tree()
 
-        #  Show the tree and build the heap through heapify
+        # Show the tree and build the heap through heapify
         super().__init__(scene, ceil(log(self.size, 2)), self.root, show=True)
         self.buildheap()
 
@@ -74,8 +74,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             return
 
         self.root = self.arr[0]
-        stack = []
-        stack.append((self.root, 0))
+        stack = [(self.root, 0)]
         while stack:
             curr, i = stack.pop()
 
@@ -96,5 +95,27 @@ class AlgoBinaryHeap(AlgoBinaryTree):
 
                 stack.append((right, rIdx))
 
-    def pop(self):
-        pass
+    @attach_metadata
+    def pop(self, metadata=None, animated=True, w_prev=False):
+
+        # Gracefully handle empty Heaps
+        if not self.arr:
+            return False
+
+        # swap the root with last left element
+        self.swap(0, -1, metadata=metadata, animated=animated, w_prev=w_prev)
+
+        # hide the last node
+        self.arr[-1].hide(metadata=None, animated=True, w_prev=False)
+
+        # Update the internal representation
+        self.arr = self.arr[:-1]
+        self.size = len(self.arr)
+        self.max_depth = ceil(log(self.size, 2)) + 1
+
+        # heapify the root node
+        self.heapify(0, self.size)
+        return True
+
+    def peek(self):
+        return self.arr[0]

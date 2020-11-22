@@ -18,3 +18,5 @@ class ToyScene(AlgoScene):
         heap = AlgoBinaryHeap(self, [1, 2, 3, 4], type="min-heap")
 
         arr = heap.arr
+
+        heap.pop()
