@@ -137,9 +137,9 @@ class AnimationBar(QWidget):
         return anim_box
 
     def set_mouse_clicked(self, anim):
-        if not is_empty_anim(anim):
+        mb_selected = self.gui_window.anim_clicked(anim)
+        if not mb_selected and not is_empty_anim(anim):
             self.video_player.set_media_position(anim.start_position())
-        self.gui_window.anim_clicked(anim)
 
     def set_active_lbl(self, index):
         self.anim_boxes[index].setStyleSheet("background-color: #2980b9; color: white")
@@ -159,6 +159,15 @@ class AnimationBar(QWidget):
                 (start_position == position and start_position == end_position):
                 self.set_active_lbl(i)
                 self.gui_window.change_panel_anim(anim)
+            else:
+                self.set_inactive_lbl(i)
+
+    def set_animation_group(self, start_anim, end_anim):
+        start_idx = self.anims.index(start_anim)
+        end_idx = self.anims.index(end_anim)
+        for i in range(0, len(self.anims)):
+            if i >= start_idx and i <= end_idx:
+                self.set_active_lbl(i)
             else:
                 self.set_inactive_lbl(i)
 

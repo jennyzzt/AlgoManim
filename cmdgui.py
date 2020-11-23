@@ -126,12 +126,32 @@ class GuiWindow(QDialog):
         options_groupbox.setLayout(options_layout)
         options_groupbox.setTitle("Render options")
 
-        # =====================
-        #     Animation bar
-        # =====================
+        # ===========================================
+        #     Animation bar and MultiBlock Edits
+        # ===========================================
+
+        self.mb_start_idx = None
+        self.mb_end_idx = None
+        self.choose_mb_start = False
+        self.choose_mb_end = False
+
+        self.mb_layout = QVBoxLayout()
+
+        mb_edit_layout = QHBoxLayout()
+        mb_edit_label = QLabel("Choose Multiple Blocks: ")
+        self.mb_start_btn = QPushButton("Select Start Block")
+        self.mb_end_btn = QPushButton("Select End Block")
+        self.mb_start_btn.clicked.connect(self.toggle_mb_start)
+        self.mb_end_btn.clicked.connect(self.toggle_mb_end)
+        mb_edit_layout.addWidget(mb_edit_label)
+        mb_edit_layout.addWidget(self.mb_start_btn)
+        mb_edit_layout.addWidget(self.mb_end_btn)
 
         self.animation_bar = AnimationBar()
         self.animation_bar.link_gui_window(self)
+
+        self.mb_layout.addLayout(mb_edit_layout)
+        self.mb_layout.addWidget(self.animation_bar)
 
         # =====================
         #       Side menu
@@ -188,7 +208,7 @@ class GuiWindow(QDialog):
         self.main_layout = QGridLayout()
         self.main_layout.addWidget(options_groupbox, 0, 0)
         self.main_layout.addWidget(self.video_player, 1, 0)
-        self.main_layout.addWidget(self.animation_bar, 2, 0)
+        self.main_layout.addLayout(self.mb_layout, 2, 0)
 
         self.main_layout.addWidget(self.menu_toggle, 0, 1, -1, -1)
         self.main_layout.addWidget(self.tab_menu, 0, 2, -1, -1)
@@ -197,6 +217,14 @@ class GuiWindow(QDialog):
         self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
         self.setLayout(self.main_layout)
+
+    def toggle_mb_start(self):
+        self.choose_mb_start = not self.choose_mb_start
+        self.mb_start_btn.setDown(self.choose_mb_start)
+
+    def toggle_mb_end(self):
+        self.choose_mb_end = not self.choose_mb_end
+        self.mb_end_btn.setDown(self.choose_mb_end)
 
     def show_file_dialog(self):
         dialog = QFileDialog()
@@ -246,13 +274,22 @@ class GuiWindow(QDialog):
                                      .standardIcon(QStyle.SP_MediaSeekBackward))
 
     def anim_clicked(self, anim):
-        # Select multiblocks for testing. TODO: delete on merge
-        self.multiblock_select(0, 5)
-        return
-
-        # self.change_panel_anim(anim) TODO: uncomment on merge
-        # also opens the side menu if it is not yet open
+        # opens the side menu if it is not yet open
         self.open_sidemenu()
+
+        if self.choose_mb_start:
+            self.mb_start_idx = self.anims.index(anim)
+            self.toggle_mb_start()
+
+        if self.choose_mb_end:
+            self.mb_end_idx = self.anims.index(anim)
+            self.toggle_mb_end()
+
+            self.multiblock_select(self.mb_start_idx, self.mb_end_idx)
+            return True
+
+        self.change_panel_anim(anim)
+        return False
 
     # just updates the customisation options in the panel
     def change_panel_anim(self, anim):
@@ -389,7 +426,8 @@ class GuiWindow(QDialog):
         self.show_video_button.show()
 
     def multiblock_select(self, start, end):
-        self.customise_panel.set_animation_group(self.anims[start:end])
+        self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
+        self.customise_panel.set_animation_group(self.anims[start:end + 1])
 
 
 if __name__ == '__main__':
