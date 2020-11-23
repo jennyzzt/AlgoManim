@@ -22,6 +22,12 @@ class AlgoGraph:
         self.show_nodes(metadata, animated)
         self.show_lines(metadata, animated=animated)
 
+    @attach_metadata
+    def select_node(self, node_id, metadata=None, animated=True, w_prev=False):
+        node = self.graph[node_id]
+        node.highlight(metadata=metadata, animated=animated, w_prev=w_prev)
+        return node
+
     def arrange_nodes(self):
         if AlgoGraphNode.n_id > 0:
             angle = 2 * np.pi / (AlgoGraphNode.n_id)
@@ -53,6 +59,20 @@ class AlgoGraphNode(AlgoNode):
         self.n_id = AlgoGraphNode.n_id
         AlgoGraphNode.n_id += 1
         super().__init__(scene, val)
+
+    @attach_metadata
+    def visit(self, neighbour_id, metadata=None, animated=True, w_prev=False):
+        node = self.graph[neighbour_id]
+        node.highlight(metadata=metadata, animated=animated, w_prev=w_prev)
+        node.highlight_line(self, metadata=metadata, animated=animated, w_prev=True)
+        return node
+
+    @attach_metadata
+    def leave(self, neighbour_id, metadata=None, animated=True, w_prev=False):
+        node = self.graph[neighbour_id]
+        node.dehighlight(metadata=metadata, animated=animated, w_prev=w_prev)
+        node.dehighlight_line(self, metadata=metadata, animated=animated, w_prev=True)
+        return node
 
     def show_lines(self, lines_done, metadata=None, animated=True, w_prev=False):
         if self.adjs is not None:
