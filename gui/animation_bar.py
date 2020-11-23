@@ -166,7 +166,7 @@ class AnimationBar(QWidget):
         start_idx = self.anims.index(start_anim)
         end_idx = self.anims.index(end_anim)
         for i in range(0, len(self.anims)):
-            if i >= start_idx and i <= end_idx:
+            if start_idx <= i <= end_idx:
                 self.set_active_lbl(i)
             else:
                 self.set_inactive_lbl(i)
