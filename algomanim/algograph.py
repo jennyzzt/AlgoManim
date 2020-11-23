@@ -13,7 +13,15 @@ class AlgoGraph:
     def dic_to_algograph(self, graph):
         algograph = {}
         for key in graph:
-            algograph[key] = AlgoGraphNode(self.scene, algograph, key, graph[key])
+            new_adj = []
+            # Makes it work if graph doesn't have weights
+            for adj in graph[key]:
+                if not isinstance(adj, tuple):
+                    new_adj.append((adj, None))
+            if not new_adj:
+                new_adj = graph[key]
+
+            algograph[key] = AlgoGraphNode(self.scene, algograph, key, new_adj)
         return algograph
 
     @attach_metadata
@@ -56,17 +64,16 @@ class AlgoGraphNode(AlgoNode):
 
     def show_lines(self, lines_done, metadata=None, animated=True, w_prev=False):
         if self.adjs is not None:
-            for adj in self.adjs:
-                if adj not in lines_done or self.val not in lines_done[adj]:
-                    if adj not in lines_done:
-                        lines_done[adj] = [self.val]
-                    elif self.val not in lines_done[adj]:
-                        lines_done[adj].append(self.val)
-
+            for target, weight in self.adjs:
+                if target not in lines_done or self.val not in lines_done[target]:
+                    if target not in lines_done:
+                        lines_done[target] = [self.val]
+                    elif self.val not in lines_done[target]:
+                        lines_done[target].append(self.val)
                     if self.val not in lines_done:
-                        lines_done[self.val] = [adj]
-                    elif adj not in lines_done[self.val]:
-                        lines_done[self.val].append(adj)
+                        lines_done[self.val] = [target]
+                    elif target not in lines_done[self.val]:
+                        lines_done[self.val].append(target)
 
-                    self.add_line(self.graph[adj], metadata=metadata,
-                                                 animated=animated, w_prev=w_prev)
+                    self.add_line(self.graph[target], weight, metadata=metadata,
+                                                animated=animated, w_prev=w_prev)

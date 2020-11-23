@@ -13,11 +13,11 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         super().__init__(scene, val)
         if parent:
-            self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
+            self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE), None
 
     def set_parent(self, parent):
         self.parent = parent
-        self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
+        self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE), None
 
     def set_left(self, left):
         self.left = left

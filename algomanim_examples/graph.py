@@ -17,7 +17,8 @@ class AlgoGraphScene(AlgoScene):
                   'F' : [ 'A', 'G' ],
                   'G' : [ 'A', 'B', 'C', 'D', 'F' ] }
 
-        AlgoGraph(self, graph, show=True, animated=True)
+        algograph = AlgoGraph(self, graph, animated=True)
+        algograph.show()
 
 class AlgoGraphSceneSimple(AlgoScene):
     def preconfig(self, settings):
@@ -30,4 +31,19 @@ class AlgoGraphSceneSimple(AlgoScene):
                   'B' : [ 'A', 'C' ],
                   'C' : [ 'A', 'B' ]}
 
-        AlgoGraph(self, graph, show=True, animated=True)
+        algograph = AlgoGraph(self, graph, animated=True)
+        algograph.show()
+
+class AlgoWeightedGraphSceneSimple(AlgoScene):
+    def preconfig(self, settings):
+        settings['node_size'] = 0.5
+        settings['node_shape'] = 'circle'
+        settings['highlight_color'] = "#e74c3c" # red
+
+    def algo(self):
+        graph = { 'A' : [ ('B', 1), ('C', 2) ],
+                  'B' : [ ('A', 1), ('C', 3) ],
+                  'C' : [ ('A', 2), ('B', 3) ]}
+
+        algograph = AlgoGraph(self, graph, animated=True)
+        algograph.show()
