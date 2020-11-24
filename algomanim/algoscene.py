@@ -490,7 +490,7 @@ class AlgoScene(MovingCameraScene):
             # action_pairs should not be empty
             last_action_pair = action_pairs[-1]
             last_act = last_action_pair.act()
-            if last_act != self.play or last_act != self.wait: # pylint: disable=W0143
+            if not str(last_act).startswith('<bound method Scene.handle_play_like_call'): # pylint: disable=W0143
                 # wait action is required at the end if last animation is not
                 # a play/wait, else the last animation will not be rendered
                 self.add_wait(len(self.action_pairs))
