@@ -1,15 +1,19 @@
 # pylint: disable=R0201, R0913, R0904
 from unittest.mock import patch, Mock
 from manimlib.imports import *
-from algomanim.algoaction import AlgoTransform, AlgoSceneAction
+from algomanim.algoaction import AlgoTransform
 from algomanim.algoscene import AlgoScene
 from algomanim.algolist import AlgoList
 from algomanim.settings import DEFAULT_SETTINGS
 
 
+mock_action_pair = Mock()
+mock_static = Mock()
 mock_animation = Mock()
-mock_color = Mock()
+mock_transform = Mock()
 mock_node = Mock()
+
+mock_color = Mock()
 
 
 @patch("algomanim.algolist.VGroup", Mock())
@@ -286,11 +290,83 @@ class TestAlgoScene:
         insert_action_pair.assert_called_once()
         add_metadata.assert_called_once()
 
+    def test_track_algoitem_appends_to_algo_objs(self):
+        algoscene = AlgoScene()
+        old_num_algoobjs = len(algoscene.algo_objs)
 
+        algoscene.track_algoitem(mock_node)
 
+        assert len(algoscene.algo_objs) == old_num_algoobjs + 1
+        assert mock_node in algoscene.algo_objs
 
+    def test_untrack_algoitem_existing_removes_from_algo_objs(self):
+        algoscene = AlgoScene()
+        algoscene.track_algoitem(mock_node)
+        old_num_algoobjs = len(algoscene.algo_objs)
 
+        algoscene.untrack_algoitem(mock_node)
 
+        assert len(algoscene.algo_objs) == old_num_algoobjs - 1
+        assert mock_node not in algoscene.algo_objs
+
+    def test_create_play_action_creates_play_action(self):
+        algoscene = AlgoScene()
+        action = algoscene.create_play_action(mock_transform)
+        assert action.act == algoscene.play
+        assert action.transform == mock_transform
+
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    def test_add_action_pair_creates_pair_and_inserts_it(self, insert_action_pair):
+        algoscene = AlgoScene()
+        index = 0
+        pair = algoscene.add_action_pair(mock_animation, index=index)
+
+        assert pair.anim_action == mock_animation
+        assert pair.static_action == mock_animation
+        insert_action_pair.assert_called_once_with(pair, index)
+
+    @patch('algomanim.algoaction.AlgoSceneActionPair.attach_index')
+    def test_insert_action_pair_adds_to_back_if_index_not_given(self, attach_index):
+        algoscene = AlgoScene()
+        initial_size = 3
+        for _ in range(initial_size):
+            algoscene.add_action_pair(mock_action_pair)
+        attach_index.reset_mock()
+
+        algoscene.add_action_pair(mock_action_pair)
+
+        attach_index.assert_called_once_with(initial_size)
+        assert len(algoscene.action_pairs) == initial_size + 1
+
+    @patch('algomanim.algoaction.AlgoSceneActionPair.attach_index')
+    @patch('algomanim.algoscene.AlgoScene.push_back_action_pair_indices')
+    def test_insert_action_pair_adds_to_given_index(self, push_back_action_pair_indices,
+                                                    attach_index):
+        algoscene = AlgoScene()
+        initial_size = 3
+        for _ in range(initial_size):
+            algoscene.add_action_pair(mock_action_pair)
+        attach_index.reset_mock()
+
+        index = 1
+        algoscene.add_action_pair(mock_action_pair, index=index)
+
+        push_back_action_pair_indices.assert_called_once_with(index)
+        attach_index.assert_called_once_with(index)
+        assert len(algoscene.action_pairs) == initial_size + 1
+
+    @patch('algomanim.algoscene.AlgoScene.add_metadata')
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_add_static_inserts_action_pair_and_metadata(self, create_static_action,
+                                                         insert_action_pair, add_metadata):
+        algoscene = AlgoScene()
+
+        algoscene.add_static(0, mock_static)
+
+        create_static_action.assert_called_once_with(mock_static, [])
+        insert_action_pair.assert_called_once()
+        add_metadata.assert_called_once()
 
 
 
@@ -397,36 +473,6 @@ class AlgoSceneCustomColor(AlgoScene):
 
     def customize(self, action_pairs):
         action_pairs[0].set_color(mock_color)
-
-
-class AlgoSceneFastForward(AlgoScene):
-    def algo(self):
-        action = self.create_play_action(default_transform)
-        self.add_action_pair(action, action)
-
-    def customize(self, action_pairs):
-        self.fast_forward(0)
-
-
-class AlgoSceneSkip(AlgoScene):
-    def algo(self):
-        self.add_action_pair(
-            AlgoSceneAction(self.play, default_transform),
-            AlgoSceneAction(self.add, default_transform)
-        )
-
-    def customize(self, action_pairs):
-        self.skip(0)
-
-
-class AlgoSceneWait(AlgoScene):
-    def customize(self, action_pairs):
-        self.add_wait(0)
-
-
-class AlgoSceneClear(AlgoScene):
-    def customize(self, action_pairs):
-        self.clear()
 
 
 class AlgoSceneMockList(AlgoScene):
