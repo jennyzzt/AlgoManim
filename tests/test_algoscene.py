@@ -1,4 +1,4 @@
-# pylint: disable=R0201
+# pylint: disable=R0201, R0913, R0904
 from unittest.mock import patch, Mock
 from manimlib.imports import *
 from algomanim.algoaction import AlgoTransform, AlgoSceneAction
@@ -164,9 +164,140 @@ class TestAlgoScene:
 
         assert change_text.call_count == fn_call_times
 
-        
+    def test_shift_scene_calls_set_next_to_on_all_objs(self):
+        algoscene = AlgoScene()
+        num_objs = 5
+        for _ in range(num_objs):
+            algoscene.algo_objs.append(mock_node)
 
-        
+        algoscene.shift_scene(UP)
+
+        assert mock_node.set_next_to.call_count == num_objs
+
+    def test_skip_without_end_skips_all_action_pairs_from_start(self):
+        algoscene = AlgoScene()
+        num_action_pairs = 5
+        algoscene.action_pairs = [mock_animation for _ in range(num_action_pairs)]
+        mock_animation.reset_mock()
+
+        start = 1
+        algoscene.skip(start)
+
+        assert mock_animation.skip.call_count == num_action_pairs - start
+
+    def test_skip_with_end_skips_all_action_pairs_in_range(self):
+        algoscene = AlgoScene()
+        num_action_pairs = 5
+        algoscene.action_pairs = [mock_animation for _ in range(num_action_pairs)]
+        mock_animation.reset_mock()
+
+        start = 1
+        end = 3
+        algoscene.skip(start, end=end)
+
+        assert mock_animation.skip.call_count == end - start
+
+    def test_fast_forward_without_end_ffs_all_action_pairs_from_start(self):
+        algoscene = AlgoScene()
+        num_action_pairs = 5
+        algoscene.action_pairs = [mock_animation for _ in range(num_action_pairs)]
+        mock_animation.reset_mock()
+
+        start = 1
+        algoscene.fast_forward(start)
+
+        assert mock_animation.fast_forward.call_count == num_action_pairs - start
+
+    def test_fast_forward_with_end_ffs_all_action_pairs_in_range(self):
+        algoscene = AlgoScene()
+        num_action_pairs = 5
+        algoscene.action_pairs = [mock_animation for _ in range(num_action_pairs)]
+        mock_animation.reset_mock()
+
+        start = 1
+        end = 3
+        algoscene.fast_forward(start, end=end)
+
+        assert mock_animation.fast_forward.call_count == end - start
+
+    @patch('algomanim.algoscene.AlgoScene.add_fade_in_all')
+    @patch('algomanim.algoscene.AlgoScene.remove_text')
+    @patch('algomanim.algoscene.AlgoScene.add_wait')
+    @patch('algomanim.algoscene.AlgoScene.add_text')
+    @patch('algomanim.algoscene.AlgoScene.add_fade_out_all')
+    def test_add_slide_calls_a_sequence_of_animations(self, add_fade_out_all, add_text,
+                                                      add_wait, remove_text, add_fade_in_all):
+        algoscene = AlgoScene()
+
+        slide_text = 'new slide!'
+        index = 0
+        algoscene.add_slide(slide_text, index)
+
+        add_fade_out_all.assert_called_once_with(index)
+        add_text.assert_called_once_with(slide_text, index+1, position=ORIGIN)
+        add_wait.assert_called_once_with(index + 2, wait_time=1)
+        remove_text.assert_called_once()
+        add_fade_in_all.assert_called_once_with(index + 4)
+
+    @patch('algomanim.algoscene.AlgoScene.add_metadata')
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    def test_add_fade_out_all_inserts_action_pair_and_metadata(self, insert_action_pair,
+                                                               add_metadata):
+        algoscene = AlgoScene()
+
+        algoscene.add_fade_out_all(0)
+
+        insert_action_pair.assert_called_once()
+        add_metadata.assert_called_once()
+
+    @patch('algomanim.algoscene.AlgoScene.add_metadata')
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    def test_add_fade_in_all_inserts_action_pair_and_metadata(self, insert_action_pair,
+                                                               add_metadata):
+        algoscene = AlgoScene()
+
+        algoscene.add_fade_in_all(0)
+
+        insert_action_pair.assert_called_once()
+        add_metadata.assert_called_once()
+
+    @patch('algomanim.algoscene.AlgoScene.add_metadata')
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    def test_add_wait_inserts_action_pair_and_metadata(self, insert_action_pair,
+                                                       add_metadata):
+        algoscene = AlgoScene()
+
+        algoscene.add_wait(0)
+
+        insert_action_pair.assert_called_once()
+        add_metadata.assert_called_once()
+
+    @patch('algomanim.algoscene.AlgoScene.add_metadata')
+    @patch('algomanim.algoscene.AlgoScene.insert_action_pair')
+    @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
+    def test_add_clear_inserts_action_pair_and_metadata(self, create_static_action,
+                                                        insert_action_pair,
+                                                        add_metadata):
+        algoscene = AlgoScene()
+
+        algoscene.add_clear(0)
+
+        create_static_action.assert_called_once_with(algoscene.clear)
+        insert_action_pair.assert_called_once()
+        add_metadata.assert_called_once()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @patch("algomanim.algoscene.Scene.play")
     def test_constructor_plays_queued_animations(self, play):
@@ -187,29 +318,6 @@ class TestAlgoScene:
         AlgoSceneCustomColor()
         play.assert_called_once_with(mock_animation(mock_color))
 
-    @patch("algomanim.algoscene.Scene.play")
-    def test_fast_forward(self, play):
-        AlgoSceneFastForward()
-        # Original speed is 1s, fast forward halves it
-        play.assert_called_once_with(mock_animation(), run_time=0.5)
-
-    @patch("algomanim.algoscene.Scene.play")
-    @patch("algomanim.algoscene.Scene.add")
-    def test_skip(self, add, play):
-        AlgoSceneSkip()
-        play.assert_not_called()
-        add.assert_called_once_with(mock_animation())
-
-    @patch("algomanim.algoscene.Scene.wait")
-    def test_wait(self, wait):
-        AlgoSceneWait()
-        assert wait.call_count == 2
-
-    @patch("algomanim.algoscene.Scene.play")
-    @patch("algomanim.algoscene.Scene.clear")
-    def test_clear(self, clear, _):
-        AlgoSceneClear()
-        clear.assert_called_once_with()
 
 
 @patch("algomanim.algonode.VGroup", Mock())
