@@ -145,6 +145,22 @@ class AlgoScene(MovingCameraScene):
                 self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
             prev_node = node
 
+    def chain_pin_highlight_line(self, pin_str):
+        pins = self.find_pin(pin_str)
+        prev_node = None
+        prev_edge = None
+        line_highlight = lambda node, edge: \
+            ApplyMethod(node.lines[edge][0].set_stroke, self.settings['highlight_color'])
+        line_dehighlight = lambda node, edge: \
+            ApplyMethod(node.lines[edge][0].set_stroke, self.settings['line_color'])
+        for pin in pins:
+            node = pin.get_args()[0]
+            edge = pin.get_args()[1]
+            self.add_transform(pin.get_index(), line_highlight, [node, edge])
+            if prev_node is not None:
+                self.add_transform(pin.get_index() + 1, line_dehighlight, [prev_node, prev_edge])
+            prev_node = node
+            prev_edge = edge
     # ------------ Text customizability --------------
 
     '''
