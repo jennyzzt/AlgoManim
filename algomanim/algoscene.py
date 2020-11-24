@@ -72,8 +72,7 @@ class AlgoScene(MovingCameraScene):
         pass
 
     ''' Add your own custom Manim animation to a particular action_pair '''
-    def add_transform(self, index, custom_transform=None, args=[], metadata=None):  # pylint: disable=W0102
-
+    def add_transform(self, index=None, custom_transform=None, args=[], metadata=None):  # pylint: disable=W0102
         anim_action = self.create_play_action(AlgoTransform(args, transform=custom_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.insert_action_pair(action_pair, index)
@@ -139,11 +138,12 @@ class AlgoScene(MovingCameraScene):
         node_dehighlight = lambda node: \
             ApplyMethod(node.node.set_fill, self.settings['node_color'])
         for pin in pins:
-            node = pin.get_args()[0]
-            self.add_transform(pin.get_index(), node_highlight, [node])
-            if prev_node is not None:
-                self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
-            prev_node = node
+            if len(pin.get_args()) > 0:
+                node = pin.get_args()[0]
+                self.add_transform(pin.get_index(), node_highlight, [node])
+                if prev_node is not None:
+                    self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
+                prev_node = node
 
     # ------------ Text customizability --------------
 
@@ -184,7 +184,7 @@ class AlgoScene(MovingCameraScene):
     '''
     def change_text(self, new_text_string, old_text_object=None, index=None, position=ORIGIN):
         if old_text_object is None:
-            return self.add_text(new_text_string, index, position)
+            return self.add_text(new_text_string, index=index, position=position)
         position = old_text_object.get_center()
         new_text_object = self.create_text(new_text_string)
         new_text_object.shift(position)
@@ -196,7 +196,7 @@ class AlgoScene(MovingCameraScene):
         return new_text_object
 
     ''' FadeOut an existing text object '''
-    def remove_text(self, old_text_object, index):
+    def remove_text(self, old_text_object, index=None):
         transform = lambda: FadeOut(old_text_object)
         self.add_transform(index, transform)
 
@@ -213,7 +213,9 @@ class AlgoScene(MovingCameraScene):
         old_text = None
         for i, pin in enumerate(relevant_pins):
             index = pin.get_index()
-            new_text = custom_text if custom_text else f'Line {linenum} called: {i + 1} times'
+            new_text = (custom_text + f'{i+1}') \
+                if custom_text \
+                   else f'Line {linenum} called: {i + 1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     """
@@ -224,7 +226,9 @@ class AlgoScene(MovingCameraScene):
         old_text = None
         for i, pin in enumerate(action_pairs):
             index = pin.get_index()
-            new_text = custom_text if custom_text else f'{fn_method} called: {i + 1} times'
+            new_text = (custom_text+f'{i+1}') \
+                if custom_text \
+                else f'{fn_method} called: {i + 1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
     '''
