@@ -17,19 +17,6 @@ BOX_MAX_WIDTH = 240
 TEXT_BTN_FRAC = 8
 
 
-# Placeholder for custom animations
-# def empty_animation(index):
-#     return {
-#         'index': index,
-#         'desc': "Add custom animations",
-#         'animated': True,  # so it will be displayed
-#         'runtime': 0.5
-#     }
-
-# def is_empty_anim(anim):
-#     return not hasattr(anim, 'start_position')
-
-
 class AnimationBar(QWidget):
 
     def __init__(self, video_player=None, gui_window=None, parent=None):
