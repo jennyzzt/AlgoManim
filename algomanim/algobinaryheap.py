@@ -47,16 +47,62 @@ class AlgoBinaryHeap(AlgoBinaryTree):
 
     @attach_metadata
     def swap(self, i, j, metadata=None, animated=True, w_prev=False):
+        print(i, ":", self.arr[i].val, j, ":", self.arr[j].val)
 
-        tempVal = self.arr[i].val
+        # Swap children nodes first
+        tempL = self.arr[i].left
+        tempR = self.arr[i].right
 
-        self.arr[i].val = self.arr[j].val
-        self.arr[j].val = tempVal
+        self.arr[i].set_left(self.arr[j].left, update_depth=False)
+        self.arr[i].set_right(self.arr[j].right, update_depth=False)
 
+        self.arr[j].set_left(tempL, update_depth=False)
+        self.arr[j].set_right(tempR, update_depth=False)
+
+        # Do a swap with the parents
+        tempJParent = self.arr[j].parent
+
+        if self.arr[i].parent is not None:
+            if self.arr[i].parent.left is self.arr[i]:
+                self.arr[i].parent.set_left(self.arr[j], update_depth=False)
+            else:
+                self.arr[i].parent.set_right(self.arr[j], update_depth=False)
+
+        if tempJParent is not None:
+            if tempJParent.left is self.arr[j]:
+                tempJParent.set_left(self.arr[i], update_depth=False)
+            else:
+                tempJParent.set_right(self.arr[i], update_depth=False)
+
+        # Swap nodes in list
+        temp = self.arr[i]
+
+        if self.root is self.arr[i]:
+            self.root = self.arr[j]
+        self.arr[i] = self.arr[j]
+        if self.root is self.arr[j]:
+            self.root = temp
+        self.arr[j] = temp
+
+        self.root.recursive_update_depth()
+
+        # Animated swap
         self.arr[i].swap_with(self.arr[j], metadata=metadata, animated=animated, w_prev=w_prev)
 
+
+        # tempVal = self.arr[i].val
+        #
+        # self.arr[i].val = self.arr[j].val
+        # self.arr[j].val = tempVal
+        #
+        # # Swap their Manim internal representations as well
+        # tempGrp = self.arr[i].grp
+        # self.arr[i].grp = self.arr[j].grp
+        # self.arr[j].grp = tempGrp
+
+
     @attach_metadata
-    def heapify(self, i, n, metadata=None, animated=True, w_prev=False):
+    def heapify(self, i, n, metadata=None, animated=True, w_prev=False, p=False):
 
         largest = i
         l = 2 * i + 1
@@ -68,8 +114,13 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             largest = r
 
         if i is not largest:
+            # if p:
+                # print(i, ":", self.arr[i].val, largest, ":", self.arr[largest].val)
             self.swap(i, largest, metadata=metadata, animated=animated, w_prev=w_prev)
-            self.heapify(largest, n, metadata=metadata, animated=animated, w_prev=w_prev)
+            # if p:
+            #     print("NEWVALS", i, ":", self.arr[i].val, largest, ":", self.arr[largest].val)
+
+            self.heapify(largest, n, metadata=metadata, animated=animated, w_prev=w_prev, p=p)
 
     def buildheap_tree(self):
         if self.size == 0:
@@ -114,7 +165,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.max_depth = ceil(log(self.size, 2)) + 1
 
         # heapify the root node
-        self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
+        self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev, p=True)
         return True
 
     def peek(self):

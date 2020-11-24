@@ -20,16 +20,23 @@ class AlgoBinaryTreeNode(AlgoNode):
         self.parent = parent
         self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
 
-    def set_left(self, left):
+    def set_left(self, left, set_parent=True, update_depth=True):
         self.left = left
-        self.left.set_parent(self)
 
-        self.recursive_update_depth()
+        if left is not None and set_parent:
+            self.left.set_parent(self)
 
-    def set_right(self, right):
+        if update_depth:
+            self.recursive_update_depth()
+
+    def set_right(self, right, set_parent=True, update_depth=True):
         self.right = right
-        self.right.set_parent(self)
-        self.recursive_update_depth()
+
+        if right is not None and set_parent:
+            self.right.set_parent(self)
+
+        if update_depth:
+            self.recursive_update_depth()
 
     def recursive_size(self):
         num_nodes = 1
@@ -139,6 +146,10 @@ class AlgoBinaryTreeNode(AlgoNode):
             self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         super().hide(metadata=metadata, animated=animated, w_prev=True)
+
+
+    def __str__(self):
+        return f"{self.val}: {str(self.left), str(self.right)}"
 
 
 
