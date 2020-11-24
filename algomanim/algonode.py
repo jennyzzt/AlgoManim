@@ -123,17 +123,14 @@ class AlgoNode(AlgoObject):
             self.lines[target_node] = line
             target_node.lines[self] = line
 
-        action = AlgoSceneAction.create_static_action(self.set_line_start_end,
-                                                                    [target_node])
+        action = AlgoSceneAction.create_static_action(self.set_line_start_end, [target_node])
         action_pair = self.scene.add_action_pair(action, action, animated=False)
 
         lower_meta = LowerMetadata.create(action_pair, [self.val], False)
         metadata.add_lower(lower_meta)
 
-        anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(line)),
-                                                                    w_prev=w_prev)
-        static_action = AlgoSceneAction.create_static_action(self.scene.add,
-                                                                    [line])
+        anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(line)), w_prev=w_prev)
+        static_action = AlgoSceneAction.create_static_action(self.scene.add, [line])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         lower_meta = LowerMetadata.create(action_pair, [self.val])
