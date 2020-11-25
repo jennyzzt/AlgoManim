@@ -36,11 +36,12 @@ class AlgoObject(ABC):
     def set_next_to(self, obj, vector, panel_name=None, specific_val=None,
                     metadata=None, animated=False, w_prev=False):
         # Create action pair
-        action = AlgoSceneAction.create_static_action(self.grp.next_to, [obj.grp, vector])
+        action = AlgoSceneAction.create_static_action(
+            lambda obj1, obj2: obj1.grp.next_to(obj2.grp, vector), [self, obj])
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [obj],
-                transform=lambda o: ApplyMethod(self.grp.next_to, o.grp, vector)
+                [self, obj],
+                transform=lambda obj1, obj2: ApplyMethod(obj1.grp.next_to, obj2.grp, vector)
             ),
             w_prev=w_prev
         )
@@ -70,8 +71,8 @@ class AlgoObject(ABC):
         action = AlgoSceneAction.create_static_action(self.static_set_relative_to, [obj, vector])
         anim_action = self.scene.create_play_action(
             AlgoTransform(
-                [obj],
-                transform=lambda o: ApplyMethod(self.grp.move_to, o.grp.get_center(), vector)
+                [self, obj],
+                transform=lambda obj1, obj2: ApplyMethod(obj1.grp.move_to, obj2.grp.get_center(), vector)
             ),
             w_prev=w_prev
         )
@@ -113,13 +114,13 @@ class AlgoObject(ABC):
     def center(self, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp], transform=lambda grp: \
-                ApplyMethod(grp.move_to, ORIGIN + np.array([0, grp.get_center()[1], 0]))
+            AlgoTransform([self], transform=lambda obj:
+                ApplyMethod(obj.grp.move_to, ORIGIN + np.array([0, obj.grp.get_center()[1], 0]))
             ),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(lambda grp: \
-            grp.move_to(ORIGIN + np.array([0, grp.get_center()[1], 0])), args=[self.grp])
+        static_action = AlgoSceneAction.create_static_action(lambda obj:
+            obj.grp.move_to(ORIGIN + np.array([0, obj.grp.get_center()[1], 0])), args=[self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
@@ -130,9 +131,9 @@ class AlgoObject(ABC):
     def show(self, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp], transform=FadeIn), w_prev=w_prev
+            AlgoTransform([self], transform=lambda obj: FadeIn(obj.grp)), w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.grp])
+        static_action = AlgoSceneAction.create_static_action(lambda obj: self.scene.add(obj.grp), [self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
@@ -143,9 +144,9 @@ class AlgoObject(ABC):
     def hide(self, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.grp], transform=FadeOut), w_prev=w_prev
+            AlgoTransform([self], transform=lambda obj: FadeOut(obj.grp)), w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(self.scene.remove, [self.grp])
+        static_action = AlgoSceneAction.create_static_action(lambda obj: self.scene.remove(obj.grp), [self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
@@ -183,10 +184,10 @@ class AlgoObject(ABC):
         self.text[key] = self.scene.create_text(text)
         # Move it next to the obj with given vector
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.text[key].next_to, self.grp, vector], transform=ApplyMethod)
+            AlgoTransform([self.text[key], self], transform=lambda txt, obj: ApplyMethod(txt.next_to, obj.grp, vector))
         )
-        static_action = AlgoSceneAction.create_static_action(self.text[key].next_to,
-                                                             [self.grp, vector])
+        static_action = AlgoSceneAction.create_static_action(lambda txt, obj: txt.next_to(obj.grp, vector),
+                                                             [self.text[key], self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
         # Create set_next_to LowerMetadata
         lower_meta = LowerMetadata('set_next_to', action_pair, show_in_panel=False)
