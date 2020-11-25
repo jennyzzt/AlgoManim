@@ -488,7 +488,7 @@ class AlgoScene(MovingCameraScene):
             self.add_transform(index, ApplyMethod, args=[arrow.next_to,
                                                          textobjs[codeindex], LEFT])
 
-    def customize_construct(self, action_pairs):
+    def customize_construct(self):
         # Add customisation needed for parallel code anim
         if self.is_show_code():
             self.customize_codeanim()
@@ -577,7 +577,7 @@ class AlgoScene(MovingCameraScene):
         self.post_config(self.settings)
 
         self.algo_construct()
-        self.customize_construct(self.action_pairs)
+        self.customize_construct()
 
         self.execute_action_pairs(self.action_pairs, self.anim_blocks)
         self.create_metadata_blocks()
