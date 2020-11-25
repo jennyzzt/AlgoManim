@@ -430,6 +430,12 @@ class GuiWindow(QDialog):
         self.show_video_button.show()
 
     def multiblock_select(self, start, end):
+        # swap start and end if they have been selected the other way around
+        if start > end:
+            temp = start
+            start = end
+            end = temp
+
         self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
         self.customise_panel.set_animation_group(self.anims[start:end + 1])
 
