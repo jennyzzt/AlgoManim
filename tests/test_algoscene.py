@@ -471,9 +471,8 @@ class AlgoSceneCustomColor(AlgoScene):
         )
         self.add_action_pair(action, action)
 
-    def customize(self, action_pairs):
-        action_pairs[0].set_color(mock_color)
-
+    def customize(self):
+        self.action_pairs[0].set_color(mock_color)
 
 class AlgoSceneMockList(AlgoScene):
     test_list = [1]
@@ -516,5 +515,5 @@ class AlgoSceneTextFont(AlgoSceneMockList):
         settings['text_font'] = self.test_font
         settings['text_font_color'] = self.test_font_color
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.add_text(self.test_text)
