@@ -13,7 +13,7 @@ from .customisation_type import CustomisationType
 OPTION_HEIGHT = 35
 
 
-# pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods,too-many-instance-attributes
 class CustomisePanel(BaseChangesPanel):
 
     def __init__(self, parent=None, changes=None):
@@ -114,23 +114,23 @@ class CustomisePanel(BaseChangesPanel):
         if contains_empty_anim:
             # TODO: check how to integrate with text transitions
             return
-        else:
-            self.multi_block_anims = anims
-            change_possible = True # TODO: check whether action pairs can set runtime
-            total_duration = sum([anim.runtime for anim in anims])
-            self.reset_frame(title = f'{anims[0].desc(sep=" ")} \n to {anims[-1].desc(sep=" ")}')
-            widget = QLineEdit()
-            wrapped_widget = InputTextBox(widget)
-            wrapped_widget.set_value(total_duration)
-            self.multi_block_default_value = wrapped_widget.get_value()
-            self.multi_block_widget = wrapped_widget
 
-            form_layout = QFormLayout()
-            form_layout.addRow(QLabel('Total Duration'), widget)
+        self.multi_block_anims = anims
+        change_possible = any([anim_meta_block.can_set_runtime() for anim_meta_block in anims])
+        total_duration = sum([anim.runtime for anim in anims])
+        self.reset_frame(title = f'{anims[0].desc(sep=" ")} \n to {anims[-1].desc(sep=" ")}')
+        widget = QLineEdit()
+        wrapped_widget = InputTextBox(widget)
+        wrapped_widget.set_value(total_duration)
+        self.multi_block_default_value = wrapped_widget.get_value()
+        self.multi_block_widget = wrapped_widget
 
-            self.save_button.setEnabled(change_possible)
-            self.menu_layout.addLayout(form_layout)
-            self.inner_scroll_layout.addWidget(self.menu_frame)
+        form_layout = QFormLayout()
+        form_layout.addRow(QLabel('Total Duration'), widget)
+
+        self.save_button.setEnabled(change_possible)
+        self.menu_layout.addLayout(form_layout)
+        self.inner_scroll_layout.addWidget(self.menu_frame)
 
     def set_animation(self, anim):
         self.multi_block_anims = None

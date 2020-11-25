@@ -32,7 +32,7 @@ class GuiWindow(QDialog):
     # Instance attributes required to organise window.
     # pylint: disable=too-many-statements
     # Statements necessary to piece widgets together.
-    # pylint: disable=too-many-local-variables
+    # pylint: disable=too-many-locals
     # Variables required to piece together UI
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -432,9 +432,7 @@ class GuiWindow(QDialog):
     def multiblock_select(self, start, end):
         # swap start and end if they have been selected the other way around
         if start > end:
-            temp = start
-            start = end
-            end = temp
+            start, end = end, start
 
         self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
         self.customise_panel.set_animation_group(self.anims[start:end + 1])

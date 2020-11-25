@@ -1,5 +1,3 @@
-import inspect
-
 class AnimationBlock:
     def __init__(self, action_pairs, start_time):
         self.action_pairs = action_pairs

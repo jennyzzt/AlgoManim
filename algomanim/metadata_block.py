@@ -22,3 +22,6 @@ class MetadataBlock:
     def end_index(self):
         assert len(self.action_pairs) > 0
         return self.action_pairs[-1].get_index()
+
+    def can_set_runtime(self):
+        return any([ap.can_set_runtime() for ap in self.action_pairs])

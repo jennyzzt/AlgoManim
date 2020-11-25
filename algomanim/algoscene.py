@@ -389,7 +389,7 @@ class AlgoScene(MovingCameraScene):
             is_wait=True)
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
-        action_pair = AlgoSceneActionPair(anim_action, static_action, run_time=0.5)
+        action_pair = AlgoSceneActionPair(anim_action, static_action)
         self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('wait')

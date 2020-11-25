@@ -66,6 +66,7 @@ class AlgoSceneAction:
         # empty filler action
         return AlgoSceneAction.create_static_action(do_nothing, args)
 
+    # pylint: disable=R0913
     def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False,
         is_wait=False):
         self.act = act
