@@ -13,7 +13,7 @@ Next, install all system library dependencies of Manim (this will consume quite 
 ```bash
 sudo apt install sox ffmpeg libcairo2 libcairo2-dev texlive-full
 ```
-> For alternative system setup, please check the [official Manim documentation](https://manim.readthedocs.io/en/latest/installation/index.html#) out
+> For alternative system setup, please check out the [official Manim documentation](https://manim.readthedocs.io/en/latest/installation/index.html#)
 
 Lastly, set up a virtual environment and install the Python dependencies. The command line should now be prefaced by `(venv)`.
 ```bash
@@ -73,10 +73,3 @@ Please read [Customizations.md](docs/Customizations.md) to find out more about h
 All Python code should adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/). Pylint is used to enforce this, so it would probably be a good idea to select the linter in your editor if it allows you to.
 If there are any linting rules that you want to exclude (for good reason), disable it in `.pylintrc`.
 In order to pre-empt pipeline failure, please run `pytest -v --cov=algomanim` and `pylint *` locally before pushing.
-
-Provisionally, the project folder structure is as follows:
-`./algomanim` is the main folder where project source files should go.
-`./tests` will contain the test files (with filenames prefaced by `test_`).
-All generated files should be added to `./.gitignore`, please check before committing!
-
-Feel free to update this README as we go along.

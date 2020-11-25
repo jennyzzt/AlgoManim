@@ -46,4 +46,4 @@ class CustomBubbleSortScene(AlgoScene):
         # 5) skip remaining animations from third iteration till the end
         self.skip(compare_index + 2)
 
-        self.add_fade_in_all(len(action_pairs))
+        self.add_fade_in_all(len(self.action_pairs))
