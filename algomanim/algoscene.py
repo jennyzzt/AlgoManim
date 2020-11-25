@@ -385,10 +385,11 @@ class AlgoScene(MovingCameraScene):
                     w_prev=True)
 
     def add_wait(self, index, wait_time=1):
-        anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]))
+        anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]), can_set_runtime=True,
+            is_wait=True)
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
-        action_pair = AlgoSceneActionPair(anim_action, static_action)
+        action_pair = AlgoSceneActionPair(anim_action, static_action, run_time=0.5)
         self.insert_action_pair(action_pair, index)
 
         curr_metadata = Metadata('wait')

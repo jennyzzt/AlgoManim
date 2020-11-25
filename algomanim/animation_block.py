@@ -1,3 +1,5 @@
+import inspect
+
 class AnimationBlock:
     def __init__(self, action_pairs, start_time):
         self.action_pairs = action_pairs
@@ -40,4 +42,8 @@ class AnimationBlock:
         if run_time is None or not act_can_set_runtime:
             act(*args)
         else:
-            act(*args, run_time=run_time)
+            if first_pair.curr_action().is_wait:
+                # self.wait
+                args[0] = run_time
+            else:
+                act(*args, run_time=run_time)

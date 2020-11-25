@@ -14,4 +14,8 @@ class InputTextBox(InputWidget):
         return self.qline_edit.text()
 
     def set_value(self, val):
-        return self.qline_edit.setText(str(val))
+        if isinstance(val, float):
+            str_val = "{:.2f}".format(val)
+        else:
+            str_val = str(val)
+        return self.qline_edit.setText(str_val)

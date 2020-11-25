@@ -66,11 +66,13 @@ class AlgoSceneAction:
         # empty filler action
         return AlgoSceneAction.create_static_action(do_nothing, args)
 
-    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
+    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False,
+        is_wait=False):
         self.act = act
         self.transform = transform
         self.w_prev = w_prev
         self.can_set_runtime = can_set_runtime
+        self.is_wait = is_wait # for setting runtime of self.wait
 
     def get_args(self):
         return self.transform.args
