@@ -93,10 +93,10 @@ class AlgoObject(ABC):
     def swap_with(self, obj, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action1 = self.scene.create_play_action(
-            AlgoTransform([self.grp, obj.grp], transform=CyclicReplace), w_prev=w_prev
+            AlgoTransform([obj, self], transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=w_prev
         )
         anim_action2 = self.scene.create_play_action(
-            AlgoTransform([obj.grp, self.grp], transform=CyclicReplace), w_prev=True
+            AlgoTransform([obj, self], transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=True
         )
         static_action1 = AlgoSceneAction.create_static_action(self.static_swap_with, [obj])
         static_action2 = AlgoSceneAction.create_empty_action()

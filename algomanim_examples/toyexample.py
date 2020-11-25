@@ -17,12 +17,8 @@ class ToyScene(AlgoScene):
 
         heap = AlgoBinaryHeap(self, [1, 2, 3, 4, 7, 100], type="min-heap")
 
-        print([n.val for n in heap.arr])
         print(heap.root)
-
         heap.pop()
-        print([n.val for n in heap.arr])
-        # print(heap.root)
 
     def preconfig(self, settings):
         settings['node_size'] = 0.5
