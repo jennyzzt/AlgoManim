@@ -223,10 +223,12 @@ class GuiWindow(QDialog):
     def toggle_mb_start(self):
         self.choose_mb_start = not self.choose_mb_start
         self.mb_start_btn.setDown(self.choose_mb_start)
+        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_start)
 
     def toggle_mb_end(self):
         self.choose_mb_end = not self.choose_mb_end
         self.mb_end_btn.setDown(self.choose_mb_end)
+        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_end)
 
     def show_file_dialog(self):
         dialog = QFileDialog()

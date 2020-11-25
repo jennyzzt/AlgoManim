@@ -42,6 +42,9 @@ class AnimationBar(QWidget):
         self.anim_box_list = QHBoxLayout()
         self.anim_box_list.setContentsMargins(0, 0, 0, 0)
 
+        # multiblock edits
+        self.curr_position = 0
+
         # Set up scrollbar for boxes
         self.scroll_area = QScrollArea()
         self.scroll_area.setMinimumSize(VIDEO_BASE_WIDTH, BAR_BASE_HEIGHT)
@@ -150,6 +153,7 @@ class AnimationBar(QWidget):
 
     def media_position_changed(self, position):
         # print(f'Media position changed to {position}')
+        self.curr_position = position
         for (i, anim) in enumerate(self.anims):
             if is_empty_anim(anim):
                 continue
@@ -161,6 +165,13 @@ class AnimationBar(QWidget):
                 self.gui_window.change_panel_anim(anim)
             else:
                 self.set_inactive_lbl(i)
+
+    def set_multiblock_selection_mode(self, selected):
+        if selected:
+            for anim_box in self.anim_boxes:
+                anim_box.setStyleSheet("background-color: gray; color: black")
+        else:
+            self.media_position_changed(self.curr_position)
 
     def set_animation_group(self, start_anim, end_anim):
         start_idx = self.anims.index(start_anim)
