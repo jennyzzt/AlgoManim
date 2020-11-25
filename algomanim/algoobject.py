@@ -5,21 +5,18 @@ from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import LowerMetadata, attach_metadata
 
 
-'''
-Base class for objects created with this library
-
-Note that the convention for creating a fn that results in an action_pair is:
-1. Create metadata if metadata was not previously initialised
-2. Create action pair
-3. Create LowerMetadata
-4. Add metadata if metadata is initialised in the fn
-'''
-
-TEMP_META_NAME = 'temp'
-TEMP_VAL = -1
-
-
 class AlgoObject(ABC):
+
+    '''
+    Base class for objects created with this library
+
+    Note that the convention for creating a fn that results in an action_pair is:
+    1. Create metadata if metadata was not previously initialised
+    2. Create action pair
+    3. Create LowerMetadata
+    4. Add metadata if metadata is initialised in the fn
+    '''
+
     def __init__(self, scene):
         super().__init__()
         # Every object is connected to a scene

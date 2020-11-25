@@ -34,20 +34,33 @@ def get_imports(path):
 # ------------- AlgoScene functions ------------- #
 
 class AlgoScene(MovingCameraScene):
+
+    '''
+    Superclass of all scenes using the AlgoManim library
+
+    Args:
+        **kwargs: Variable arguments passed to the Manim Scene superclass
+            Receives post_customize_fns and post_config_settings which are set from the GUI
+
+    Attributes:
+        settings (dict): General scene settings to be configured in preconfig()
+        save_mobjects (Mobject[]): Reobtain objects removed by certain animations
+        algo_objs (AlgoObject[]): Tracker for all items in the scene
+        post_customize_fns (function[]): GUI-generated animation customizations
+        post_config_settings (dict): GUI-generated configuration settings
+        action_pairs (AlgoSceneActionPair[]): Chronological list of scene actions
+        anim_blocks (AnimationBlock[]): action_pairs organized into AnimationBlocks
+        meta_trees (Metadata[]): Information corresponding to each action_pair
+        metadata_block (MetadataBlock[]): meta_trees organized into MetadataBlocks
+    '''
+
     def __init__(self, **kwargs):
-        # Default settings
         self.settings = DEFAULT_SETTINGS.copy()
-
-        # Used to reobtain objects that are removed by certain animations
         self.save_mobjects = None
-
-        # Tracker for all items in the Scene
         self.algo_objs = []
-
         self.kwargs = kwargs
         self.post_customize_fns = kwargs.get('post_customize_fns', [])
         self.post_config_settings = kwargs.get('post_config_settings', {})
-
         self.action_pairs = []
         self.anim_blocks = []
         self.meta_trees = []
@@ -57,23 +70,19 @@ class AlgoScene(MovingCameraScene):
 
     # ---------- Algorithm default creation ----------- #
 
-    ''' For users to overwrite '''
     def algo(self):
-        pass
+        ''' For users to overwrite '''
 
     # ---------- Customizability / Pinning utilities ----------- #
 
-    ''' For users to overwrite '''
     def preconfig(self, settings):
-        pass
+        ''' For users to overwrite '''
 
-    ''' For users to overwrite '''
     def customize(self):
-        pass
+        ''' For users to overwrite '''
 
-    ''' Add your own custom Manim animation to a particular action_pair '''
     def add_transform(self, index, custom_transform=None, args=[], metadata=None):  # pylint: disable=W0102
-
+        ''' Adds a custom Manim animation to a particular action_pair '''
         anim_action = self.create_play_action(AlgoTransform(args, transform=custom_transform))
         action_pair = AlgoSceneActionPair(anim_action, anim_action)
         self.insert_action_pair(action_pair, index)
@@ -87,11 +96,11 @@ class AlgoScene(MovingCameraScene):
         else:
             self.add_metadata(metadata)
 
-    '''
-    Insert a pin in algo() so that you can find and customize specific action_pairs
-    in customize() or the GUI
-    '''
     def insert_pin(self, desc, *args):
+        '''
+        Insert a pin in algo() so that specific action_pairs can be found and customized
+        either in customize() or the GUI
+        '''
         empty_action = AlgoSceneAction.create_empty_action(list(args))
         empty_pair = self.add_action_pair(empty_action)
 
@@ -126,12 +135,12 @@ class AlgoScene(MovingCameraScene):
 
     # ----------- AlgoObject customisability ---------
 
-    '''
-    Adds highlight animations to the animations immediately after the pins.
-    insert_pin() must've been given an AlgoNode.
-    Consult algomanim_examples/binarytreesort.py for an example
-    '''
     def chain_pin_highlight(self, pin_str):
+        '''
+        Adds highlight animations to the animations immediately after the pins
+        insert_pin() must've been given an AlgoNode
+        Consult algomanim_examples/binarytreesort.py for an example
+        '''
         pins = self.find_pin(pin_str)
         prev_node = None
         node_highlight = lambda node: \
@@ -147,11 +156,11 @@ class AlgoScene(MovingCameraScene):
 
     # ------------ Text customizability --------------
 
-    '''
-    Add a text object and the Write transform
-    Returns the created text object
-    '''
     def add_text(self, text, index=0, position=ORIGIN):
+        '''
+        Add a text object and the Write transform
+        Returns the created text object
+        '''
         assert index is not None
 
         text = self.create_text(text)
@@ -160,17 +169,16 @@ class AlgoScene(MovingCameraScene):
         self.add_transform(index, transform)
         return text
 
-    '''
-    Factory method to return a Text-kind object depending on the current configuration.
-    Defaults to the manim-configured default font if configuration does not describe
-    a valid installed font.
-    '''
     def create_text(self, text_string, for_node=False):
-        """
-        Parameters:
+        '''
+        Factory method to return a Text-kind object depending on the current configuration.
+        Defaults to the manim-configured default font if configuration does not describe
+        a valid installed font.
+
+        Args:
             text_string (str): The text to create
             for_node (bool): To use the node font configuration
-        """
+        '''
         font_key = 'node_font' if for_node else 'text_font'
         color_key = 'node_font_color' if for_node else 'text_font_color'
         font = self.settings[font_key].lower()
@@ -179,12 +187,12 @@ class AlgoScene(MovingCameraScene):
             return TextMobject(text_string, color=font_color)
         return Text(text_string, color=font_color, font=font)
 
-    '''
-    Edit existing text objects via Manim's ReplacementTransform
-    Requires the previous text object to be edited
-    Returns the replacement text object
-    '''
     def change_text(self, new_text_string, old_text_object=None, index=0, position=ORIGIN):
+        '''
+        Edit existing text objects via Manim's ReplacementTransform
+        Requires the previous text object to be edited
+        Returns the replacement text object
+        '''
         assert index is not None
 
         if old_text_object is None:
@@ -199,19 +207,19 @@ class AlgoScene(MovingCameraScene):
         self.add_transform(index, transform, args=[old_text_object, new_text_object])
         return new_text_object
 
-    ''' FadeOut an existing text object '''
     def remove_text(self, old_text_object, index):
+        ''' FadeOut an existing text object '''
         transform = lambda: FadeOut(old_text_object)
         self.add_transform(index, transform)
 
     # ------------ Scene customizability --------------
 
-    '''
-    Displays the number of times a line is called
-    Note that the linenum inputted should be the linenum in display_sourcecode,
-    not the linenum in algo(), so this can only be used if show_anim is on
-    '''
     def add_complexity_analysis_line(self, linenum, position=2 * DOWN, custom_text=None):
+        '''
+        Displays the number of times a line is called
+        Note that the linenum inputted should be the linenum in display_sourcecode,
+        not the linenum in algo(), so this can only be used if show_anim is on
+        '''
         codeindex_pins = self.find_pin('__codeindex__')
         relevant_pins = list(filter(lambda pin: pin.get_args()[0] == linenum, codeindex_pins))
         old_text = None
@@ -220,10 +228,10 @@ class AlgoScene(MovingCameraScene):
             new_text = custom_text if custom_text else f'Line {linenum} called: {i + 1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
-    """
-    Displays the number of times a fn_method iss called - specified by a pin or metadata
-    """
     def add_complexity_analysis_fn(self, fn_method, position=2 * DOWN, custom_text=None):
+        '''
+        Displays the number of times a fn_method is called - specified by a pin or metadata
+        '''
         action_pairs = self.find_action_pairs(metadata_name=fn_method, w_children=False)
         old_text = None
         for i, pin in enumerate(action_pairs):
@@ -231,10 +239,8 @@ class AlgoScene(MovingCameraScene):
             new_text = custom_text if custom_text else f'{fn_method} called: {i + 1} times'
             old_text = self.change_text(new_text, old_text, index=index, position=position)
 
-    '''
-    Shifts all TRACKED objects in the scene by some vector
-    '''
     def shift_scene(self, vector, metadata=None, w_prev=False):
+        ''' Shifts all TRACKED objects in the scene by some vector '''
         first = True
         for algo_obj in self.algo_objs:
             # Shift all items UP
@@ -314,10 +320,8 @@ class AlgoScene(MovingCameraScene):
 
     # ----- Data Structure utilities -------
 
-    '''
-    Add item so they can subscribe themselves to scene transformations like Shifts
-    '''
     def track_algoitem(self, algo_item):
+        ''' Add item so they can subscribe themselves to scene transformations like Shifts '''
         self.algo_objs.append(algo_item)
 
     def untrack_algoitem(self, algo_item):
@@ -570,8 +574,8 @@ class AlgoScene(MovingCameraScene):
         for anim_block in self.anim_blocks:
             anim_block.run()
 
-    ''' Run the pipeline needed for the animations '''
     def construct(self):
+        ''' Run the pipeline needed for the animations '''
         Metadata.reset_counter()
         self.preconfig(self.settings)
         self.post_config(self.settings)
