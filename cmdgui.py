@@ -10,7 +10,7 @@ from PyQt5.QtCore import QUrl
 from gui.custom_renderer import custom_renderer
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
-from gui.animation_bar import AnimationBar, empty_animation
+from gui.animation_bar import AnimationBar, empty_animation, is_empty_anim
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
@@ -433,6 +433,17 @@ class GuiWindow(QDialog):
         # swap start and end if they have been selected the other way around
         if start > end:
             start, end = end, start
+
+        contains_empty_anim = any([is_empty_anim(anim) for anim in self.anims[start:end + 1]])
+        if contains_empty_anim:
+            err = QMessageBox(icon=QMessageBox.Critical,
+                              text="Please render first")
+            err.setInformativeText('You have added a text slide. Please click on \
+                \'Apply Changes and Render\' before continuing')
+            err.setStandardButtons(QMessageBox.Close)
+            err.setStyleSheet(ERROR_MSG_STYLESHEET)
+            err.exec_()
+            return
 
         self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
         self.customise_panel.set_animation_group(self.anims[start:end + 1])

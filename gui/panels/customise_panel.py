@@ -109,10 +109,10 @@ class CustomisePanel(BaseChangesPanel):
 
         self.menu_frame.setLayout(self.menu_layout)
 
+    # PRE: anims should not contain empty_animations or else this will break
     def set_animation_group(self, anims):
         contains_empty_anim = any([is_empty_anim(anim) for anim in anims])
         if contains_empty_anim:
-            # TODO: check how to integrate with text transitions
             return
 
         self.multi_block_anims = anims
