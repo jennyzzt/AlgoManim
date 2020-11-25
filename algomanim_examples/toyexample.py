@@ -15,7 +15,7 @@ class ToyScene(AlgoScene):
         # left = algolist.slice(0, 5 // 2, move=LEFT, shift=True)
         # left.hide()
 
-        heap = AlgoBinaryHeap(self, [1, 2, 3, 4, 7, 100], type="min-heap")
+        heap = AlgoBinaryHeap(self, [1, 2, 3, 4, 7, 100], heap_type="max-heap")
 
         # print(heap.root)
         heap.pop()

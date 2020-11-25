@@ -5,19 +5,20 @@ from algomanim.algoaction import AlgoSceneAction
 
 
 class AlgoBinaryHeap(AlgoBinaryTree):
+
     HEAP_TYPE = {
-        "min-heap",
-        "max-heap"
+        "min-heap": lambda m, n: m < n,
+        "max-heap": lambda m, n: m > n
     }
 
-    def __init__(self, scene, arr=[], type="min-heap"):
-        assert type in self.HEAP_TYPE, \
+    def __init__(self, scene, arr=[], heap_type="min-heap"):
+        assert heap_type in self.HEAP_TYPE, \
             "type is not one of the following" % self.HEAP_TYPE
 
         self.scene = scene
         self.arr = arr
         self.size = len(arr)
-        self.type = type
+        self.cmp = self.HEAP_TYPE[heap_type]
         self.root = None
 
         # Convert to AlgoTreeNode representation
@@ -102,9 +103,9 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         l = 2 * i + 1
         r = 2 * i + 2
 
-        if l < n and self.arr[l].val > self.arr[largest].val:
+        if l < n and self.cmp(self.arr[l].val, self.arr[largest].val):
             largest = l
-        if r < n and self.arr[r].val > self.arr[largest].val:
+        if r < n and self.cmp(self.arr[r].val, self.arr[largest].val):
             largest = r
 
         if i is not largest:
@@ -171,7 +172,6 @@ class AlgoBinaryHeap(AlgoBinaryTree):
 
         # Perform Bottom-up to satisfy heap property
         self.bottom_up_heapify(metadata=metadata, animated=animated, w_prev=w_prev)
-
 
     def peek(self):
         return self.arr[0].val
