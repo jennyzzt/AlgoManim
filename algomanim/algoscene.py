@@ -151,7 +151,9 @@ class AlgoScene(MovingCameraScene):
     Add a text object and the Write transform
     Returns the created text object
     '''
-    def add_text(self, text, index=None, position=ORIGIN):
+    def add_text(self, text, index=0, position=ORIGIN):
+        assert index is not None
+
         text = self.create_text(text)
         text.shift(position)
         transform = lambda: Write(text)
@@ -182,7 +184,9 @@ class AlgoScene(MovingCameraScene):
     Requires the previous text object to be edited
     Returns the replacement text object
     '''
-    def change_text(self, new_text_string, old_text_object=None, index=None, position=ORIGIN):
+    def change_text(self, new_text_string, old_text_object=None, index=0, position=ORIGIN):
+        assert index is not None
+
         if old_text_object is None:
             return self.add_text(new_text_string, index, position)
         position = old_text_object.get_center()
