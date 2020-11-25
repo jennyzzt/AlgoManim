@@ -68,7 +68,7 @@ class AlgoScene(MovingCameraScene):
         pass
 
     ''' For users to overwrite '''
-    def customize(self, action_pairs):
+    def customize(self):
         pass
 
     ''' Add your own custom Manim animation to a particular action_pair '''
@@ -489,7 +489,7 @@ class AlgoScene(MovingCameraScene):
         if self.is_show_code():
             self.customize_codeanim()
         # Run user-defined customize fn
-        self.customize(action_pairs)
+        self.customize()
 
     def post_config(self, settings):
         settings.update(self.post_config_settings)

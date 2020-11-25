@@ -26,7 +26,7 @@ class ShortBubbleSortScene(AlgoScene):
     def preconfig(self, settings):
         settings['highlight_color'] = "#FF0000"
 
-    def customize(self, action_pairs):
+    def customize(self):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) find the animations for your different functions

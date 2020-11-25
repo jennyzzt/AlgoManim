@@ -129,8 +129,8 @@ class AlgoSceneCustomColor(AlgoScene):
         )
         self.add_action_pair(action, action)
 
-    def customize(self, action_pairs):
-        action_pairs[0].set_color(mock_color)
+    def customize(self):
+        self.action_pairs[0].set_color(mock_color)
 
 
 class AlgoSceneFastForward(AlgoScene):
@@ -138,7 +138,7 @@ class AlgoSceneFastForward(AlgoScene):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.fast_forward(0)
 
 
@@ -149,17 +149,17 @@ class AlgoSceneSkip(AlgoScene):
             AlgoSceneAction(self.add, default_transform)
         )
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.skip(0)
 
 
 class AlgoSceneWait(AlgoScene):
-    def customize(self, action_pairs):
+    def customize(self):
         self.add_wait(0)
 
 
 class AlgoSceneClear(AlgoScene):
-    def customize(self, action_pairs):
+    def customize(self):
         self.clear()
 
 
@@ -204,5 +204,5 @@ class AlgoSceneTextFont(AlgoSceneMockList):
         settings['text_font'] = self.test_font
         settings['text_font_color'] = self.test_font_color
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.add_text(self.test_text)

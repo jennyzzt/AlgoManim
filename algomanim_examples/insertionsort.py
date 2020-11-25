@@ -18,7 +18,7 @@ class InsertionSortScene(AlgoScene):
                     algolist.swap(i, j)
             self.insert_pin('sorted')
 
-    def customize(self, action_pairs):
+    def customize(self):
         # add introduction
         intro_pin = self.find_pin('intro')[0]
         index = intro_pin.get_index()

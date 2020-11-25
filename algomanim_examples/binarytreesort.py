@@ -34,7 +34,7 @@ class BinaryTreeSortScene(AlgoScene):
         self.inorder_traversal(root, sorted_list)
 
     # pylint: disable=R0914
-    def customize(self, action_pairs):
+    def customize(self):
         pin = self.find_pin("list_elems")[0]
         idx = pin.get_index()
         text_position = 2 * UP
