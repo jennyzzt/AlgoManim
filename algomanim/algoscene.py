@@ -537,15 +537,15 @@ class AlgoScene(MovingCameraScene):
             if not blocks:
                 # metadata has no action pairs attached to it
                 continue
-            else:
-                start_time = min(map(lambda block: block.start_time, blocks))
-                end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
 
-                runtime = end_time - start_time
+            start_time = min(map(lambda block: block.start_time, blocks))
+            end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))
 
-                self.metadata_blocks.append(
-                    MetadataBlock(tree, action_pairs, start_time, runtime)
-                )
+            runtime = end_time - start_time
+
+            self.metadata_blocks.append(
+                MetadataBlock(tree, action_pairs, start_time, runtime)
+            )
 
         # some metadata might be added out of order, sort the blocks by start_time
         self.metadata_blocks.sort(key=lambda meta_block: meta_block.start_time)
