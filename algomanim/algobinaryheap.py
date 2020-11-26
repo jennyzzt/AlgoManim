@@ -120,14 +120,14 @@ class AlgoBinaryHeap(AlgoBinaryTree):
     def pop(self, metadata=None, animated=True, w_prev=False):
 
         # Gracefully handle empty Heaps
-        if not self.arr:
+        if len(self.arr) == 0:
             return None
+
+        # store the value of the peek element
+        peek = self.peek()
 
         # swap the root with last left element
         self.swap(0, -1, metadata=metadata, animated=animated, w_prev=w_prev)
-
-        # store the value of the peek element
-        peek = self.arr[-1]
 
         # hide the last node
         self.arr[-1].hide(metadata=metadata, animated=animated, w_prev=w_prev)
@@ -144,7 +144,10 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         # Update the internal representation
         self.arr = self.arr[:-1]
         self.size = len(self.arr)
-        self.max_depth = ceil(log(self.size, 2)) + 1
+        if self.size > 0:
+            self.max_depth = ceil(log(self.size, 2)) + 1
+        else:
+            self.max_depth = 1
 
         # heapify the root node
         self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
@@ -177,4 +180,8 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.bottom_up_heapify(metadata=metadata, animated=animated, w_prev=w_prev)
 
     def peek(self):
-        return self.arr[0].val
+        if self.arr:
+            return self.arr[0].val
+        else:
+            return None
+
