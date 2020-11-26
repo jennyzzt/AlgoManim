@@ -19,7 +19,7 @@ class AlgoDijkstras(AlgoScene):
                   'D' : [ ('G', 5) ],
                   'E' : [ ],
                   'F' : [ ('G', 6) ],
-                  'G' : [ ('A', 50), ('B', 2), ('C', 8), ('D', 5), ('F', 6) ] }        
+                  'G' : [ ('A', 50), ('B', 2), ('C', 8), ('D', 5), ('F', 6) ] }
 
 
         algograph = AlgoGraph(self, graph, animated=False)
@@ -69,9 +69,9 @@ class AlgoDijkstras(AlgoScene):
 
     def customize(self, action_pairs):
         self.chain_pin_highlight("min_vertex")
-        self.chain_pin_highlight("min_vertex_done", BLUE, dehighlight=False)
+        self.chain_pin_highlight("min_vertex_done", '#66e0ff', dehighlight=False)
         self.chain_pin_highlight_line("check_edge")
-        self.chain_pin_highlight_line("min_edge", BLUE, dehighlight=False)
+        self.chain_pin_highlight_line("min_edge", '#66e0ff', dehighlight=False)
 
         self.chain_pin_dehighlight_line("check_edge_done")
         self.chain_pin_dehighlight_line("prv_edge")
