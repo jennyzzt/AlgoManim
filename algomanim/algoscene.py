@@ -535,8 +535,8 @@ class AlgoScene(MovingCameraScene):
 
             blocks = {action_pair.get_block() for action_pair in action_pairs}
             if not blocks:
-                print(f'WARNING: Metadata: {tree.desc(sep=" ")} \
-                    has no action_pairs attached to it!')
+                # metadata has no action pairs attached to it
+                continue
             else:
                 start_time = min(map(lambda block: block.start_time, blocks))
                 end_time = max(map(lambda block: block.start_time + block.runtime_val(), blocks))

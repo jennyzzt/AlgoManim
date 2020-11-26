@@ -38,14 +38,14 @@ class AlgoTransform:
 
     def get_color(self):
         if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
+            # transform does not have color property
             return None
 
         return self.args[self.color_index]
 
     def set_color(self, color):
         if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
+            # transform does not have color property
             return
 
         self.args[self.color_index] = color
@@ -170,11 +170,11 @@ class AlgoSceneActionPair:
 
     def set_runtime(self, run_time):
         if not self.can_set_runtime() and run_time != 0:
-            print('WARNING: ActionPair does not have runtime property')
+            # action pair does not have runtime property
             return
 
         if self.anim_action == self.static_action and run_time == 0:
-            print('WARNING: ActionPair cannot be skipped')
+            # action pair cannot be skipped
             return
 
         if not isinstance(run_time, float) or not isinstance(run_time, int):
