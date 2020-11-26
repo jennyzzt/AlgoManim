@@ -97,7 +97,7 @@ class AnimationBar(QWidget):
 
         anim_lbl = QLabel(desc)
         anim_lbl.setAlignment(Qt.AlignCenter)  # center-align text
-        anim_lbl.setWordWrap(True)
+        anim_lbl.setWordWrap(True)  # will not wrap if there is no whitespace
         anim_box_layout.addWidget(anim_lbl, 0, 0, 1, TEXT_BTN_FRAC - 1)
 
         # Create text animation button
