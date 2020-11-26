@@ -65,7 +65,7 @@ class TestAlgoObject:
         algo_object.show()
 
         create_static_action.assert_called_once()
-        # Assert that we are delaying the set_next_to by doing a lambda
+        # Assert that we are delaying show by doing a lambda
         args, _ = create_static_action.call_args
         assert isinstance(args[0], Callable)
 
@@ -81,7 +81,7 @@ class TestAlgoObject:
         algo_object.hide()
         create_static_action.assert_called_once()
 
-        # Assert that we are delaying the set_next_to by doing a lambda
+        # Assert that we are delaying hide by doing a lambda
         args, _ = create_static_action.call_args
         assert isinstance(args[0], Callable)
 

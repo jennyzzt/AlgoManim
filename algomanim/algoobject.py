@@ -72,7 +72,8 @@ class AlgoObject(ABC):
         anim_action = self.scene.create_play_action(
             AlgoTransform(
                 [self, obj],
-                transform=lambda obj1, obj2: ApplyMethod(obj1.grp.move_to, obj2.grp.get_center(), vector)
+                transform=lambda obj1, obj2:
+                    ApplyMethod(obj1.grp.move_to, obj2.grp.get_center(), vector)
             ),
             w_prev=w_prev
         )
@@ -94,10 +95,12 @@ class AlgoObject(ABC):
     def swap_with(self, obj, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action1 = self.scene.create_play_action(
-            AlgoTransform([obj, self], transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=w_prev
+            AlgoTransform([obj, self],
+                          transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=w_prev
         )
         anim_action2 = self.scene.create_play_action(
-            AlgoTransform([obj, self], transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=True
+            AlgoTransform([obj, self],
+                          transform=lambda n1, n2: CyclicReplace(n1.grp, n2.grp)), w_prev=True
         )
         static_action1 = AlgoSceneAction.create_static_action(self.static_swap_with, [obj])
         static_action2 = AlgoSceneAction.create_empty_action()
@@ -133,7 +136,8 @@ class AlgoObject(ABC):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self], transform=lambda obj: FadeIn(obj.grp)), w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(lambda obj: self.scene.add(obj.grp), [self])
+        static_action = AlgoSceneAction.create_static_action(
+            lambda obj: self.scene.add(obj.grp), [self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
@@ -146,7 +150,8 @@ class AlgoObject(ABC):
         anim_action = self.scene.create_play_action(
             AlgoTransform([self], transform=lambda obj: FadeOut(obj.grp)), w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(lambda obj: self.scene.remove(obj.grp), [self])
+        static_action = AlgoSceneAction.create_static_action(
+            lambda obj: self.scene.remove(obj.grp), [self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
@@ -184,10 +189,11 @@ class AlgoObject(ABC):
         self.text[key] = self.scene.create_text(text)
         # Move it next to the obj with given vector
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self.text[key], self], transform=lambda txt, obj: ApplyMethod(txt.next_to, obj.grp, vector))
+            AlgoTransform([self.text[key], self],
+                          transform=lambda txt, obj: ApplyMethod(txt.next_to, obj.grp, vector))
         )
-        static_action = AlgoSceneAction.create_static_action(lambda txt, obj: txt.next_to(obj.grp, vector),
-                                                             [self.text[key], self])
+        static_action = AlgoSceneAction.create_static_action(
+            lambda txt, obj: txt.next_to(obj.grp, vector), [self.text[key], self])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=False)
         # Create set_next_to LowerMetadata
         lower_meta = LowerMetadata('set_next_to', action_pair, show_in_panel=False)
@@ -310,8 +316,8 @@ class AlgoObject(ABC):
 
         metadata.add_lower(lower_meta)
 
-    ''' Applies a function to a list of objects such that the animation takes place at the same time
-    for all objects '''
+    ''' Applies a function to a list of objects such that the animation takes place at
+    the same time for all objects '''
     @staticmethod
     def loop_fn_w_prev(objs, fn_to_apply, animated, metadata, init_w_prev):
         first = True
