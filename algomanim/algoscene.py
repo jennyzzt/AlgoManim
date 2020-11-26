@@ -135,16 +135,20 @@ class AlgoScene(MovingCameraScene):
 
     # ----------- AlgoObject customisability ---------
 
-    def chain_pin_highlight(self, pin_str):
+    def chain_pin_highlight(self, pin_str, highlight_color=None, dehighlight=True):
         '''
         Adds highlight animations to the animations immediately after the pins
         insert_pin() must've been given an AlgoNode
         Consult algomanim_examples/binarytreesort.py for an example
         '''
+
         pins = self.find_pin(pin_str)
         prev_node = None
+
+        highlight_color = highlight_color if highlight_color else self.settings['highlight_color']
+
         node_highlight = lambda node: \
-            ApplyMethod(node.node.set_fill, self.settings['highlight_color'])
+            ApplyMethod(node.node.set_fill, highlight_color)
         node_dehighlight = lambda node: \
             ApplyMethod(node.node.set_fill, self.settings['node_color'])
         for pin in pins:
@@ -154,6 +158,37 @@ class AlgoScene(MovingCameraScene):
                 if prev_node is not None:
                     self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
                 prev_node = node
+
+    def chain_pin_highlight_line(self, pin_str, highlight_color=None, dehighlight=True):
+        pins = self.find_pin(pin_str)
+        prev_node = None
+        prev_edge = None
+
+        highlight_color = highlight_color if highlight_color else self.settings['highlight_color']
+
+        line_highlight = lambda node, edge: \
+            ApplyMethod(node.lines[edge][0].set_stroke, highlight_color)
+        line_dehighlight = lambda node, edge: \
+            ApplyMethod(node.lines[edge][0].set_stroke, self.settings['line_color'])
+        for pin in pins:
+            node = pin.get_args()[0]
+            edge = pin.get_args()[1]
+            self.add_transform(pin.get_index(), line_highlight, [node, edge])
+            if dehighlight and prev_node is not None:
+                self.add_transform(pin.get_index() + 1, line_dehighlight, [prev_node, prev_edge])
+                prev_node = node
+                prev_edge = edge
+
+    def chain_pin_dehighlight_line(self, pin_str):
+        pins = self.find_pin(pin_str)
+
+        line_dehighlight = lambda node, edge: \
+            ApplyMethod(node.lines[edge][0].set_stroke, self.settings['line_color'])
+        for pin in pins:
+            node = pin.get_args()[0]
+            edge = pin.get_args()[1]
+            self.add_transform(pin.get_index(), line_dehighlight, [node, edge])
+
 
     # ------------ Text customizability --------------
 

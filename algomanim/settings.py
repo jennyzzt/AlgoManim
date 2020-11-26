@@ -12,4 +12,6 @@ DEFAULT_SETTINGS = {
     'node_color': WHITE,
     'node_shape': 'square',
     'node_size': 1.5,
+    'line_width': 5,
+    'line_color': WHITE,
 }

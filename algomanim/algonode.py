@@ -115,31 +115,71 @@ class AlgoNode(AlgoObject):
         metadata.add_lower(lower_meta)
 
     @attach_metadata
-    def add_line(self, target_node, metadata=None, animated=True, w_prev=False):
-        if target_node in self.lines:
-            line = self.lines[target_node]
-        else:
-            line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
-            self.lines[target_node] = line
-            target_node.lines[self] = line
+    def add_line(self, target_node, weight=None, **kwargs):
+        metadata = kwargs["metadata"] if "metadata" in kwargs else None
+        animated = kwargs["animated"] if "animated" in kwargs else True
+        w_prev = kwargs["w_prev"] if "w_prev" in kwargs else False
 
-        action = AlgoSceneAction.create_static_action(self.set_line_start_end, [target_node])
+        if target_node in self.lines:
+            line, old_weight = self.lines[target_node]
+            weight_obj = TextMobject(str(weight)) if weight else old_weight
+        else:
+            line = Line(ORIGIN, ORIGIN, stroke_width=self.scene.settings['line_width'],
+                                            color=self.scene.settings['line_color'])
+            weight_obj =  TextMobject(str(weight)) if weight else None
+            self.lines[target_node] = line, weight_obj
+            target_node.lines[self] = line, weight_obj
+
+
+        # Set the start and end points of the line from current node to target node
+        action = AlgoSceneAction.create_static_action(self.set_line_start_end,
+                                                                    [target_node])
+
         action_pair = self.scene.add_action_pair(action, action, animated=False)
 
         lower_meta = LowerMetadata.create(action_pair, [self.val], False)
         metadata.add_lower(lower_meta)
 
-        anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(line)), w_prev=w_prev)
-        static_action = AlgoSceneAction.create_static_action(self.scene.add, [line])
+
+        # Fade in the line
+        anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(line)),
+                                                                    w_prev=w_prev)
+        static_action = AlgoSceneAction.create_static_action(self.scene.add,
+                                                                    [line])
+
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
 
         lower_meta = LowerMetadata.create(action_pair, [self.val])
         metadata.add_lower(lower_meta)
 
+
+        if weight_obj:
+            # Position Text for Line Weight
+            action = AlgoSceneAction.create_static_action(self.weight_placement,
+                                                                        [weight_obj, line])
+            action_pair = self.scene.add_action_pair(action, action, animated=False)
+
+            lower_meta = LowerMetadata.create(action_pair, [weight_obj.get_tex_string()], False)
+            metadata.add_lower(lower_meta)
+
+            # Add Text for Line Weight
+            anim_action = self.scene.create_play_action(AlgoTransform(Write(weight_obj)),
+                                                                        w_prev=w_prev)
+            static_action = AlgoSceneAction.create_static_action(self.scene.add,
+                                                                        [weight_obj])
+            action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
+
+            lower_meta = LowerMetadata.create(action_pair, [weight_obj.get_tex_string()])
+            metadata.add_lower(lower_meta)
+
+    def weight_placement(self, weight, line):
+        angle = line.get_angle() + np.pi/2
+        weight.move_to(line.get_center() + np.array([np.cos(angle), np.sin(angle), 0]) / 3)
+
     @attach_metadata
     def highlight_line(self, target, metadata=None, animated=True, w_prev=False):
         if target in self.lines:
-            line = self.lines[target]
+            line = self.lines[target][0]
             # Create action pair
             anim_action = self.scene.create_play_action(
                 AlgoTransform([line.set_color, self.highlight_color], transform=ApplyMethod,
@@ -156,7 +196,7 @@ class AlgoNode(AlgoObject):
     @attach_metadata
     def dehighlight_line(self, target, metadata=None, animated=True, w_prev=False):
         if target in self.lines:
-            line = self.lines[target]
+            line = self.lines[target][0]
             # Create action pair
             anim_action = self.scene.create_play_action(
                 AlgoTransform([line.set_color, WHITE], transform=ApplyMethod,
@@ -170,10 +210,11 @@ class AlgoNode(AlgoObject):
             lower_meta = LowerMetadata.create(action_pair, [self.val, target.val])
             metadata.add_lower(lower_meta)
 
+
     def set_line_start_end(self, target):
         if target is None:
             # reset line
-            self.lines[target].set_opacity(0)
+            self.lines[target][0].set_opacity(0)
         else:
             center = self.grp.get_center()
             target_center = target.grp.get_center()
@@ -184,4 +225,4 @@ class AlgoNode(AlgoObject):
                 self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
             end = target_center + \
                 self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            self.lines[target].put_start_and_end_on(start, end)
+            self.lines[target][0].put_start_and_end_on(start, end)

@@ -79,7 +79,7 @@ class TestAlgoNode:
         algonode.highlight_line(targetnode)
 
         create_static_action.assert_called_once_with(
-            algonode.lines[targetnode].set_color,
+            algonode.lines[targetnode][0].set_color,
             [algonode.highlight_color],
             color_index=0
         )
@@ -106,7 +106,7 @@ class TestAlgoNode:
         algonode.dehighlight_line(targetnode)
 
         create_static_action.assert_called_once_with(
-            algonode.lines[targetnode].set_color,
+            algonode.lines[targetnode][0].set_color,
             [WHITE],
             color_index=0
         )
