@@ -36,7 +36,8 @@ class AlgoBinaryHeap(AlgoBinaryTree):
     def convert_num_array(self):
         return [AlgoBinaryTreeNode(self.scene, num) for num in self.arr]
 
-    def bottom_up_heapify(self, metadata=None, animated=True, w_prev=False):  # pylint: disable=C0103
+    # pylint: disable=C0103
+    def bottom_up_heapify(self, metadata=None, animated=True, w_prev=False):
         n = len(self.arr)
 
         # index of last non-leaf node
@@ -97,8 +98,9 @@ class AlgoBinaryHeap(AlgoBinaryTree):
 
         self.scene.add_action_pair(static_action, static_action, animated=animated)
 
+    # pylint: disable=C0103, R0913
     @attach_metadata
-    def heapify(self, i, n, metadata=None, animated=True, w_prev=False):  # pylint: disable=C0103, R0913
+    def heapify(self, i, n, metadata=None, animated=True, w_prev=False):
 
         largest = i
         l = 2 * i + 1
