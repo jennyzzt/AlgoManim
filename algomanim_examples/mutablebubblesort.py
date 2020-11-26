@@ -21,7 +21,7 @@ class MutableBubbleSortScene(AlgoScene):
     def customize(self):
         self.chain_pin_highlight("compare")
 
-    # pylint: disable=E1136
+    # pylint: disable=E1136, W0221
     def chain_pin_highlight(self, pin_str):
         pins = self.find_pin(pin_str)
         prev_pair = None

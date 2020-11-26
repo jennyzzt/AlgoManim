@@ -155,7 +155,7 @@ class AlgoScene(MovingCameraScene):
             if len(pin.get_args()) > 0:
                 node = pin.get_args()[0]
                 self.add_transform(pin.get_index(), node_highlight, [node])
-                if prev_node is not None:
+                if dehighlight and prev_node is not None:
                     self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
                 prev_node = node
 
@@ -336,7 +336,8 @@ class AlgoScene(MovingCameraScene):
         self.add_metadata(curr_metadata)
 
     def add_wait(self, index, wait_time=1):
-        anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]), can_set_runtime=True, is_wait=True)
+        anim_action = AlgoSceneAction(self.wait, AlgoTransform([wait_time]), can_set_runtime=True,
+            is_wait=True)
         # Using a dummy function to skip wait
         static_action = AlgoSceneAction.create_empty_action()
         action_pair = AlgoSceneActionPair(anim_action, static_action)

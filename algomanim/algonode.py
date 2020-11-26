@@ -172,7 +172,8 @@ class AlgoNode(AlgoObject):
             lower_meta = LowerMetadata.create(action_pair, [weight_obj.get_tex_string()])
             metadata.add_lower(lower_meta)
 
-    def weight_placement(self, weight, line):
+    @staticmethod
+    def weight_placement(weight, line):
         angle = line.get_angle() + np.pi/2
         weight.move_to(line.get_center() + np.array([np.cos(angle), np.sin(angle), 0]) / 3)
 
