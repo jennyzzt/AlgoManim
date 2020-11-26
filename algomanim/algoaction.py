@@ -16,13 +16,19 @@ def fade_in_transform(scene):
 
 
 class AlgoTransform:
+
+    '''
+    Wrapper for a Manim Transform and its customizable arguments (mainly Color)
+
+    Args:
+        *args: Variable arguments for the stored transform
+        transform (function): Any subclass of the Manim Transform class
+            if transform is None, this class encapsulates a list of arguments
+        color_index (int): Index of a color argument in the list args
+            if color_index is None, this transform does not have a color property
+    '''
+
     def __init__(self, args, transform=None, color_index=None):
-        """
-        if transform is None, this class encapsulates a list of arguments
-        else, the arguments are to be consumed by the transform function
-        if color_index is None, this transform does not have a color property
-        else, color can be changed by changing args[color_index]
-        """
         self.transform = transform
         self.args = args
         self.color_index = color_index
@@ -32,14 +38,14 @@ class AlgoTransform:
 
     def get_color(self):
         if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
+            # transform does not have color property
             return None
 
         return self.args[self.color_index]
 
     def set_color(self, color):
         if not self.can_set_color():
-            print('WARNING: Transform does not have color property')
+            # transform does not have color property
             return
 
         self.args[self.color_index] = color
@@ -52,9 +58,27 @@ class AlgoTransform:
 
 
 class AlgoSceneAction:
+
+    '''
+    Stores a AlgoTransform and the Manim action that would be called on it
+
+    Args:
+        act (function): Manim action associated with the stored transform
+        transform (AlgoTransform): Argument for the Manim action
+        w_prev (bool): If this action is to be played with the previous action
+        can_set_runtime (bool): If this action is animated with a runtime
+    '''
+
+    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
+        self.act = act
+        self.transform = transform
+        self.w_prev = w_prev
+        self.can_set_runtime = can_set_runtime
+
     @staticmethod
-    def create_static_action(function, args=[], color_index=None): # pylint: disable=W0102
-        # w_prev flag does not matter for static actions
+    def create_static_action(function, args=None, color_index=None):
+        ''' Factory for static actions (no runtime, w_prev flag does not matter) '''
+        args = args or []
         return AlgoSceneAction(
             do_nothing,
             transform=AlgoTransform(args, transform=function, color_index=color_index),
@@ -62,15 +86,10 @@ class AlgoSceneAction:
             can_set_runtime=False)
 
     @staticmethod
-    def create_empty_action(args=[]): # pylint: disable=W0102
-        # empty filler action
+    def create_empty_action(args=None):
+        ''' An empty filler action '''
+        args = args or []
         return AlgoSceneAction.create_static_action(do_nothing, args)
-
-    def __init__(self, act, transform=None, w_prev=False, can_set_runtime=False):
-        self.act = act
-        self.transform = transform
-        self.w_prev = w_prev
-        self.can_set_runtime = can_set_runtime
 
     def get_args(self):
         return self.transform.args
@@ -96,19 +115,31 @@ class AlgoSceneAction:
             return self.transform.run()
         return []
 
+
 class AlgoSceneActionPair:
+
+    '''
+    Encodes a pair of AlgoSceneActions which are interchangeable based on runtime
+
+    Args:
+        anim_action (AlgoSceneAction): Animated action
+        static_action (AlgoSceneAction): Instantaneous action
+        run_time (float): Duration of the animated action
+            if run_time is None, anim_action is run
+            else if run_time == 0, static_action is run
+            else if run_time > 0, anim_action is run with the run_time parameter
+
+    Attributes:
+        anim_block (AnimationBlock): Reference to the anim_block this action_pair belongs to
+        index (int): To store the index of action pair in a list of action_pairs
+    '''
+
     def __init__(self, anim_action, static_action=None, run_time=None):
-        '''
-        encodes a pair of AlgoSceneActions
-        if run_time is None, anim_action is run
-        else if run_time == 0, static_action is run
-        else if run_time > 0, anim_action is run with a run_time parameter
-        '''
         self.anim_action = anim_action
         self.static_action = static_action if static_action is not None else anim_action
         self.run_time = run_time
-        self.anim_block = None # anim_block this action_pair ends up in
-        self.index = None # index of action pair in action_pairs list
+        self.anim_block = None
+        self.index = None
 
     def get_args(self):
         return self.curr_action().get_args()
@@ -139,11 +170,11 @@ class AlgoSceneActionPair:
 
     def set_runtime(self, run_time):
         if not self.can_set_runtime() and run_time != 0:
-            print('WARNING: ActionPair does not have runtime property')
+            # action pair does not have runtime property
             return
 
         if self.anim_action == self.static_action and run_time == 0:
-            print('WARNING: ActionPair cannot be skipped')
+            # action pair cannot be skipped
             return
 
         if not isinstance(run_time, float) or not isinstance(run_time, int):

@@ -33,8 +33,10 @@ class BinaryTreeSortScene(AlgoScene):
         sorted_list = AlgoList(self, [], displacement=3.5 * DOWN)
         self.inorder_traversal(root, sorted_list)
 
+        self.insert_pin("finished")
+
     # pylint: disable=R0914
-    def customize(self, action_pairs):
+    def customize(self):
         pin = self.find_pin("list_elems")[0]
         idx = pin.get_index()
         text_position = 2 * UP
@@ -48,11 +50,13 @@ class BinaryTreeSortScene(AlgoScene):
 
         tree_finished_pin = self.find_pin("finished_tree_build")[0]
         idx2 = tree_finished_pin.get_index()
-        self.fast_forward(idx + 2, idx2)
         title_text = self.change_text("Now, we do an INORDER traversal of the tree",
-            title_text, idx2)
+                                      title_text, index=idx2)
+        self.fast_forward(idx + 2, idx2)
 
         self.chain_pin_highlight("visited_node")
 
         self.fast_forward(idx2 + 1)
-        self.change_text("We have a sorted list!", title_text)
+
+        last_pin = self.find_pin("finished")[0]
+        self.change_text("We have a sorted list!", title_text, index=last_pin.get_index())

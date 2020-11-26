@@ -20,7 +20,7 @@ class CustomBubbleSortScene(AlgoScene):
         settings['node_size'] = 2.5
         settings['highlight_color'] = "#33cccc"  # teal
 
-    def customize(self, action_pairs):
+    def customize(self):
         # demonstrating the allowed edits that can be made for animations
 
         # 1) color of highlight is changed for first iteration of algorithm
@@ -46,4 +46,4 @@ class CustomBubbleSortScene(AlgoScene):
         # 5) skip remaining animations from third iteration till the end
         self.skip(compare_index + 2)
 
-        self.add_fade_in_all(len(action_pairs))
+        self.add_fade_in_all(len(self.action_pairs))

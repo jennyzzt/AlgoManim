@@ -277,6 +277,8 @@ class GuiWindow(QDialog):
     def reset_changes(self):
         self.changes = dict()
         self.text_changes = dict()
+        self.post_customize_fns = []
+        self.post_config_settings = dict()
         self.change_history_panel.reset()
 
     def apply_changes(self):
@@ -286,7 +288,7 @@ class GuiWindow(QDialog):
             for (action_pair_index, change_type), anim_change in curr_changes.items():
                 change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
         self.post_customize_fns.append(customize_anims)
-        # pylint: disable=unused-argument
+
         def insert_text(algoscene):
             for index, text in self.text_changes.items():
                 algoscene.add_slide(text, index + 1)
@@ -302,6 +304,10 @@ class GuiWindow(QDialog):
 
     def add_empty_anim(self, index, position):
         self.anims.insert(index, empty_animation(position))
+        self.animation_bar.fill_bar(self.anims)
+
+    def delete_empty_anim(self, index):
+        self.anims.pop(index)
         self.animation_bar.fill_bar(self.anims)
 
     # Returns list of AlgoScene subclasses in the Python file at python_fp

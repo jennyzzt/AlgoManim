@@ -18,7 +18,7 @@ class MutableBubbleSortScene(AlgoScene):
                     algolist.change_val(i, val_j)
                     algolist.change_val(j, val_i)
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.chain_pin_highlight("compare")
 
     # pylint: disable=E1136

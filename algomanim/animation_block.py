@@ -1,4 +1,13 @@
 class AnimationBlock:
+
+    '''
+    Stores a list of related AlgoActionPairs running concurrently
+
+    Args:
+        action_pairs (AlgoSceneActionPairs[])
+        start_time (float): Point of time in the AlgoScene at which this block runs
+    '''
+
     def __init__(self, action_pairs, start_time):
         self.action_pairs = action_pairs
         self.start_time = start_time
