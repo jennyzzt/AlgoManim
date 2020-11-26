@@ -306,6 +306,10 @@ class GuiWindow(QDialog):
         self.anims.insert(index, empty_animation(position))
         self.animation_bar.fill_bar(self.anims)
 
+    def delete_empty_anim(self, index):
+        self.anims.pop(index)
+        self.animation_bar.fill_bar(self.anims)
+
     # Returns list of AlgoScene subclasses in the Python file at python_fp
     @staticmethod
     def get_scene_names(python_fp):
