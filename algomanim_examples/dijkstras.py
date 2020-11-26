@@ -13,13 +13,13 @@ class AlgoDijkstras(AlgoScene):
         #           'B' : [ ('A', 1), ('C', 3) ],
         #           'C' : [ ('A', 2), ('B', 3) ]}
 
-        graph = { 'A' : [ ('B', 1), ('G', 15) ],
-                  'B' : [ ('A', 1), ('C', 1), ('G', 20) ],
-                  'C' : [ ('B', 1), ('G', 3) ],
+        graph = { 'A' : [ ('B', 1), ('G', 50) ],
+                  'B' : [ ('A', 1), ('C', 1), ('G', 8) ],
+                  'C' : [ ('B', 1), ('G', 2) ],
                   'D' : [ ('G', 5) ],
                   'E' : [ ],
                   'F' : [ ('G', 6) ],
-                  'G' : [ ('A', 15), ('B', 20), ('C', 3), ('D', 5), ('F', 6) ] }        
+                  'G' : [ ('A', 50), ('B', 2), ('C', 8), ('D', 5), ('F', 6) ] }        
 
 
         algograph = AlgoGraph(self, graph, animated=False)
@@ -58,6 +58,8 @@ class AlgoDijkstras(AlgoScene):
                         dist[edge] = alt
                         prev[edge] = min_vertex
                         queue.sort(key=lambda edge: dist[edge])
+                    else:
+                        self.insert_pin("check_edge_done", min_vertex_node, edge_node)
 
                 self.insert_pin("min_vertex_done", min_vertex_node)
             return dist, prev
@@ -69,5 +71,7 @@ class AlgoDijkstras(AlgoScene):
         self.chain_pin_highlight("min_vertex")
         self.chain_pin_highlight("min_vertex_done", BLUE, dehighlight=False)
         self.chain_pin_highlight_line("check_edge")
-        self.chain_pin_dehighlight_line("prv_edge")
         self.chain_pin_highlight_line("min_edge", BLUE, dehighlight=False)
+
+        self.chain_pin_dehighlight_line("check_edge_done")
+        self.chain_pin_dehighlight_line("prv_edge")
