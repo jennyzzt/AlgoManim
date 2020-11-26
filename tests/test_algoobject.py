@@ -1,5 +1,6 @@
 #pylint: disable=R0201
 from unittest.mock import patch, Mock
+from collections import Callable
 from manimlib.imports import *
 from algomanim.algoobject import AlgoObject
 
@@ -18,9 +19,15 @@ class TestAlgoObject:
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.set_next_to(other_algo_object, RIGHT)
-        create_static_action.assert_called_once_with(
-            algo_object.grp.next_to, [other_algo_object.grp, RIGHT]
-        )
+
+        create_static_action.assert_called_once()
+        # Assert that we are delaying the set_next_to by doing a lambda
+        args, _ = create_static_action.call_args
+        assert isinstance(args[0], Callable)
+
+        # That the delaying function is called with these arguments
+        assert args[1] == [algo_object, other_algo_object]
+
         algoscene.add_action_pair.assert_called_once()
 
     @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
@@ -56,9 +63,15 @@ class TestAlgoObject:
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.show()
-        create_static_action.assert_called_once_with(
-            algo_object.scene.add, [algo_object.grp]
-        )
+
+        create_static_action.assert_called_once()
+        # Assert that we are delaying the set_next_to by doing a lambda
+        args, _ = create_static_action.call_args
+        assert isinstance(args[0], Callable)
+
+        # That the delaying function is called with these arguments
+        assert args[1] == [algo_object]
+
         algoscene.add_action_pair.assert_called_once()
 
     @patch('algomanim.algoaction.AlgoSceneAction.create_static_action')
@@ -66,9 +79,15 @@ class TestAlgoObject:
         algo_object = DummyAlgoObject(algoscene)
         algoscene.reset_mock()
         algo_object.hide()
-        create_static_action.assert_called_once_with(
-            algo_object.scene.remove, [algo_object.grp]
-        )
+        create_static_action.assert_called_once()
+
+        # Assert that we are delaying the set_next_to by doing a lambda
+        args, _ = create_static_action.call_args
+        assert isinstance(args[0], Callable)
+
+        # That the delaying function is called with these arguments
+        assert args[1] == [algo_object]
+
         algoscene.add_action_pair.assert_called_once()
 
     def test_hide_group_adds_action_pair(self):
