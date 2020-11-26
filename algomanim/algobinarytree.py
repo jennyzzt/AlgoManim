@@ -1,13 +1,9 @@
-import numpy as np
 from manimlib.imports import *
 from algomanim.algonode import AlgoNode
-from algomanim.algoaction import AlgoTransform, AlgoSceneAction
 from algomanim.metadata import attach_metadata
-
 
 class AlgoBinaryTreeNode(AlgoNode):
     def __init__(self, scene, val, parent=None):
-        self.line = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE)
         self.parent = parent
         self.left = None
         self.right = None
@@ -16,15 +12,22 @@ class AlgoBinaryTreeNode(AlgoNode):
         self.recursive_update_depth()
 
         super().__init__(scene, val)
+        if parent:
+            self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE), None
+
+    def set_parent(self, parent):
+        self.parent = parent
+        self.lines[parent] = Line(ORIGIN, ORIGIN, stroke_width=5, color=WHITE), None
 
     def set_left(self, left):
         self.left = left
-        self.left.parent = self
+        self.left.set_parent(self)
+
         self.recursive_update_depth()
 
     def set_right(self, right):
         self.right = right
-        self.right.parent = self
+        self.right.set_parent(self)
         self.recursive_update_depth()
 
     def recursive_size(self):
@@ -93,22 +96,6 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         return self.left.recursive_find(val)
 
-    def set_line_start_end(self, parent):
-        if parent is None:
-            # reset line
-            self.line.set_opacity(0)
-        else:
-            center = self.grp.get_center()
-            parent_center = parent.grp.get_center()
-            pos_y = center[1] - parent_center[1]
-            pos_x = center[0] - parent_center[0]
-            angle = np.arctan2(pos_y, pos_x)
-            start = center - \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            end = parent_center + \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
-            self.line.put_start_and_end_on(start, end)
-
     def get_x_pos(self, node_id, max_depth):
         # finding the id of the middle leaf node OF THE WHOLE TREE
         total_leaf_nodes = 2 ** (max_depth - 1)
@@ -130,13 +117,8 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         self.grp.move_to(pos_x + pos_y)
         if self.parent is not None:
-            action = AlgoSceneAction.create_static_action(self.set_line_start_end, [self.parent])
-            self.scene.add_action_pair(action, action, animated=False)
-
-            anim_action = self.scene.create_play_action(AlgoTransform(FadeIn(self.line)),
-                w_prev=w_prev)
-            static_action = AlgoSceneAction.create_static_action(self.scene.add, [self.line])
-            self.scene.add_action_pair(anim_action, static_action, animated=animated)
+            self.add_line(self.parent, metadata=metadata,
+                                             animated=animated, w_prev=w_prev)
 
         super().show(metadata=metadata, animated=animated, w_prev=True)
 

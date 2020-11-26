@@ -8,7 +8,6 @@ class BinaryTreeSortScene(AlgoScene):
         settings['node_size'] = 0.5
         settings['node_shape'] = 'circle'
         settings['highlight_color'] = "#e74c3c" # red
-        # settings['font'] = 'sans-serif'
 
     def inorder_traversal(self, node, curr_list):
         if node is None:
@@ -34,8 +33,10 @@ class BinaryTreeSortScene(AlgoScene):
         sorted_list = AlgoList(self, [], displacement=3.5 * DOWN)
         self.inorder_traversal(root, sorted_list)
 
+        self.insert_pin("finished")
+
     # pylint: disable=R0914
-    def customize(self, action_pairs):
+    def customize(self):
         pin = self.find_pin("list_elems")[0]
         idx = pin.get_index()
         text_position = 2 * UP
@@ -49,25 +50,13 @@ class BinaryTreeSortScene(AlgoScene):
 
         tree_finished_pin = self.find_pin("finished_tree_build")[0]
         idx2 = tree_finished_pin.get_index()
-        self.fast_forward(idx + 2, idx2)
         title_text = self.change_text("Now, we do an INORDER traversal of the tree",
-            title_text, idx2)
+                                      title_text, index=idx2)
+        self.fast_forward(idx + 2, idx2)
 
         self.chain_pin_highlight("visited_node")
 
         self.fast_forward(idx2 + 1)
-        self.change_text("We have a sorted list!", title_text)
 
-    def chain_pin_highlight(self, pin_str):
-        pins = self.find_pin(pin_str)
-        prev_node = None
-        node_highlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['highlight_color'])]
-        node_dehighlight = lambda node: \
-            [ApplyMethod(node.node.set_fill, self.settings['node_color'])]
-        for pin in pins:
-            node = pin.get_args()[0]
-            self.add_transform(pin.get_index(), node_highlight, [node])
-            if prev_node is not None:
-                self.add_transform(pin.get_index() + 1, node_dehighlight, [prev_node])
-            prev_node = node
+        last_pin = self.find_pin("finished")[0]
+        self.change_text("We have a sorted list!", title_text, index=last_pin.get_index())

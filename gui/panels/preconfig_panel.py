@@ -30,9 +30,10 @@ SETTINGS = ([
     ('node_shape', InputDropdown, QComboBox),
     ('node_size', InputTextBox, QLineEdit),
     ('highlight_color', InputColorButton, QColorButton),
-    ('font', InputDropdown, QComboBox),
-    ('font_color', InputColorButton, QColorButton),
-    ('text_color', InputColorButton, QColorButton)
+    ('text_font', InputDropdown, QComboBox),
+    ('text_font_color', InputColorButton, QColorButton),
+    ('node_font', InputDropdown, QComboBox),
+    ('node_font_color', InputColorButton, QColorButton)
 ])
 
 
@@ -71,8 +72,9 @@ class PreconfigPanel(BaseChangesPanel):
 
         # Initialise node shape dropdown with Shapes
         self.add_dropdown_items('node_shape', SHAPES)
-        # Initialise font dropdown with CSS2 generic font families, and latex
-        self.add_dropdown_items('font', FONTS)
+        # Initialise font dropdowns with CSS2 generic font families, and latex
+        self.add_dropdown_items('text_font', FONTS)
+        self.add_dropdown_items('node_font', FONTS)
 
         self.form_frame.setLayout(form_layout)
 

@@ -21,7 +21,7 @@ class FindMaxScene(AlgoScene):
         settings['node_size'] = 1.5
         settings['highlight_color'] = '#33cccc'  # teal
 
-    def customize(self, action_pairs):
+    def customize(self):
         # add title to beginning
         text = self.add_text('Find Maximum Value', 0, position=2*UP)
 
@@ -73,7 +73,7 @@ class BinarySearchScene(AlgoScene):
         settings['node_size'] = 1
         settings['highlight_color'] = '#33cccc'  # teal
 
-    def customize(self, action_pairs):
+    def customize(self):
         # add introduction
         intro_pin = self.find_pin('intro')[0]
         index = intro_pin.get_index()

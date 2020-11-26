@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
+from algomanim.empty_animation import is_empty_anim
 from gui.video_player import VIDEO_BASE_WIDTH
 from gui.anim_utils import format_anim_block_str
 
@@ -10,23 +11,10 @@ BAR_BASE_HEIGHT = 125
 
 # Box width constraints
 BOX_MIN_WIDTH = 80
-BOX_MAX_WIDTH = 320
+BOX_MAX_WIDTH = 240
 
 # Add-text button takes up 1/8 of the box
 TEXT_BTN_FRAC = 8
-
-
-# Placeholder for custom animations
-def empty_animation(index):
-    return {
-        'index': index,
-        'desc': "Add custom animations",
-        'runtime': 0.5
-    }
-
-
-def is_empty_anim(anim):
-    return not hasattr(anim, 'start_position')
 
 
 class AnimationBar(QWidget):
@@ -62,15 +50,22 @@ class AnimationBar(QWidget):
         self.gui_window = gui_window
 
     def fill_bar(self, anims):
-        self.anims = anims
+        # this may not be exactly anims if there are some hidden animations
+        self.anims = []
         self.anim_boxes = []
         self.anim_box_list = QHBoxLayout()
         self.anim_box_list.setContentsMargins(0, 0, 0, 0)
 
-        for index, anim in enumerate(self.anims):
-            anim_box = self.create_anim_box(index, anim)
-            self.anim_box_list.addWidget(anim_box)
-            self.anim_boxes.append(anim_box)
+        # track index separately
+        index = 0
+        for anim in anims:
+            if anim.metadata.animated:
+                self.anims.append(anim)
+                # only display if animated or empty
+                anim_box = self.create_anim_box(index, anim)
+                self.anim_box_list.addWidget(anim_box)
+                self.anim_boxes.append(anim_box)
+                index += 1
 
         # Group boxes together
         anim_group_box = QGroupBox()
@@ -101,32 +96,34 @@ class AnimationBar(QWidget):
         anim_box_layout.setContentsMargins(0, 0, 0, 0)
 
         # Animation label using metadata
-        if is_empty_anim(anim_meta_block):
-            desc = anim_meta_block['desc']
-        else:
-            desc = format_anim_block_str(anim_meta_block)
+        desc = format_anim_block_str(anim_meta_block)
+
         anim_lbl = QLabel(desc)
         anim_lbl.setAlignment(Qt.AlignCenter)  # center-align text
-        anim_lbl.setWordWrap(True)
+        anim_lbl.setWordWrap(True)  # will not wrap if there is no whitespace
         anim_box_layout.addWidget(anim_lbl, 0, 0, 1, TEXT_BTN_FRAC - 1)
 
-        # Create text animation button
-        if not is_empty_anim(anim_meta_block) \
-                and anim_meta_block.start_position() != anim_meta_block.end_position():
+        if is_empty_anim(anim_meta_block):
+            # To close this "add custom animation" box
+            close_button = QPushButton(text='×')
+            close_button.setToolTip("Close")
+            close_button.setStyleSheet("border:1px solid black;")
+            close_button.clicked.connect(lambda event: self.gui_window.delete_empty_anim(index))
+
+            anim_box_layout.addWidget(close_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
+        elif anim_meta_block.start_position() != anim_meta_block.end_position():
+            # Create text animation button for per animation block
             add_anim_button = QPushButton(text='+')
             add_anim_button.setToolTip("Add custom animation")
             add_anim_button.setStyleSheet("border:1px solid black;")
 
             add_anim_button.clicked.connect(lambda event:
-                                            self.add_anim(index + 1, anim_meta_block.end_index()))
+                self.add_anim(index + 1, anim_meta_block.end_index()))
 
             anim_box_layout.addWidget(add_anim_button, 0, TEXT_BTN_FRAC, alignment=Qt.AlignRight)
 
         # Size and layout box
-        if is_empty_anim(anim_meta_block):
-            runtime = anim_meta_block['runtime']
-        else:
-            runtime = anim_meta_block.runtime
+        runtime = anim_meta_block.runtime
         width, height = AnimationBar.get_anim_box_size(runtime)
 
         anim_box.setFixedHeight(height)
@@ -152,7 +149,6 @@ class AnimationBar(QWidget):
         self.anim_boxes[index].setStyleSheet("background-color: white; color: black")
 
     def media_position_changed(self, position):
-        # print(f'Media position changed to {position}')
         self.curr_position = position
         for (i, anim) in enumerate(self.anims):
             if is_empty_anim(anim):
