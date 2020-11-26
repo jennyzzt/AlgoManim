@@ -117,13 +117,14 @@ class AlgoObject(ABC):
     def center(self, metadata=None, animated=True, w_prev=False):
         # Create action pair
         anim_action = self.scene.create_play_action(
-            AlgoTransform([self], transform=lambda obj:
-                ApplyMethod(obj.grp.move_to, ORIGIN + np.array([0, obj.grp.get_center()[1], 0]))
+            AlgoTransform([self.grp], transform=lambda grp: \
+                ApplyMethod(grp.move_to, ORIGIN + np.array([0, grp.get_center()[1], 0]))
             ),
             w_prev=w_prev
         )
-        static_action = AlgoSceneAction.create_static_action(lambda obj:
-            obj.grp.move_to(ORIGIN + np.array([0, obj.grp.get_center()[1], 0])), args=[self])
+        static_action = AlgoSceneAction.create_static_action(
+            lambda grp: grp.move_to(ORIGIN + np.array([0, grp.get_center()[1], 0])),
+            args=[self.grp])
         action_pair = self.scene.add_action_pair(anim_action, static_action, animated=animated)
         # Create LowerMetadata
         lower_meta = LowerMetadata.create(action_pair, [self.val], show_in_panel=animated)
