@@ -299,10 +299,10 @@ class AlgoList(AlgoObject):
               replace=False, shift=False, shift_vec=UP):
         # make hidden copies of left_list and right_list at their respective positions
         left_list_copy = AlgoList(self.scene, [n.val for n in left_list.nodes], show=False)
-        left_list_copy.set_next_to(left_list, vector=0)
+        left_list_copy.set_next_to(left_list, vector=0, animated=False)
 
         right_list_copy = AlgoList(self.scene, [n.val for n in right_list.nodes], show=False)
-        right_list_copy.set_next_to(right_list, vector=0)
+        right_list_copy.set_next_to(right_list, vector=0, animated=False)
 
         # reveal the copies silently
         left_list_copy.show(animated=False)
