@@ -33,7 +33,9 @@ SETTINGS = ([
     ('text_font', InputDropdown, QComboBox),
     ('text_font_color', InputColorButton, QColorButton),
     ('node_font', InputDropdown, QComboBox),
-    ('node_font_color', InputColorButton, QColorButton)
+    ('node_font_color', InputColorButton, QColorButton),
+    ('line_width', InputTextBox, QLineEdit),
+    ('line_color', InputColorButton, QColorButton)
 ])
 
 
