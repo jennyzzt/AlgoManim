@@ -40,15 +40,6 @@ class Metadata:
 
         self.children = []
 
-    @staticmethod
-    # Returns metadata with the name of the function that called this
-    def check_and_create(metadata=None):
-        if metadata is not None:
-            # If given metadata is not None, return it
-            return metadata
-        currframe = inspect.currentframe()
-        return Metadata(inspect.getouterframes(currframe, 2)[1][3])
-
     def add_lower(self, lowermeta):
         self.children.append(lowermeta)
 

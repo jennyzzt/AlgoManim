@@ -12,14 +12,15 @@ mock_static = Mock()
 mock_animation = Mock()
 mock_transform = Mock()
 mock_node = Mock()
+mock_customisation = Mock()
 
 mock_color = Mock()
 
 
-@patch("algomanim.algolist.VGroup", Mock())
-@patch("algomanim.algonode.VGroup", Mock())
-@patch("algomanim.algoobject.TexMobject", Mock())
-@patch("algomanim.algoscene.TextMobject", Mock())
+@patch('algomanim.algolist.VGroup', Mock())
+@patch('algomanim.algonode.VGroup', Mock())
+@patch('algomanim.algoobject.TexMobject', Mock())
+@patch('algomanim.algoscene.TextMobject', Mock())
 class TestAlgoScene:
 
     @patch('algomanim.algoscene.AlgoScene.add_metadata')
@@ -368,19 +369,65 @@ class TestAlgoScene:
         insert_action_pair.assert_called_once()
         add_metadata.assert_called_once()
 
+    # ---------- test algoscene pipeline structure ----------
 
+    @patch('algomanim.animation_block.AnimationBlock.run')
+    @patch('algomanim.algoaction.AlgoSceneActionPair.attach_index')
+    @patch('algomanim.algoscene.AlgoScene.add_wait')
+    def test_execute_action_pairs_process_and_run_action_pairs(self, add_wait, attach_index, run):
+        algoscene = AlgoScene()
+        size = 3
+        for _ in range(size):
+            algoscene.add_action_pair(mock_action_pair)
+            algoscene.post_customize_fns.append(mock_customisation)
+        attach_index.reset_mock()
 
+        algoscene.execute_action_pairs(algoscene.action_pairs, algoscene.anim_blocks)
 
+        # test that wait is added at the end
+        add_wait.assert_called_once_with(size)
+        # test that indexes are attached
+        assert attach_index.call_count == size
+        # test that post customisations are added
+        assert mock_customisation.call_count == size
+        # test that animations are run
+        assert run.call_count == len(algoscene.anim_blocks)
 
+    @patch('algomanim.algoscene.AlgoScene.create_metadata_blocks')
+    @patch('algomanim.algoscene.AlgoScene.execute_action_pairs')
+    @patch('algomanim.algoscene.AlgoScene.customize_construct')
+    @patch('algomanim.algoscene.AlgoScene.algo_construct')
+    @patch('algomanim.algoscene.AlgoScene.post_config')
+    @patch('algomanim.algoscene.AlgoScene.preconfig')
+    def test_construct_pipeline(self, preconfig, post_config,
+                                algo_construct, customize_construct,
+                                execute_action_pairs,
+                                create_metadata_blocks):
+        algoscene = AlgoScene()
+        preconfig.reset_mock()
+        post_config.reset_mock()
+        algo_construct.reset_mock()
+        customize_construct.reset_mock()
+        execute_action_pairs.reset_mock()
+        create_metadata_blocks.reset_mock()
 
+        algoscene.construct()
 
+        preconfig.assert_called_once_with(algoscene.settings)
+        post_config.assert_called_once_with(algoscene.settings)
 
-    @patch("algomanim.algoscene.Scene.play")
+        algo_construct.assert_called_once_with()
+        customize_construct.assert_called_once_with()
+
+        execute_action_pairs.assert_called_once_with(algoscene.action_pairs, algoscene.anim_blocks)
+        create_metadata_blocks.assert_called_once_with()
+
+    @patch('algomanim.algoscene.Scene.play')
     def test_constructor_plays_queued_animations(self, play):
         AlgoSceneTestSingle()
         play.assert_called_once_with(mock_animation())
 
-    @patch("algomanim.algoscene.Scene.play")
+    @patch('algomanim.algoscene.Scene.play')
     def test_w_prev_combines_animations(self, play):
         AlgoSceneTestDoubleTogether()
         play.assert_called_once_with(mock_animation(), mock_animation())
@@ -389,18 +436,17 @@ class TestAlgoScene:
         AlgoSceneTestDoubleNotTogether()
         assert play.call_count == 2
 
-    @patch("algomanim.algoscene.Scene.play")
+    @patch('algomanim.algoscene.Scene.play')
     def test_set_color(self, play):
         AlgoSceneCustomColor()
         play.assert_called_once_with(mock_animation(mock_color))
 
 
-
-@patch("algomanim.algonode.VGroup", Mock())
-@patch("algomanim.algoscene.TextMobject", Mock())
-@patch("algomanim.algoobject.TexMobject", Mock())
+@patch('algomanim.algonode.VGroup', Mock())
+@patch('algomanim.algoscene.TextMobject', Mock())
+@patch('algomanim.algoobject.TexMobject', Mock())
 class TestAlgoScenePreconfig:
-    @patch("algomanim.algonode.Square")
+    @patch('algomanim.algonode.Square')
     def test_change_node_color(self, square):
         algoscene = AlgoSceneNodeColorHex()
         square.assert_any_call(
@@ -409,7 +455,7 @@ class TestAlgoScenePreconfig:
             side_length=DEFAULT_SETTINGS['node_size']
         )
 
-    @patch("algomanim.algonode.Circle")
+    @patch('algomanim.algonode.Circle')
     def test_change_node_shape(self, circle):
         AlgoSceneNodeCircle()
         circle.assert_any_call(
@@ -418,7 +464,7 @@ class TestAlgoScenePreconfig:
             radius=DEFAULT_SETTINGS['node_size'] / 2
         )
 
-    @patch("algomanim.algoscene.Text")
+    @patch('algomanim.algoscene.Text')
     def test_change_node_font(self, text):
         scene = AlgoSceneNodeFont()
         text.assert_any_call(
@@ -427,9 +473,9 @@ class TestAlgoScenePreconfig:
             font=scene.test_font
         )
 
-    @patch("algomanim.algoscene.AlgoScene.execute_action_pairs", Mock())
-    @patch("algomanim.algoscene.AlgoScene.create_metadata_blocks", Mock())
-    @patch("algomanim.algoscene.Text")
+    @patch('algomanim.algoscene.AlgoScene.execute_action_pairs', Mock())
+    @patch('algomanim.algoscene.AlgoScene.create_metadata_blocks', Mock())
+    @patch('algomanim.algoscene.Text')
     def test_change_text_font(self, text):
         scene = AlgoSceneTextFont()
         text.assert_any_call(
@@ -447,7 +493,6 @@ class AlgoSceneTestSingle(AlgoScene):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
 
-
 class AlgoSceneTestDoubleTogether(AlgoScene):
     def algo(self):
         action = self.create_play_action(default_transform)
@@ -455,13 +500,11 @@ class AlgoSceneTestDoubleTogether(AlgoScene):
         action = self.create_play_action(default_transform, w_prev=True)
         self.add_action_pair(action, action)
 
-
 class AlgoSceneTestDoubleNotTogether(AlgoScene):
     def algo(self):
         action = self.create_play_action(default_transform)
         self.add_action_pair(action, action)
         self.add_action_pair(action, action)
-
 
 class AlgoSceneCustomColor(AlgoScene):
     def algo(self):
@@ -477,39 +520,35 @@ class AlgoSceneCustomColor(AlgoScene):
 class AlgoSceneMockList(AlgoScene):
     test_list = [1]
 
-    @patch("algomanim.algoscene.TexMobject", Mock())
-    @patch("algomanim.algolist.AlgoList.group", Mock())
-    @patch("algomanim.algolist.AlgoList.center", Mock())
-    @patch("algomanim.algolist.AlgoList.show_list", Mock())
+    @patch('algomanim.algoscene.TexMobject', Mock())
+    @patch('algomanim.algolist.AlgoList.group', Mock())
+    @patch('algomanim.algolist.AlgoList.center', Mock())
+    @patch('algomanim.algolist.AlgoList.show_list', Mock())
     def algo(self):
         AlgoList(self, self.test_list)
 
-
 class AlgoSceneNodeColorHex(AlgoSceneMockList):
-    test_color = "#FFFF00"
+    test_color = '#FFFF00'
 
     def preconfig(self, settings):
         settings['node_color'] = self.test_color
-
 
 class AlgoSceneNodeCircle(AlgoSceneMockList):
     def preconfig(self, settings):
         settings['node_shape'] = 'circle'
 
-
 class AlgoSceneNodeFont(AlgoSceneMockList):
     test_font = 'sans-serif'
-    test_font_color = "#FFFF00"
+    test_font_color = '#FFFF00'
 
     def preconfig(self, settings):
         settings['node_font'] = self.test_font
         settings['node_font_color'] = self.test_font_color
 
-
 class AlgoSceneTextFont(AlgoSceneMockList):
     test_text = 'Test'
     test_font = 'sans-serif'
-    test_font_color = "#FFFF00"
+    test_font_color = '#FFFF00'
 
     def preconfig(self, settings):
         settings['text_font'] = self.test_font
