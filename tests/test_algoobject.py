@@ -1,4 +1,4 @@
-#pylint: disable=R0201
+#pylint: disable=R0201, E0611
 from unittest.mock import patch, Mock
 from collections import Callable
 from manimlib.imports import *

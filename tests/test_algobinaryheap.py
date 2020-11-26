@@ -1,3 +1,4 @@
+#pylint: disable=R0201, E0611, C0103
 from unittest.mock import patch, Mock, ANY
 from collections import Callable
 from math import log, ceil

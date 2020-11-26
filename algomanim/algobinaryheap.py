@@ -11,7 +11,9 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         "max-heap": lambda m, n: m > n
     }
 
-    def __init__(self, scene, arr=[], heap_type="min-heap"):
+    def __init__(self, scene, arr=None, heap_type="min-heap"):
+        if arr is None:
+            arr = []
         assert heap_type in self.HEAP_TYPE, \
             "type is not one of the following" % self.HEAP_TYPE
 
@@ -34,7 +36,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
     def convert_num_array(self):
         return [AlgoBinaryTreeNode(self.scene, num) for num in self.arr]
 
-    def bottom_up_heapify(self, metadata=None, animated=True, w_prev=False):
+    def bottom_up_heapify(self, metadata=None, animated=True, w_prev=False):  # pylint: disable=C0103
         n = len(self.arr)
 
         # index of last non-leaf node
@@ -54,19 +56,19 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             curr, i = stack.pop()
 
             # Iterate over children
-            lIdx = 2 * i + 1
-            if lIdx < self.size:
-                left = self.arr[lIdx]
+            l_idx = 2 * i + 1
+            if l_idx < self.size:
+                left = self.arr[l_idx]
                 curr.set_left(left)
 
-                stack.append((left, lIdx))
+                stack.append((left, l_idx))
 
-            rIdx = 2 * i + 2
-            if rIdx < self.size:
-                right = self.arr[rIdx]
+            r_idx = 2 * i + 2
+            if r_idx < self.size:
+                right = self.arr[r_idx]
                 curr.set_right(right)
 
-                stack.append((right, rIdx))
+                stack.append((right, r_idx))
 
     @attach_metadata
     def buildheap(self, metadata=None, animated=True, w_prev=False):
@@ -74,21 +76,20 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.bottom_up_heapify(metadata=metadata, animated=animated, w_prev=w_prev)
 
     @attach_metadata
-    def swap(self, i, j, metadata=None, animated=True, w_prev=False):
+    def swap(self, i, j, metadata=None, animated=True, w_prev=False):  # pylint: disable=R0913
 
-        tempVal = self.arr[i].val
+        temp_val = self.arr[i].val
 
         self.arr[i].val = self.arr[j].val
-        self.arr[j].val = tempVal
+        self.arr[j].val = temp_val
 
         # Swap their Manim internal representations as well
-        def swap_groups(n1, n2):
+        def swap_groups(n1, n2):  # pylint: disable=C0103
             temp = n1.grp
             n1.grp = n2.grp
             n2.grp = temp
 
-        static_action = AlgoSceneAction.create_static_action(lambda node1, node2:
-                                                             swap_groups(node1, node2),
+        static_action = AlgoSceneAction.create_static_action(swap_groups,
                                                              args=[self.arr[i], self.arr[j]])
 
         # Animated swap
@@ -97,7 +98,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.scene.add_action_pair(static_action, static_action, animated=animated)
 
     @attach_metadata
-    def heapify(self, i, n, metadata=None, animated=True, w_prev=False):
+    def heapify(self, i, n, metadata=None, animated=True, w_prev=False):  # pylint: disable=C0103, R0913
 
         largest = i
         l = 2 * i + 1
