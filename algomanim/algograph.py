@@ -32,7 +32,7 @@ class AlgoGraph:
 
     def get_node(self, key):
         return self.graph[key]
-    
+
     def arrange_nodes(self):
         if AlgoGraphNode.n_id > 0:
             angle = 2 * np.pi / (AlgoGraphNode.n_id)
