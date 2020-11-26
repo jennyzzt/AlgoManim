@@ -179,7 +179,7 @@ class AlgoNode(AlgoObject):
     @attach_metadata
     def highlight_line(self, target, metadata=None, animated=True, w_prev=False):
         if target in self.lines:
-            line = self.lines[target]
+            line = self.lines[target][0]
             # Create action pair
             anim_action = self.scene.create_play_action(
                 AlgoTransform([line.set_color, self.highlight_color], transform=ApplyMethod,
@@ -196,7 +196,7 @@ class AlgoNode(AlgoObject):
     @attach_metadata
     def dehighlight_line(self, target, metadata=None, animated=True, w_prev=False):
         if target in self.lines:
-            line = self.lines[target]
+            line = self.lines[target][0]
             # Create action pair
             anim_action = self.scene.create_play_action(
                 AlgoTransform([line.set_color, WHITE], transform=ApplyMethod,

@@ -67,7 +67,7 @@ class AlgoDijkstras(AlgoScene):
         dist, _ = dijsktra(algograph, 'A')
         print(dist)
 
-    def customize(self, action_pairs):
+    def customize(self):
         self.chain_pin_highlight("min_vertex")
         self.chain_pin_highlight("min_vertex_done", '#66e0ff', dehighlight=False)
         self.chain_pin_highlight_line("check_edge")
