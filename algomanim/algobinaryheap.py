@@ -30,7 +30,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.buildheap_tree()
 
         # Show the tree and build the heap through heapify
-        super().__init__(scene, ceil(log(self.size, 2)) if arr else 0, self.root, show=True)
+        super().__init__(scene, ceil(log(self.size, 2)) if arr else 1, self.root, show=True)
         self.buildheap()
 
     def convert_num_array(self):
@@ -150,7 +150,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         if self.size > 0:
             self.max_depth = ceil(log(self.size, 2)) + 1
         else:
-            self.max_depth = 1
+            self.max_depth = 2
 
         # heapify the root node
         self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
@@ -187,7 +187,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         if self.size > 0:
             self.max_depth = ceil(log(self.size, 2)) + 1
         else:
-            self.max_depth = 1
+            self.max_depth = 2
 
         # heapify the root node
         self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
@@ -222,6 +222,12 @@ class AlgoBinaryHeap(AlgoBinaryTree):
     def peek(self):
         if self.arr:
             return self.arr[0].val
+        else:
+            return None
+
+    def peek_item(self):
+        if self.arr:
+            return self.arr[0]
         else:
             return None
 
