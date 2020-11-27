@@ -231,7 +231,8 @@ class GuiWindow(QDialog):
         self.mb_end_btn.setDown(self.choose_mb_end)
         self.animation_bar.set_multiblock_selection_mode(self.choose_mb_end)
 
-    def show_error(self, error_msg, info_text=None):
+    @staticmethod
+    def show_error(error_msg, info_text=None):
         err = QMessageBox(icon=QMessageBox.Critical,
                             text=error_msg)
         err.setInformativeText(info_text)
