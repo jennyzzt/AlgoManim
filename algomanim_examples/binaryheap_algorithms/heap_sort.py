@@ -14,7 +14,8 @@ class HeapSort(AlgoScene):
         sorted_list = AlgoList(self, [], displacement=3.5 * DOWN)
 
         while heap.peek() is not None:
-            sorted_list.append(heap.pop())
+            val = heap.pop()
+            sorted_list.append(val)
 
     def preconfig(scene, settings):
         settings['node_size'] = 0.5
