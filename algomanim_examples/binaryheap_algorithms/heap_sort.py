@@ -23,6 +23,7 @@ class HeapSort(AlgoScene):
         settings['node_size'] = 0.5
         settings['node_shape'] = 'circle'
         settings['highlight_color'] = "#e74c3c"  # red
+        settings['show_code'] = True
 
     def customize(self, action_pairs):
 
