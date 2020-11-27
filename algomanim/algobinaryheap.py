@@ -30,7 +30,7 @@ class AlgoBinaryHeap(AlgoBinaryTree):
         self.buildheap_tree()
 
         # Show the tree and build the heap through heapify
-        super().__init__(scene, ceil(log(self.size, 2)), self.root, show=True)
+        super().__init__(scene, ceil(log(self.size, 2)) if arr else 0, self.root, show=True)
         self.buildheap()
 
     def convert_num_array(self):
@@ -115,6 +115,46 @@ class AlgoBinaryHeap(AlgoBinaryTree):
             self.swap(i, largest, metadata=metadata, animated=animated, w_prev=w_prev)
 
             self.heapify(largest, n, metadata=metadata, animated=animated, w_prev=w_prev)
+
+    def find_index(self, val):
+        for i in range(self.size):
+            if self.arr[i].val == val:
+                return i
+        return -1
+
+    @attach_metadata
+    def remove(self, val, metadata=None, animated=True, w_prev=False):
+
+        idx = self.find_index(val)
+        if idx == -1:
+            return False
+
+        # swap the element with last left element
+        self.swap(idx, -1, metadata=metadata, animated=animated, w_prev=w_prev)
+
+        # hide the last node
+        self.arr[-1].hide(metadata=metadata, animated=animated, w_prev=w_prev)
+
+        # remove last element from the parent node
+        i = self.size - 1
+        parent_idx = (i - 1) // 2
+        if parent_idx >= 0:
+            if self.arr[parent_idx].left.val == self.arr[-1].val:
+                self.arr[parent_idx].set_left(None)
+            else:
+                self.arr[parent_idx].set_right(None)
+
+        # Update the internal representation
+        self.arr = self.arr[:-1]
+        self.size = len(self.arr)
+        if self.size > 0:
+            self.max_depth = ceil(log(self.size, 2)) + 1
+        else:
+            self.max_depth = 1
+
+        # heapify the root node
+        self.heapify(0, self.size, metadata=metadata, animated=animated, w_prev=w_prev)
+        return True
 
     @attach_metadata
     def pop(self, metadata=None, animated=True, w_prev=False):
