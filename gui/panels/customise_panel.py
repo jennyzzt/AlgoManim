@@ -38,7 +38,7 @@ class CustomisePanel(BaseChangesPanel):
         self.menu_layout = None
         self.change_widgets = None
         self.changes = changes
-        self.text_widgets = None
+        self.insertion_widgets = None
 
         # global variables to do multi-block edit (this only works for total duration)
         self.multi_block_anims = None
@@ -65,8 +65,14 @@ class CustomisePanel(BaseChangesPanel):
                         change_type,
                         change_widget.get_value()
                     )
-            # save changes for added text frames
-            self.gui_window.add_text_change(self.text_widgets)
+            # save changes for inserted animations
+            self.gui_window.insert_animations({
+                index: {
+                    anim_type: widget.text()
+                    for anim_type, widget in widgets.items()
+                }
+                for index, widgets in self.insertion_widgets.items()
+            })
         else:
             old_duration = float(self.multi_block_default_value)
             new_duration = float(self.multi_block_widget.get_value())
@@ -88,14 +94,13 @@ class CustomisePanel(BaseChangesPanel):
                             change_value
                         )
 
-
     def reset_frame(self, title):
         # set title
         self.title_lbl.setText(title)
 
         # discard old frame and reset change_widgets
         self.change_widgets = dict()
-        self.text_widgets = dict()
+        self.insertion_widgets = dict()
         if self.menu_frame is not None:
             self.menu_frame.setParent(None)
 
@@ -141,6 +146,9 @@ class CustomisePanel(BaseChangesPanel):
 
     def set_empty_animation(self, empty_anim):
         self.reset_frame(title="custom")
+        insertion_dict = dict()
+        self.insertion_widgets[empty_anim.index] = insertion_dict
+
         collapsible_box = FrameLayout(title="Text animations")
         form_layout = QFormLayout()
         collapsible_box.addLayout(form_layout)
@@ -148,7 +156,17 @@ class CustomisePanel(BaseChangesPanel):
         # Add text section
         add_text_widget = QLineEdit()
         form_layout.addRow(QLabel("Add Text"), add_text_widget)
-        self.text_widgets[empty_anim.index] = add_text_widget
+        insertion_dict['slide'] = add_text_widget
+
+        self.menu_layout.addWidget(collapsible_box)
+
+        collapsible_box = FrameLayout(title="Others")
+        form_layout = QFormLayout()
+        collapsible_box.addLayout(form_layout)
+        # Add wait section
+        add_wait_widget = QLineEdit()
+        form_layout.addRow(QLabel("Add Pause (s)"), add_wait_widget)
+        insertion_dict['wait'] = add_wait_widget
 
         self.menu_layout.addWidget(collapsible_box)
         self.save_button.setEnabled(True)

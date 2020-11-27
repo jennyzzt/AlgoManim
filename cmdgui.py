@@ -162,7 +162,7 @@ class GuiWindow(QDialog):
 
         # Keep track of animation changes to be applied
         self.changes = dict()
-        self.text_changes = dict()
+        self.insertions = dict()
         self.post_customize_fns = []
         self.post_config_settings = dict()
 
@@ -230,6 +230,14 @@ class GuiWindow(QDialog):
         self.choose_mb_end = not self.choose_mb_end
         self.mb_end_btn.setDown(self.choose_mb_end)
         self.animation_bar.set_multiblock_selection_mode(self.choose_mb_end)
+
+    def show_error(self, error_msg, info_text=None):
+        err = QMessageBox(icon=QMessageBox.Critical,
+                            text=error_msg)
+        err.setInformativeText(info_text)
+        err.setStandardButtons(QMessageBox.Close)
+        err.setStyleSheet(ERROR_MSG_STYLESHEET)
+        err.exec_()
 
     def show_file_dialog(self):
         dialog = QFileDialog()
@@ -313,15 +321,13 @@ class GuiWindow(QDialog):
             self.changes[change_key].update_value(change_value)
             self.change_history_panel.update_change(anim_change)
 
-    # add added-text-frames change
-    def add_text_change(self, text_widgets):
-        self.text_changes.update({i: widget.text() \
-            for i, widget in text_widgets.items()})
-        self.change_history_panel.add_text_change(self.text_changes)
+    def insert_animations(self, insertions):
+        self.insertions.update(insertions)
+        self.change_history_panel.add_insertions(insertions)
 
     def reset_changes(self):
         self.changes = dict()
-        self.text_changes = dict()
+        self.insertions = dict()
         self.post_customize_fns = []
         self.post_config_settings = dict()
         self.change_history_panel.reset()
@@ -334,10 +340,19 @@ class GuiWindow(QDialog):
                 change_type.customise(action_pairs[action_pair_index])(anim_change.get_value())
         self.post_customize_fns.append(customize_anims)
 
-        def insert_text(algoscene):
-            for index, text in self.text_changes.items():
-                algoscene.add_slide(text, index + 1)
-        self.post_customize_fns.append(insert_text)
+        def insert_anims(algoscene):
+            insertions = sorted(list(self.insertions.items()), reverse=True)
+            for index, insertion in insertions:
+                if text := insertion.get('slide'):
+                    algoscene.add_slide(text, index)
+                if wait_time_str := insertion.get('wait'):
+                    try:
+                        wait_time = float(wait_time_str)
+                        algoscene.add_wait(index, wait_time=wait_time)
+                    except ValueError:
+                        self.show_error(f"{wait_time_str} is an invalid float",
+                        info_text=f"Skipped insertion of wait at {index}")
+        self.post_customize_fns.append(insert_anims)
 
         self.render_video()
         # Do the rendering here
@@ -399,23 +414,15 @@ class GuiWindow(QDialog):
 
         # Check that the python file exists
         if not os.path.exists(pyfile_relpath):
-            err = QMessageBox(icon=QMessageBox.Critical,
-                              text="File does not exist")
-            err.setInformativeText('The python file no longer exists at the given location. '
-                                   'Select another file to proceed.')
-            err.setStandardButtons(QMessageBox.Close)
-            err.setStyleSheet(ERROR_MSG_STYLESHEET)
-            err.exec_()
+            self.show_error("File does not exist",
+                info_text="The python file no longer exists at the given location."
+                          "Select another file to proceed.")
             return
 
         # Check that a scene has been selected
         if self.scene_combobox.currentIndex() < 0:
-            err = QMessageBox(icon=QMessageBox.Critical,
-                              text="No scene selected")
-            err.setInformativeText('You must select a scene to render')
-            err.setStandardButtons(QMessageBox.Close)
-            err.setStyleSheet(ERROR_MSG_STYLESHEET)
-            err.exec_()
+            self.show_error("No scene selected",
+                info_text="You must select a scene to render")
             return
 
         # Render video programmatically

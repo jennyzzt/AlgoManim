@@ -52,9 +52,7 @@ class ChangeHistoryPanel(BaseChangesPanel):
         return change_box
 
     @staticmethod
-    def create_text_change_box(index, text):
-        change_desc = f'Adding text scene at index {index} with: \n \'{text}\''
-
+    def create_change_desc_box(change_desc):
         # Create box
         change_box = QGroupBox()
         change_box.setStyleSheet("margin-top: 6px")
@@ -95,11 +93,27 @@ class ChangeHistoryPanel(BaseChangesPanel):
         self.change_box_list.addWidget(change_box)
         self.update_view()
 
-    def add_text_change(self, text_changes):
-        for i, text in text_changes.items():
-            text_change_box = self.create_text_change_box(i, text)
-            self.change_box_list.addWidget(text_change_box)
-            self.update_view()
+    def add_insertions(self, insertions):
+        for index, insertion in insertions.items():
+            if text := insertion.get('slide'):
+                key = (index, 'slide')
+                if prev_change_box := self.change_box_index.get(key):
+                    prev_change_box.deleteLater()
+                change_box = self.create_change_desc_box(
+                    f'Adding text scene at index {index} with: \n \'{text}\'')
+                self.change_box_index[key] = change_box
+                self.change_box_list.addWidget(change_box)
+
+            if wait_time := insertion.get('wait'):
+                key = (index, 'wait')
+                if prev_change_box := self.change_box_index.get(key):
+                    prev_change_box.deleteLater()
+                change_box = self.create_change_desc_box(
+                    f'Adding wait of {wait_time} seconds at index {index}')
+                self.change_box_index[key] = change_box
+                self.change_box_list.addWidget(change_box)
+
+        self.update_view()
 
     @staticmethod
     # can move this fn to a util file later
