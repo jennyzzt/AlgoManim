@@ -12,9 +12,9 @@ from .metadata_block import MetadataBlock
 from .metadata import Metadata, LowerMetadata
 
 
-# ----- import utility used for show_code ----- #
-Import = namedtuple("Import", ["module", "name", "alias"])
+# ----- Utility funnctions used for show_code ----- #
 
+Import = namedtuple("Import", ["module", "name", "alias"])
 
 def get_imports(path):
     with open(path) as path_file:
@@ -30,6 +30,12 @@ def get_imports(path):
 
         for node_name in node.names:
             yield Import(module, node_name.name.split('.'), node_name.asname)
+
+def remove_fn_flags(line):
+    return re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))', r'\1\2', line)
+
+def is_continuation_of(line):
+    return line.rstrip() and line.rstrip()[-1] == '\\'
 
 # ------------- AlgoScene functions ------------- #
 
@@ -448,17 +454,15 @@ class AlgoScene(MovingCameraScene):
                 inner_fn_name = line[front_space_count:].split()[1]
                 inner_fn_name = inner_fn_name.split('(')[0]
                 exec_sourcelines.append(f'{line_tab}global {inner_fn_name}\n')
-                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
-                                      r'\1\2', line)
+                display_line = remove_fn_flags(line)
                 display_sourcelines.append(display_line)
 
-            # Insert pin if line is not a pin
-            elif 'insert_pin' not in line:
+            # Insert pin if line is not a pin and line is not a continuation
+            elif 'insert_pin' not in line and not is_continuation_of(sourcelines[i-1]):
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
                 exec_sourcelines.append(pin)
                 # Remove flags and add display code
-                display_line = re.sub(r'(?<=\()([^,]*)((,[^,=]*)*)(,[^,]*=.*)(?=\))',
-                                      r'\1\2', line)
+                display_line = remove_fn_flags(line)
                 display_sourcelines.append(display_line)
 
             # Add code to be executed

@@ -27,8 +27,8 @@ class AlgoGraphSceneSimple(AlgoScene):
         settings['highlight_color'] = "#e74c3c" # red
 
     def algo(self):
-        graph = { 'A' : [ 'B', 'C' ],
-                  'B' : [ 'A', 'C' ],
+        graph = { 'A' : [ 'B', 'C' ], \
+                  'B' : [ 'A', 'C' ], \
                   'C' : [ 'A', 'B' ]}
 
         algograph = AlgoGraph(self, graph, animated=True)
