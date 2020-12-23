@@ -9,12 +9,12 @@ class AlgoGraphScene(AlgoScene):
         settings['highlight_color'] = "#e74c3c" # red
 
     def algo(self):
-        graph = { 'A' : [ 'B', 'C', 'F', 'G' ],
-                  'B' : [ 'A', 'C', 'D', 'G' ],
-                  'C' : [ 'A', 'B', 'G' ],
-                  'D' : [ 'B', 'G' ],
-                  'E' : [ ],
-                  'F' : [ 'A', 'G' ],
+        graph = { 'A' : [ 'B', 'C', 'F', 'G' ], \
+                  'B' : [ 'A', 'C', 'D', 'G' ], \
+                  'C' : [ 'A', 'B', 'G' ], \
+                  'D' : [ 'B', 'G' ], \
+                  'E' : [ ], \
+                  'F' : [ 'A', 'G' ], \
                   'G' : [ 'A', 'B', 'C', 'D', 'F' ] }
 
         algograph = AlgoGraph(self, graph, animated=True)
@@ -27,8 +27,8 @@ class AlgoGraphSceneSimple(AlgoScene):
         settings['highlight_color'] = "#e74c3c" # red
 
     def algo(self):
-        graph = { 'A' : [ 'B', 'C' ],
-                  'B' : [ 'A', 'C' ],
+        graph = { 'A' : [ 'B', 'C' ], \
+                  'B' : [ 'A', 'C' ], \
                   'C' : [ 'A', 'B' ]}
 
         algograph = AlgoGraph(self, graph, animated=True)
@@ -41,8 +41,8 @@ class AlgoWeightedGraphSceneSimple(AlgoScene):
         settings['highlight_color'] = "#e74c3c" # red
 
     def algo(self):
-        graph = { 'A' : [ ('B', 1), ('C', 2) ],
-                  'B' : [ ('A', 1), ('C', 3) ],
+        graph = { 'A' : [ ('B', 1), ('C', 2) ], \
+                  'B' : [ ('A', 1), ('C', 3) ], \
                   'C' : [ ('A', 2), ('B', 3) ]}
 
         algograph = AlgoGraph(self, graph, animated=True)

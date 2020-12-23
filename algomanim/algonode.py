@@ -223,7 +223,9 @@ class AlgoNode(AlgoObject):
             pos_x = center[0] - target_center[0]
             angle = np.arctan2(pos_y, pos_x)
             start = center - \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+                float(self.scene.settings['node_size']) / 2 \
+                * np.array([np.cos(angle), np.sin(angle), 0])
             end = target_center + \
-                self.scene.settings['node_size'] / 2 * np.array([np.cos(angle), np.sin(angle), 0])
+                float(self.scene.settings['node_size']) / 2 \
+                * np.array([np.cos(angle), np.sin(angle), 0])
             self.lines[target][0].put_start_and_end_on(start, end)

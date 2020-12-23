@@ -13,19 +13,19 @@ class AlgoDijkstras(AlgoScene):
         #           'B' : [ ('A', 1), ('C', 3) ],
         #           'C' : [ ('A', 2), ('B', 3) ]}
 
-        graph = { 'A' : [ ('B', 1), ('G', 50) ],
-                  'B' : [ ('A', 1), ('C', 1), ('G', 8) ],
-                  'C' : [ ('B', 1), ('G', 2) ],
-                  'D' : [ ('G', 5) ],
-                  'E' : [ ],
-                  'F' : [ ('G', 6) ],
+        graph = { 'A' : [ ('B', 1), ('G', 50) ], \
+                  'B' : [ ('A', 1), ('C', 1), ('G', 8) ], \
+                  'C' : [ ('B', 1), ('G', 2) ], \
+                  'D' : [ ('G', 5) ], \
+                  'E' : [ ], \
+                  'F' : [ ('G', 6) ], \
                   'G' : [ ('A', 50), ('B', 2), ('C', 8), ('D', 5), ('F', 6) ] }
 
 
         algograph = AlgoGraph(self, graph, animated=False)
         algograph.show(animated=False)
 
-        def dijsktra(graph, initial):
+        def dijsktra(self, graph, initial):
             dist = {}
             prev = {}
             queue = []
@@ -64,7 +64,7 @@ class AlgoDijkstras(AlgoScene):
                 self.insert_pin("min_vertex_done", min_vertex_node)
             return dist, prev
 
-        dist, _ = dijsktra(algograph, 'A')
+        dist, _ = dijsktra(self, algograph, 'A')
         print(dist)
 
     def customize(self):
