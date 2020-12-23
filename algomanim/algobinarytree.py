@@ -102,7 +102,7 @@ class AlgoBinaryTreeNode(AlgoNode):
         middle_node_id = 2 ** (max_depth - 1) + (total_leaf_nodes - 1) / 2
 
         return int(middle_node_id - node_id) * \
-            ((self.scene.settings['node_size'] + 0.5) * LEFT)
+            ((float(self.scene.settings['node_size']) + 0.5) * LEFT)
 
     def show(self, max_depth, metadata=None, animated=True, w_prev=False): # pylint: disable=W0221:
         levels = max_depth - self.depth
@@ -113,7 +113,7 @@ class AlgoBinaryTreeNode(AlgoNode):
 
         pos_x = (self.get_x_pos(leftmost_id, max_depth) +
                     self.get_x_pos(rightmost_id, max_depth)) / 2
-        pos_y = (self.depth - 1) * ((self.scene.settings['node_size'] + 0.5) * DOWN)
+        pos_y = (self.depth - 1) * ((float(self.scene.settings['node_size']) + 0.5) * DOWN)
 
         self.grp.move_to(pos_x + pos_y)
         if self.parent is not None:
