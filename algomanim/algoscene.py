@@ -457,8 +457,10 @@ class AlgoScene(MovingCameraScene):
                 display_line = remove_fn_flags(line)
                 display_sourcelines.append(display_line)
 
-            # Insert pin if line is not a pin and line is not a continuation
-            elif 'insert_pin' not in line and not is_continuation_of(sourcelines[i-1]):
+            # Insert pin if line is not a pin, line is not a continuation, and not an else statement
+            elif 'insert_pin' not in line \
+                 and not is_continuation_of(sourcelines[i-1]) \
+                 and 'else' not in line:
                 pin = f'{line_tab}self.insert_pin(\'__codeindex__\', {len(display_sourcelines)})\n'
                 exec_sourcelines.append(pin)
                 # Remove flags and add display code
@@ -475,6 +477,7 @@ class AlgoScene(MovingCameraScene):
 
         # get modified source code and execute
         exec_sourcecode = ''.join(exec_sourcelines)
+        print(exec_sourcecode)
         exec(f'{exec_sourcecode}')
 
     def algo_construct(self):

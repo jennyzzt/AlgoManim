@@ -25,7 +25,7 @@ class AlgoDijkstras(AlgoScene):
         algograph = AlgoGraph(self, graph, animated=False)
         algograph.show(animated=False)
 
-        def dijsktra(graph, initial):
+        def dijsktra(self, graph, initial):
             dist = {}
             prev = {}
             queue = []
@@ -64,7 +64,7 @@ class AlgoDijkstras(AlgoScene):
                 self.insert_pin("min_vertex_done", min_vertex_node)
             return dist, prev
 
-        dist, _ = dijsktra(algograph, 'A')
+        dist, _ = dijsktra(self, algograph, 'A')
         print(dist)
 
     def customize(self):
