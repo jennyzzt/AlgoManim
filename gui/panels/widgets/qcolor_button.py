@@ -35,12 +35,12 @@ class QColorButton(QPushButton):
 
     # Show color picker dialog to select color
     def on_color_picker(self):
-        dlg = QColorDialog(self)
+        dlg = QColorDialog()
         if self._color:
             dlg.setCurrentColor(QColor(self._color))
 
         if dlg.exec_():
             self.set_color(dlg.currentColor().name())
-
+Remove reference to color button widget in color picker dialogs, resolves #52
     def mouse_press_event(self, event):
         return self.mouse_press_event(event)
