@@ -261,11 +261,15 @@ class GuiWindow(QDialog):
 
     def show_video_in_explorer(self):
         path = self.video_player.video_fp
-        if platform.system() == "Windows":
+        system_type = platform.system()
+        if system_type == "Windows":
             subprocess.Popen(["explorer", "/select,", path])
-        else:
-            # MacOS or Linux
+        elif system_type == "Linux":
+            subprocess.Popen(["xdg-open", path])
+        elif system_type == "Darwin":
             subprocess.Popen(["open", "-R", path])
+        else:
+            print(f'Feature not supported in platform: {system_type}')
 
     def toggle_sidemenu(self):
         if self.tab_menu.isHidden():
