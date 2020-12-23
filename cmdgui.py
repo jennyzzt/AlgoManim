@@ -265,7 +265,7 @@ class GuiWindow(QDialog):
         if system_type == "Windows":
             subprocess.Popen(["explorer", "/select,", path])
         elif system_type == "Linux":
-            subprocess.Popen(["xdg-open", path])
+            subprocess.Popen(["xdg-open", path.parent])
         elif system_type == "Darwin":
             subprocess.Popen(["open", "-R", path])
         else:
