@@ -42,6 +42,7 @@ class DepthFirstSearch(Scene):
         return nodes, edges
 
     def construct(self):
+        red = '#e74c3c'
         adj = { 'A' : [ 'B', 'C', 'F', 'G' ],
                 'B' : [ 'A', 'C', 'D', 'G' ],
                 'C' : [ 'A', 'B', 'G' ],
@@ -61,10 +62,11 @@ class DepthFirstSearch(Scene):
                     else:
                         e_id = (adj_key, node_key)
                     edge = edges[e_id]
-                    self.play(ApplyMethod(adj_node.set_fill, RED), ApplyMethod(edge.set_color, RED))
+                    self.play(ApplyMethod(adj_node.set_fill, red), ApplyMethod(edge.set_color, red))
                     dfs_helper(adj_key, visited)
-                    self.play(ApplyMethod(adj_node.set_fill, WHITE), ApplyMethod(edge.set_color, WHITE))
+                    self.play(ApplyMethod(adj_node.set_fill, WHITE),
+                        ApplyMethod(edge.set_color, WHITE))
 
         start_key = 'A'
-        self.play(ApplyMethod(nodes[start_key].set_fill, RED))
+        self.play(ApplyMethod(nodes[start_key].set_fill, red))
         dfs_helper(start_key, [])
