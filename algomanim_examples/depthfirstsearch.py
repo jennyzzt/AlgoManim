@@ -20,7 +20,7 @@ class DepthFirstSearch(AlgoScene):
 
         def dfs_helper(node, visited):
             visited.append(node.val)
-            for neighbor_id in node.adjs:
+            for neighbor_id, _ in node.adjs:
                 if neighbor_id not in visited:
                     neighbor_node = node.visit(neighbor_id)
                     dfs_helper(neighbor_node, visited)
