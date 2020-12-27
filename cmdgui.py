@@ -431,8 +431,19 @@ class GuiWindow(QDialog):
             return
 
         # Render video programmatically
-        self.scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality,
-                                     self.post_customize_fns, self.post_config_settings)
+        try:
+            scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality, self.post_customize_fns,
+                                    self.post_config_settings)
+        except Exception as e:
+            # Video was not rendered
+            info_str = f"The input file could not be rendered." \
+                       f"\n\nError: {e}"
+            self.show_error("Input file error",
+                            info_text=info_str)
+            return
+
+        # Update the GUI
+        self.scene = scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
