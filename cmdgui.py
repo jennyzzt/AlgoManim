@@ -1,5 +1,3 @@
-# pylint: disable=W0703
-
 import ast
 import os
 import platform
@@ -7,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QThread, pyqtSignal
 
 from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
@@ -121,11 +119,23 @@ class GuiWindow(QDialog):
             quality_layout.addWidget(self.debug_button)
         quality_layout.addWidget(self.render_button)
 
+        # ========= Busy indicator / Progress bar =========
+
+        progress_label = QLabel("Render progress:")
+
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 1)
+
+        render_layout = QHBoxLayout()
+        render_layout.addWidget(progress_label)
+        render_layout.addWidget(self.progress_bar)
+
         # ========= Groupbox =========
 
         options_layout = QVBoxLayout()
         options_layout.addLayout(text_layout)
         options_layout.addLayout(quality_layout)
+        options_layout.addLayout(render_layout)
 
         options_groupbox = QGroupBox()
         options_groupbox.setLayout(options_layout)
@@ -413,6 +423,10 @@ class GuiWindow(QDialog):
         # Display button
         self.show_video_button.show()
 
+    def on_render_finish(self):
+        self.progress_bar.setRange(0, 1)
+        self.progress_bar.setValue(1)
+
     def render_video(self):
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
@@ -433,20 +447,31 @@ class GuiWindow(QDialog):
             return
 
         # Render video programmatically
-        try:
-            scene = custom_renderer(pyfile_relpath, self.scene_name,
-                                    video_quality, self.post_customize_fns,
+        # Create worker thread
+        worker = VideoRenderThread(pyfile_relpath, self.scene_name, video_quality, self.post_customize_fns,
                                     self.post_config_settings)
-        except Exception as exception:
+        worker.task_finished.connect(self.on_render_finish)
+
+        # Set progress bar to busy
+        self.progress_bar.setRange(0, 0)
+
+        # Start thread
+        worker.start()
+
+        # Wait for worker to finish
+        worker.wait()
+
+        # Catch input file error
+        if not worker.ok:
             # Video was not rendered
             info_str = f"The input file could not be rendered." \
-                       f"\n\nError: {exception}"
+                       f"\n\nError: {worker.exception}"
             self.show_error("Input file error",
                             info_text=info_str)
             return
 
         # Update the GUI
-        self.scene = scene
+        self.scene = worker.scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
@@ -480,6 +505,36 @@ class GuiWindow(QDialog):
 
         self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
         self.customise_panel.set_animation_group(self.anims[start:end + 1])
+
+
+
+class VideoRenderThread(QThread):
+    task_finished = pyqtSignal()
+
+    def __init__(self, file_path, scene_name, video_quality,
+                    post_customize_fns, post_config_settings):
+        super().__init__()
+
+        self.post_config_settings = post_config_settings
+        self.post_customize_fns = post_customize_fns
+        self.video_quality = video_quality
+        self.scene_name = scene_name
+        self.file_path = file_path
+
+        self.ok = False
+        self.scene = None
+        self.exception = None
+
+    def run(self):
+        try:
+            self.scene = custom_renderer(self.file_path, self.scene_name, self.video_quality,
+                                         self.post_customize_fns, self.post_config_settings)
+            self.ok = True
+        except Exception as e:
+            self.exception = e
+
+        self.task_finished.emit()
+
 
 
 if __name__ == '__main__':
