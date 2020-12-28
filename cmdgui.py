@@ -5,11 +5,11 @@ import subprocess
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, pyqtSlot
 
 from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
-from gui.progress_bar import RenderProgressBar, VideoRenderInfo, VideoRenderThread
+from gui.progress_bar import RenderProgressBar, VideoRenderThread
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar, is_empty_anim
@@ -440,12 +440,11 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         # Create worker thread
-        self.video_info = VideoRenderInfo()
-        self.worker = VideoRenderThread(self.video_info,
-                                        pyfile_relpath, self.scene_name,
+        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
-        self.worker.task_finished.connect(self.on_render_finish)
+        self.worker.exceptioned.connect(self.render_failed)
+        self.worker.task_finished.connect(self.render_finished)
 
         # Set progress bar to busy
         self.on_render_start()
@@ -457,22 +456,20 @@ class GuiWindow(QDialog):
         self.render_progress_bar.show()
         self.render_progress_bar.set_busy()
 
-    def on_render_finish(self):
+    @pyqtSlot(Exception)
+    def render_failed(self, e):
+        info_str = f"The input file could not be rendered." \
+                   f"\n\nError: {e}"
+        self.show_error("Input file error", info_text=info_str)
+
+    @pyqtSlot(object)
+    def render_finished(self, scene):
         # Set to unbusy
         self.render_progress_bar.set_idle()
         self.render_progress_bar.hide()
 
-        # Catch input file error
-        if not self.video_info.ok:
-            # Video was not rendered
-            info_str = f"The input file could not be rendered." \
-                       f"\n\nError: {self.video_info.exception}"
-            self.show_error("Input file error",
-                            info_text=info_str)
-            return
-
         # Update the GUI
-        self.scene = self.video_info.scene
+        self.scene = scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
