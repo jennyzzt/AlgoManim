@@ -50,6 +50,8 @@ class GuiWindow(QDialog):
         #     Video render
         # ====================
 
+        self.worker = None
+
         # ========= File options =========
 
         # Python file path field
@@ -443,17 +445,17 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         # Create worker thread
-        worker = VideoRenderThread(pyfile_relpath, self.scene_name,
+        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
-        worker.exceptioned.connect(self.render_failed)
-        worker.task_finished.connect(self.render_finished)
+        self.worker.exceptioned.connect(self.render_failed)
+        self.worker.task_finished.connect(self.render_finished)
 
         # Set progress bar to busy
         self.on_render_start()
 
         # Start worker
-        worker.start()
+        self.worker.start()
 
     def on_render_start(self):
         self.render_progress_bar.show()
