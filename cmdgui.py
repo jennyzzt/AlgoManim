@@ -37,6 +37,9 @@ class GuiWindow(QDialog):
     # Statements necessary to piece widgets together.
     # pylint: disable=too-many-locals
     # Variables required to piece together UI
+
+    # pylint: disable=too-many-public-methods
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.original_palette = QApplication.palette()
@@ -440,26 +443,26 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         # Create worker thread
-        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
+        worker = VideoRenderThread(pyfile_relpath, self.scene_name,
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
-        self.worker.exceptioned.connect(self.render_failed)
-        self.worker.task_finished.connect(self.render_finished)
+        worker.exceptioned.connect(self.render_failed)
+        worker.task_finished.connect(self.render_finished)
 
         # Set progress bar to busy
         self.on_render_start()
 
         # Start worker
-        self.worker.start()
+        worker.start()
 
     def on_render_start(self):
         self.render_progress_bar.show()
         self.render_progress_bar.set_busy()
 
     @pyqtSlot(Exception)
-    def render_failed(self, e):
+    def render_failed(self, exception):
         info_str = f"The input file could not be rendered." \
-                   f"\n\nError: {e}"
+                   f"\n\nError: {exception}"
         self.show_error("Input file error", info_text=info_str)
 
     @pyqtSlot(object)
@@ -484,8 +487,6 @@ class GuiWindow(QDialog):
 
         # Display button
         self.show_video_button.show()
-
-        # Clear worker
 
 
     def multiblock_select(self, start, end):

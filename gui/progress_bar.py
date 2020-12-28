@@ -30,6 +30,10 @@ class RenderProgressBar(QWidget):
 
 
 class VideoRenderThread(QThread):
+
+    # pylint: disable=too-many-arguments
+    # pylint: disable=broad-except
+
     task_finished = pyqtSignal(object)
     exceptioned = pyqtSignal(Exception)
 
@@ -48,5 +52,5 @@ class VideoRenderThread(QThread):
             scene = custom_renderer(self.file_path, self.scene_name, self.video_quality,
                                     self.post_customize_fns, self.post_config_settings)
             self.task_finished.emit(scene)
-        except Exception as e:
-            self.exceptioned.emit(e)
+        except Exception as exception:
+            self.exceptioned.emit(exception)
