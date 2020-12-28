@@ -29,12 +29,21 @@ class RenderProgressBar(QWidget):
         self.progress_bar.setValue(1)
 
 
+class VideoRenderInfo:
+    def __init__(self):
+        self.ok = False
+        self.scene = None
+        self.exception = None
+
+
 class VideoRenderThread(QThread):
     task_finished = pyqtSignal()
 
-    def __init__(self, file_path, scene_name, video_quality,
+    def __init__(self, info, file_path, scene_name, video_quality,
                  post_customize_fns, post_config_settings):
         super().__init__()
+
+        self.info = info
 
         self.post_config_settings = post_config_settings
         self.post_customize_fns = post_customize_fns
@@ -42,16 +51,12 @@ class VideoRenderThread(QThread):
         self.scene_name = scene_name
         self.file_path = file_path
 
-        self.ok = False
-        self.scene = None
-        self.exception = None
-
     def run(self):
         try:
-            self.scene = custom_renderer(self.file_path, self.scene_name, self.video_quality,
-                                         self.post_customize_fns, self.post_config_settings)
-            self.ok = True
+            self.info.scene = custom_renderer(self.file_path, self.scene_name, self.video_quality,
+                                              self.post_customize_fns, self.post_config_settings)
+            self.info.ok = True
         except Exception as e:
-            self.exception = e
+            self.info.exception = e
 
         self.task_finished.emit()

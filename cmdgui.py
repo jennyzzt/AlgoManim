@@ -9,7 +9,7 @@ from PyQt5.QtCore import QUrl
 
 from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
-from gui.progress_bar import RenderProgressBar, VideoRenderThread
+from gui.progress_bar import RenderProgressBar, VideoRenderInfo, VideoRenderThread
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar, is_empty_anim
@@ -440,7 +440,9 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         # Create worker thread
-        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
+        self.video_info = VideoRenderInfo()
+        self.worker = VideoRenderThread(self.video_info,
+                                        pyfile_relpath, self.scene_name,
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
         self.worker.task_finished.connect(self.on_render_finish)
@@ -461,16 +463,16 @@ class GuiWindow(QDialog):
         self.render_progress_bar.hide()
 
         # Catch input file error
-        if not self.worker.ok:
+        if not self.video_info.ok:
             # Video was not rendered
             info_str = f"The input file could not be rendered." \
-                       f"\n\nError: {self.worker.exception}"
+                       f"\n\nError: {self.video_info.exception}"
             self.show_error("Input file error",
                             info_text=info_str)
             return
 
         # Update the GUI
-        self.scene = self.worker.scene
+        self.scene = self.video_info.scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
@@ -485,6 +487,9 @@ class GuiWindow(QDialog):
 
         # Display button
         self.show_video_button.show()
+
+        # Clear worker
+
 
     def multiblock_select(self, start, end):
         # swap start and end if they have been selected the other way around
