@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl, QThread, pyqtSignal
+from PyQt5.QtCore import QUrl, QThread, pyqtSignal, QCoreApplication
 
 from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
@@ -16,6 +16,7 @@ from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
 from anim_change import AnimChange
+
 
 WORKING_DIR = Path().absolute()
 ERROR_MSG_STYLESHEET = "font: bold 13pt"
@@ -123,7 +124,7 @@ class GuiWindow(QDialog):
 
         progress_label = QLabel("Render progress:")
 
-        self.progress_bar = QProgressBar(self)
+        self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 1)
 
         render_layout = QHBoxLayout()
@@ -423,10 +424,6 @@ class GuiWindow(QDialog):
         # Display button
         self.show_video_button.show()
 
-    def on_render_finish(self):
-        self.progress_bar.setRange(0, 1)
-        self.progress_bar.setValue(1)
-
     def render_video(self):
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
@@ -448,30 +445,34 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         # Create worker thread
-        worker = VideoRenderThread(pyfile_relpath, self.scene_name, video_quality, self.post_customize_fns,
-                                    self.post_config_settings)
-        worker.task_finished.connect(self.on_render_finish)
+        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
+                                        video_quality, self.post_customize_fns,
+                                        self.post_config_settings)
+        self.worker.task_finished.connect(self.on_render_finish)
 
         # Set progress bar to busy
+        self.progress_bar.setValue(0)
         self.progress_bar.setRange(0, 0)
 
-        # Start thread
-        worker.start()
+        # Start worker
+        self.worker.start()
 
-        # Wait for worker to finish
-        worker.wait()
+    def on_render_finish(self):
+        # Set to unbusy
+        self.progress_bar.setRange(0, 1)
+        self.progress_bar.setValue(1)
 
         # Catch input file error
-        if not worker.ok:
+        if not self.worker.ok:
             # Video was not rendered
             info_str = f"The input file could not be rendered." \
-                       f"\n\nError: {worker.exception}"
+                       f"\n\nError: {self.worker.exception}"
             self.show_error("Input file error",
                             info_text=info_str)
             return
 
         # Update the GUI
-        self.scene = worker.scene
+        self.scene = self.worker.scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
