@@ -5,10 +5,11 @@ import subprocess
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QUrl, QThread, pyqtSignal, QCoreApplication
+from PyQt5.QtCore import QUrl
 
 from algomanim.empty_animation import empty_animation
 from gui.custom_renderer import custom_renderer
+from gui.progress_bar import RenderProgressBar, VideoRenderThread
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
 from gui.animation_bar import AnimationBar, is_empty_anim
@@ -122,21 +123,15 @@ class GuiWindow(QDialog):
 
         # ========= Busy indicator / Progress bar =========
 
-        progress_label = QLabel("Render progress:")
-
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 1)
-
-        render_layout = QHBoxLayout()
-        render_layout.addWidget(progress_label)
-        render_layout.addWidget(self.progress_bar)
+        self.render_progress_bar = RenderProgressBar()
 
         # ========= Groupbox =========
 
         options_layout = QVBoxLayout()
         options_layout.addLayout(text_layout)
         options_layout.addLayout(quality_layout)
-        options_layout.addLayout(render_layout)
+        options_layout.addWidget(self.render_progress_bar)
+        self.render_progress_bar.hide()
 
         options_groupbox = QGroupBox()
         options_groupbox.setLayout(options_layout)
@@ -451,16 +446,19 @@ class GuiWindow(QDialog):
         self.worker.task_finished.connect(self.on_render_finish)
 
         # Set progress bar to busy
-        self.progress_bar.setValue(0)
-        self.progress_bar.setRange(0, 0)
+        self.on_render_start()
 
         # Start worker
         self.worker.start()
 
+    def on_render_start(self):
+        self.render_progress_bar.show()
+        self.render_progress_bar.set_busy()
+
     def on_render_finish(self):
         # Set to unbusy
-        self.progress_bar.setRange(0, 1)
-        self.progress_bar.setValue(1)
+        self.render_progress_bar.set_idle()
+        self.render_progress_bar.hide()
 
         # Catch input file error
         if not self.worker.ok:
@@ -506,36 +504,6 @@ class GuiWindow(QDialog):
 
         self.animation_bar.set_animation_group(self.anims[start], self.anims[end])
         self.customise_panel.set_animation_group(self.anims[start:end + 1])
-
-
-
-class VideoRenderThread(QThread):
-    task_finished = pyqtSignal()
-
-    def __init__(self, file_path, scene_name, video_quality,
-                    post_customize_fns, post_config_settings):
-        super().__init__()
-
-        self.post_config_settings = post_config_settings
-        self.post_customize_fns = post_customize_fns
-        self.video_quality = video_quality
-        self.scene_name = scene_name
-        self.file_path = file_path
-
-        self.ok = False
-        self.scene = None
-        self.exception = None
-
-    def run(self):
-        try:
-            self.scene = custom_renderer(self.file_path, self.scene_name, self.video_quality,
-                                         self.post_customize_fns, self.post_config_settings)
-            self.ok = True
-        except Exception as e:
-            self.exception = e
-
-        self.task_finished.emit()
-
 
 
 if __name__ == '__main__':
