@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+
 import ast
 import os
 import platform
@@ -432,12 +434,13 @@ class GuiWindow(QDialog):
 
         # Render video programmatically
         try:
-            scene = custom_renderer(pyfile_relpath, self.scene_name, video_quality, self.post_customize_fns,
+            scene = custom_renderer(pyfile_relpath, self.scene_name,
+                                    video_quality, self.post_customize_fns,
                                     self.post_config_settings)
-        except Exception as e:
+        except Exception as exception:
             # Video was not rendered
             info_str = f"The input file could not be rendered." \
-                       f"\n\nError: {e}"
+                       f"\n\nError: {exception}"
             self.show_error("Input file error",
                             info_text=info_str)
             return
