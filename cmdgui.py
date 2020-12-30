@@ -372,9 +372,7 @@ class GuiWindow(QDialog):
                         info_text=f"Skipped insertion of wait at {index}")
         self.post_customize_fns.append(insert_anims)
 
-        self.render_video()
-        # Do the rendering here
-        self.reset_changes()
+        self.render_video(keep_changes=True)
 
     def set_settings(self, label, value):
         # Catch cases that route to custom_renderer
@@ -424,7 +422,7 @@ class GuiWindow(QDialog):
         # Display button
         self.show_video_button.show()
 
-    def render_video(self):
+    def render_video(self, keep_changes=False):
         # Retrieve render parameters
         pyfile_relpath = self.pyfile_lineedit.text()
         self.scene_name = self.scene_combobox.currentText()
@@ -449,7 +447,7 @@ class GuiWindow(QDialog):
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
         self.worker.exceptioned.connect(self.render_failed)
-        self.worker.task_finished.connect(self.render_finished)
+        self.worker.task_finished.connect(lambda scene: self.render_finished(scene, keep_changes))
 
         # Set progress bar to busy
         self.on_render_start()
@@ -468,10 +466,15 @@ class GuiWindow(QDialog):
         self.show_error("Input file error", info_text=info_str)
 
     @pyqtSlot(object)
-    def render_finished(self, scene):
+    def render_finished(self, scene, keep_changes):
         # Set to unbusy
         self.render_progress_bar.set_idle()
         self.render_progress_bar.hide()
+
+        # Clear previous settings if scene changed
+        # Uses the flipped flag due to weird signal interactions with default parameters
+        if not keep_changes:
+            self.reset_changes()
 
         # Update the GUI
         self.scene = scene
