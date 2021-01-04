@@ -461,7 +461,7 @@ class GuiWindow(QDialog):
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
         self.worker.exceptioned.connect(self.render_failed)
-        self.worker.task_finished.connect(lambda scene: self.render_finished(scene, keep_changes))
+        self.worker.task_finished.connect(lambda scene: self.render_finished(scene))
 
         # Set progress bar to busy
         self.on_render_start()
@@ -492,7 +492,7 @@ class GuiWindow(QDialog):
         self.on_render_finish()
 
     @pyqtSlot(object)
-    def render_finished(self, scene, keep_changes):
+    def render_finished(self, scene):
         self.on_render_finish()
 
         # Update the GUI
