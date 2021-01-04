@@ -243,15 +243,9 @@ class GuiWindow(QMainWindow):
 
         self.central_widget.setLayout(self.main_layout)
 
-    def toggle_mb_start(self):
-        self.choose_mb_start = not self.choose_mb_start
-        self.mb_start_btn.setDown(self.choose_mb_start)
-        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_start)
-
-    def toggle_mb_end(self):
-        self.choose_mb_end = not self.choose_mb_end
-        self.mb_end_btn.setDown(self.choose_mb_end)
-        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_end)
+    # =====================
+    #    Render options
+    # =====================
 
     @staticmethod
     def show_error(error_msg, info_text=None):
@@ -281,6 +275,20 @@ class GuiWindow(QMainWindow):
             for name in self.get_scene_names(file_path_str):
                 self.scene_combobox.addItem(name)
 
+    # Returns list of AlgoScene subclasses in the Python file at python_fp
+    @staticmethod
+    def get_scene_names(python_fp):
+        with open(python_fp) as file:
+            node = ast.parse(file.read())
+
+        scene_names = []
+        all_classes = [n for n in node.body if isinstance(n, ast.ClassDef)]
+        for cls in all_classes:
+            if "AlgoScene" in [base.id for base in cls.bases]:
+                scene_names.append(cls.name)
+
+        return scene_names
+
     def show_video_in_explorer(self):
         path = self.video_player.video_fp
         system_type = platform.system()
@@ -292,6 +300,10 @@ class GuiWindow(QMainWindow):
             subprocess.Popen(["open", "-R", path])
         else:
             print(f'Feature not supported in platform: {system_type}')
+
+    # ======================
+    #     Side panel menu
+    # ======================
 
     def toggle_sidemenu(self):
         if self.tab_menu.isHidden():
@@ -305,13 +317,129 @@ class GuiWindow(QMainWindow):
             self.menu_toggle.setIcon(self.style()
                                      .standardIcon(QStyle.SP_ToolBarHorizontalExtensionButton))
 
-    # opens side menu if it is not yet open
+    # Opens side menu if it is not yet open
     def open_sidemenu(self):
         if self.tab_menu.isHidden():
             # display menu and reverse icon
             self.tab_menu.show()
             self.menu_toggle.setIcon(self.style()
                                      .standardIcon(QStyle.SP_MediaSeekBackward))
+
+    # ======================
+    #     Video rendering
+    # ======================
+
+    def render_toyexample(self):
+        self.scene_name = "ToyScene"
+
+        # Render video programmatically
+        self.scene = custom_renderer("algomanim_examples/toyexample.py",
+                                     self.scene_name, VideoQuality.low,
+                                     self.post_customize_fns, self.post_config_settings)
+        self.anims = self.scene.metadata_blocks
+
+        # Add animation boxes to scrollbar
+        self.animation_bar.fill_bar(self.anims)
+
+        # Add preconfig settings to panel
+        self.preconfig_panel.load_settings(self.scene.settings)
+
+        # Display video
+        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
+        self.video_player.open_video(video_fp=video_fp)
+
+        # Display button
+        self.show_video_button.show()
+
+    def render_video(self, keep_changes=False):
+        # Retrieve render parameters
+        pyfile_relpath = self.pyfile_lineedit.text()
+        self.scene_name = self.scene_combobox.currentText()
+        video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
+
+        # Check that the python file exists
+        if not os.path.exists(pyfile_relpath):
+            self.show_error("File does not exist",
+                            info_text="The python file no longer exists at the given location."
+                                      "Select another file to proceed.")
+            return
+
+        # Check that a scene has been selected
+        if self.scene_combobox.currentIndex() < 0:
+            self.show_error("No scene selected",
+                            info_text="You must select a scene to render")
+            return
+
+        if (self.prev_pyfile and self.prev_pyfile != pyfile_relpath) \
+                or not keep_changes:
+            # prev_pyfile is not empty and a different file is being rendered
+            # or the scene changed
+            # Clear previous settings
+            self.reset_changes()
+
+        # Update prev_pyfile
+        self.prev_pyfile = pyfile_relpath
+
+        # Render video programmatically
+        # Create worker thread
+        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
+                                        video_quality, self.post_customize_fns,
+                                        self.post_config_settings)
+        self.worker.exceptioned.connect(self.render_failed)
+        self.worker.task_finished.connect(lambda scene: self.render_finished(scene))
+
+        # Set progress bar to busy
+        self.on_render_start()
+
+        # Start worker
+        self.worker.start()
+
+    def on_render_start(self):
+        self.render_progress_bar.show()
+        self.render_progress_bar.set_busy()
+
+    def on_render_finish(self):
+        # Set to unbusy
+        self.render_progress_bar.set_idle()
+        self.render_progress_bar.hide()
+
+    @pyqtSlot(Exception)
+    def render_failed(self, exception):
+        # Print error message to console
+        print(exception)
+
+        # Display error message on GUI
+        info_str = f"The input file could not be rendered." \
+                   f"\n\nError: {exception}"
+        self.show_error("Input file error", info_text=info_str)
+
+        # Stop the progress bar
+        self.on_render_finish()
+
+    @pyqtSlot(object)
+    def render_finished(self, scene):
+        self.on_render_finish()
+
+        # Update the GUI
+        self.scene = scene
+        self.anims = self.scene.metadata_blocks
+
+        # Add animation boxes to scrollbar
+        self.animation_bar.fill_bar(self.anims)
+
+        # Add preconfig settings to panel
+        self.preconfig_panel.load_settings(self.scene.settings)
+
+        # Display video
+        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
+        self.video_player.open_video(video_fp=video_fp)
+
+        # Display button
+        self.show_video_button.show()
+
+    # =========================
+    #     Animation timeline
+    # =========================
 
     def anim_clicked(self, anim):
         # opens the side menu if it is not yet open
@@ -395,128 +523,19 @@ class GuiWindow(QMainWindow):
         self.anims.pop(index)
         self.animation_bar.fill_bar(self.anims)
 
-    # Returns list of AlgoScene subclasses in the Python file at python_fp
-    @staticmethod
-    def get_scene_names(python_fp):
-        with open(python_fp) as file:
-            node = ast.parse(file.read())
+    # ==========================
+    #    Multiblock selection
+    # ==========================
 
-        scene_names = []
-        all_classes = [n for n in node.body if isinstance(n, ast.ClassDef)]
-        for cls in all_classes:
-            if "AlgoScene" in [base.id for base in cls.bases]:
-                scene_names.append(cls.name)
+    def toggle_mb_start(self):
+        self.choose_mb_start = not self.choose_mb_start
+        self.mb_start_btn.setDown(self.choose_mb_start)
+        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_start)
 
-        return scene_names
-
-    def render_toyexample(self):
-        self.scene_name = "ToyScene"
-
-        # Render video programmatically
-        self.scene = custom_renderer("algomanim_examples/toyexample.py",
-                                     self.scene_name, VideoQuality.low,
-                                     self.post_customize_fns, self.post_config_settings)
-        self.anims = self.scene.metadata_blocks
-
-        # Add animation boxes to scrollbar
-        self.animation_bar.fill_bar(self.anims)
-
-        # Add preconfig settings to panel
-        self.preconfig_panel.load_settings(self.scene.settings)
-
-        # Display video
-        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
-        self.video_player.open_video(video_fp=video_fp)
-
-        # Display button
-        self.show_video_button.show()
-
-    def render_video(self, keep_changes=False):
-        # Retrieve render parameters
-        pyfile_relpath = self.pyfile_lineedit.text()
-        self.scene_name = self.scene_combobox.currentText()
-        video_quality = VideoQuality.retrieve_by_index(self.radio_btn_grp.checkedId())
-
-        # Check that the python file exists
-        if not os.path.exists(pyfile_relpath):
-            self.show_error("File does not exist",
-                info_text="The python file no longer exists at the given location."
-                          "Select another file to proceed.")
-            return
-
-        # Check that a scene has been selected
-        if self.scene_combobox.currentIndex() < 0:
-            self.show_error("No scene selected",
-                info_text="You must select a scene to render")
-            return
-
-        if (self.prev_pyfile and self.prev_pyfile != pyfile_relpath)\
-                or not keep_changes:
-            # prev_pyfile is not empty and a different file is being rendered
-            # or the scene changed
-            # Clear previous settings
-            self.reset_changes()
-
-        # Update prev_pyfile
-        self.prev_pyfile = pyfile_relpath
-
-        # Render video programmatically
-        # Create worker thread
-        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
-                                        video_quality, self.post_customize_fns,
-                                        self.post_config_settings)
-        self.worker.exceptioned.connect(self.render_failed)
-        self.worker.task_finished.connect(lambda scene: self.render_finished(scene))
-
-        # Set progress bar to busy
-        self.on_render_start()
-
-        # Start worker
-        self.worker.start()
-
-    def on_render_start(self):
-        self.render_progress_bar.show()
-        self.render_progress_bar.set_busy()
-
-    def on_render_finish(self):
-        # Set to unbusy
-        self.render_progress_bar.set_idle()
-        self.render_progress_bar.hide()
-
-    @pyqtSlot(Exception)
-    def render_failed(self, exception):
-        # Print error message to console
-        print(exception)
-
-        # Display error message on GUI
-        info_str = f"The input file could not be rendered." \
-                   f"\n\nError: {exception}"
-        self.show_error("Input file error", info_text=info_str)
-
-        # Stop the progress bar
-        self.on_render_finish()
-
-    @pyqtSlot(object)
-    def render_finished(self, scene):
-        self.on_render_finish()
-
-        # Update the GUI
-        self.scene = scene
-        self.anims = self.scene.metadata_blocks
-
-        # Add animation boxes to scrollbar
-        self.animation_bar.fill_bar(self.anims)
-
-        # Add preconfig settings to panel
-        self.preconfig_panel.load_settings(self.scene.settings)
-
-        # Display video
-        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
-        self.video_player.open_video(video_fp=video_fp)
-
-        # Display button
-        self.show_video_button.show()
-
+    def toggle_mb_end(self):
+        self.choose_mb_end = not self.choose_mb_end
+        self.mb_end_btn.setDown(self.choose_mb_end)
+        self.animation_bar.set_multiblock_selection_mode(self.choose_mb_end)
 
     def multiblock_select(self, start, end):
         # swap start and end if they have been selected the other way around
