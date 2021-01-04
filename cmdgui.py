@@ -330,26 +330,13 @@ class GuiWindow(QMainWindow):
     # ======================
 
     def render_toyexample(self):
-        self.scene_name = "ToyScene"
+        # Fill in fields automatically
+        self.pyfile_lineedit.setText("algomanim_examples/toyexample.py")
+        scene_name = "ToyScene"
+        self.scene_combobox.addItem(scene_name)
+        self.scene_combobox.setCurrentText(scene_name)
 
-        # Render video programmatically
-        self.scene = custom_renderer("algomanim_examples/toyexample.py",
-                                     self.scene_name, VideoQuality.low,
-                                     self.post_customize_fns, self.post_config_settings)
-        self.anims = self.scene.metadata_blocks
-
-        # Add animation boxes to scrollbar
-        self.animation_bar.fill_bar(self.anims)
-
-        # Add preconfig settings to panel
-        self.preconfig_panel.load_settings(self.scene.settings)
-
-        # Display video
-        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
-        self.video_player.open_video(video_fp=video_fp)
-
-        # Display button
-        self.show_video_button.show()
+        self.render_video()
 
     def render_video(self, keep_changes=False):
         # Retrieve render parameters
