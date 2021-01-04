@@ -29,7 +29,7 @@ DEBUG = False
 # ======== Main GUI ========
 
 
-class GuiWindow(QDialog):
+class GuiWindow(QMainWindow):
 
     # pylint: disable=too-many-instance-attributes
     # Instance attributes required to organise window.
@@ -42,6 +42,11 @@ class GuiWindow(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        # QMainWindow boilerplate
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
         self.original_palette = QApplication.palette()
 
         self.setWindowTitle("AlgoManim GUI")
@@ -236,7 +241,7 @@ class GuiWindow(QDialog):
         # Set window to original size when side menu is closed
         self.main_layout.setSizeConstraint(QLayout.SetFixedSize)
 
-        self.setLayout(self.main_layout)
+        self.central_widget.setLayout(self.main_layout)
 
     def toggle_mb_start(self):
         self.choose_mb_start = not self.choose_mb_start
