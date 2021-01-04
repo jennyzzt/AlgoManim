@@ -58,6 +58,10 @@ class GuiWindow(QDialog):
         pyfile_label = QLabel("Python File:")
         self.pyfile_lineedit = QLineEdit()
         self.pyfile_lineedit.setPlaceholderText("Select a Python file")
+
+        # The previous file rendered
+        self.prev_pyfile = ""
+
         # Enforce file selection via dialog
         self.pyfile_lineedit.setReadOnly(True)
         pyfile_label.setBuddy(self.pyfile_lineedit)
@@ -441,6 +445,16 @@ class GuiWindow(QDialog):
                 info_text="You must select a scene to render")
             return
 
+        if (self.prev_pyfile and self.prev_pyfile != pyfile_relpath)\
+                or not keep_changes:
+            # prev_pyfile is not empty and a different file is being rendered
+            # or the scene changed
+            # Clear previous settings
+            self.reset_changes()
+
+        # Update prev_pyfile
+        self.prev_pyfile = pyfile_relpath
+
         # Render video programmatically
         # Create worker thread
         self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
@@ -480,11 +494,6 @@ class GuiWindow(QDialog):
     @pyqtSlot(object)
     def render_finished(self, scene, keep_changes):
         self.on_render_finish()
-
-        # Clear previous settings if scene changed
-        # Uses the flipped flag due to weird signal interactions with default parameters
-        if not keep_changes:
-            self.reset_changes()
 
         # Update the GUI
         self.scene = scene
