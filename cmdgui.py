@@ -459,17 +459,27 @@ class GuiWindow(QDialog):
         self.render_progress_bar.show()
         self.render_progress_bar.set_busy()
 
+    def on_render_finish(self):
+        # Set to unbusy
+        self.render_progress_bar.set_idle()
+        self.render_progress_bar.hide()
+
     @pyqtSlot(Exception)
     def render_failed(self, exception):
+        # Print error message to console
+        print(exception)
+
+        # Display error message on GUI
         info_str = f"The input file could not be rendered." \
                    f"\n\nError: {exception}"
         self.show_error("Input file error", info_text=info_str)
 
+        # Stop the progress bar
+        self.on_render_finish()
+
     @pyqtSlot(object)
     def render_finished(self, scene, keep_changes):
-        # Set to unbusy
-        self.render_progress_bar.set_idle()
-        self.render_progress_bar.hide()
+        self.on_render_finish()
 
         # Clear previous settings if scene changed
         # Uses the flipped flag due to weird signal interactions with default parameters
