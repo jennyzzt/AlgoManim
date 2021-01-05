@@ -6,9 +6,9 @@ import sys
 from pathlib import Path
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QUrl, pyqtSlot
+from PyQt5.QtGui import QIcon
 
 from algomanim.empty_animation import empty_animation
-from gui.custom_renderer import custom_renderer
 from gui.progress_bar import RenderProgressBar, VideoRenderThread
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
@@ -553,6 +553,9 @@ if __name__ == '__main__':
         DEBUG = False
 
     app = QApplication([])  # no cmd line params
+    app.setWindowIcon(QIcon("gui/icon.png"))
+
     gui = GuiWindow()
     gui.show()
+
     sys.exit(app.exec_())
