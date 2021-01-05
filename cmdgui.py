@@ -373,6 +373,7 @@ class GuiWindow(QMainWindow):
                                         video_quality, self.post_customize_fns,
                                         self.post_config_settings)
         self.worker.exceptioned.connect(self.render_failed)
+        # pylint: disable=unnecessary-lambda
         self.worker.task_finished.connect(lambda scene: self.render_finished(scene))
 
         # Set progress bar to busy
