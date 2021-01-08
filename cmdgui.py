@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import ast
 import os
 import platform
@@ -16,7 +17,7 @@ from gui.animation_bar import AnimationBar, is_empty_anim
 from gui.panels.customise_panel import CustomisePanel
 from gui.panels.change_history_panel import ChangeHistoryPanel
 from gui.panels.preconfig_panel import PreconfigPanel
-from anim_change import AnimChange
+from gui.anim_change import AnimChange
 
 
 WORKING_DIR = Path().absolute()
