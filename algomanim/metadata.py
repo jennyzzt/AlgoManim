@@ -28,15 +28,30 @@ def attach_metadata(func):
 
 
 class Metadata:
+
+    '''
+    Information corresponding to top-level operation on a AlgoManim data structure
+
+    Args:
+        meta_name (string): Function name corresponding to this operation
+        animated (bool): Whether this operation is to be played with the previous one
+
+    Attributes:
+        fid (int): Id of this operation, indicating its position respective
+            to other operations with the same name
+        children (LowerMetadata[]): Information corresponding to the lower level functions
+            associated with this operation
+    '''
+
     counter = Counter()
 
     def __init__(self, meta_name, animated=True):
-        self.meta_name = meta_name  # string
+        self.meta_name = meta_name
 
         Metadata.counter[meta_name] += 1
         self.fid = Metadata.counter[meta_name]
 
-        self.animated = animated  # whether this animation follows the previous one
+        self.animated = animated
 
         self.children = []
 
@@ -66,6 +81,16 @@ class Metadata:
 
 class LowerMetadata:
 
+    '''
+    Information corresponding to lower-level operations nested in a Metadata
+
+    Args:
+        meta_name (string): Name of the Metadata that this is nested under
+        action_pair (AlgoSceneActionPair): Animations corresponding to this operation
+        val ([]): List of values affected by function
+        show_in_panel: Whether this operation is shown in the GUI side panel
+    '''
+
     def __init__(self, meta_name, action_pair, val=None, show_in_panel=True):
         if val is None:
             # default to empty list
@@ -74,7 +99,7 @@ class LowerMetadata:
             val = list(filter(lambda v: v is not None, val))
         self.meta_name = meta_name
         self.action_pair = action_pair
-        self.val = val  # list of values affected by function
+        self.val = val
         self.show_in_panel = show_in_panel
 
     def __str__(self):
@@ -82,8 +107,8 @@ class LowerMetadata:
             f', action_pair={self.action_pair})'
 
     @staticmethod
-    # Returns LowerMetadata with the name of the function that called this
     def create(action_pair, val=None, show_in_panel=True):
+        ''' Returns LowerMetadata with the name of the function that called this '''
         currframe = inspect.currentframe()
         return LowerMetadata(inspect.getouterframes(currframe, 2)[1][3],
                              action_pair, val, show_in_panel)

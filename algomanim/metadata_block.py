@@ -1,4 +1,15 @@
 class MetadataBlock:
+
+    '''
+    List of Metadata corresponding to a AnimationBlock
+
+    Args:
+        metadata (Metadata[]): List of Metadata corresponding to the animations of the block
+        action_pairs (AlgoSceneActionPairs[])
+        start_time (float)
+        run_time (float): Total runtime of all the animations in the block
+    '''
+
     def __init__(self, metadata, action_pairs, start_time, runtime):
         self.metadata = metadata
         self.action_pairs = action_pairs
@@ -6,7 +17,7 @@ class MetadataBlock:
         self.runtime = runtime
 
     def desc(self, sep='\n'):
-        # Get all relevant animation information stored in the action pair metadata
+        ''' Get all relevant animation information stored in the action pair metadata '''
         return self.metadata.desc(sep=sep)
 
     def start_position(self):

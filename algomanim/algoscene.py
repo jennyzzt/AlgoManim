@@ -166,6 +166,7 @@ class AlgoScene(MovingCameraScene):
                 prev_node = node
 
     def chain_pin_highlight_line(self, pin_str, highlight_color=None, dehighlight=True):
+        ''' chain_pin_highlight of lines between nodes (graphs/trees) '''
         pins = self.find_pin(pin_str)
         prev_node = None
         prev_edge = None
@@ -421,6 +422,7 @@ class AlgoScene(MovingCameraScene):
         return self.settings['show_code']
 
     def algo_codeanim(self):
+        ''' For animation of code alongside data structure '''
         # import necessary modules
         file_path = inspect.getsourcefile(self.algo)
         imports = get_imports(file_path)
@@ -551,7 +553,7 @@ class AlgoScene(MovingCameraScene):
         settings.update(self.post_config_settings)
 
     def create_animation_blocks(self, action_pairs, anim_blocks): # pylint: disable=R0201
-        # convert action_pairs into anim_blocks
+        ''' Convert action_pairs into anim_blocks '''
         start_time = 0
         for action_pair in action_pairs:
             action = action_pair.curr_action()

@@ -67,6 +67,7 @@ class AlgoSceneAction:
         transform (AlgoTransform): Argument for the Manim action
         w_prev (bool): If this action is to be played with the previous action
         can_set_runtime (bool): If this action is animated with a runtime
+        is_wait (bool): If this action is a pause, and has a waiting time
     '''
 
     # pylint: disable=R0913
@@ -75,7 +76,7 @@ class AlgoSceneAction:
         self.transform = transform
         self.w_prev = w_prev
         self.can_set_runtime = can_set_runtime
-        self.is_wait = is_wait # for setting runtime of self.wait
+        self.is_wait = is_wait
 
     @staticmethod
     def create_static_action(function, args=None, color_index=None):
