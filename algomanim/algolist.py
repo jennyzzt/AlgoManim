@@ -77,7 +77,7 @@ class AlgoList(AlgoObject):
                           metadata=metadata, animated=animated, w_prev=w_prev)
         return val1 < val2
 
-    
+
     def group(self, metadata=None, immediate_effect=False):
         ''' Restores the internal VGroup of list nodes, especially if the list has been edited '''
         def group():
