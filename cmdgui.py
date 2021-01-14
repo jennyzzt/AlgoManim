@@ -10,6 +10,7 @@ from PyQt5.QtCore import QUrl, pyqtSlot
 from PyQt5.QtGui import QIcon
 
 from algomanim.empty_animation import empty_animation
+from gui.custom_renderer import custom_renderer
 from gui.progress_bar import RenderProgressBar, VideoRenderThread
 from gui.video_player import VideoPlayerWidget
 from gui.video_quality import VideoQuality
@@ -138,15 +139,15 @@ class GuiWindow(QMainWindow):
 
         # ========= Busy indicator / Progress bar =========
 
-        self.render_progress_bar = RenderProgressBar()
+        # self.render_progress_bar = RenderProgressBar()
 
         # ========= Groupbox =========
 
         options_layout = QVBoxLayout()
         options_layout.addLayout(text_layout)
         options_layout.addLayout(quality_layout)
-        options_layout.addWidget(self.render_progress_bar)
-        self.render_progress_bar.hide()
+        # options_layout.addWidget(self.render_progress_bar)
+        # self.render_progress_bar.hide()
 
         options_groupbox = QGroupBox()
         options_groupbox.setLayout(options_layout)
@@ -369,48 +370,23 @@ class GuiWindow(QMainWindow):
         self.prev_pyfile = pyfile_relpath
 
         # Render video programmatically
-        # Create worker thread
-        self.worker = VideoRenderThread(pyfile_relpath, self.scene_name,
-                                        video_quality, self.post_customize_fns,
-                                        self.post_config_settings)
-        self.worker.exceptioned.connect(self.render_failed)
-        # pylint: disable=unnecessary-lambda
-        self.worker.task_finished.connect(lambda scene: self.render_finished(scene))
+        try:
+            scene = custom_renderer(pyfile_relpath, self.scene_name,
+                                    video_quality, self.post_customize_fns,
+                                    self.post_config_settings)
 
-        # Set progress bar to busy
-        self.on_render_start()
+            # Update the GUI
+            self.scene = scene
+        except Exception as exception:
+            # Print error message to console
+            print(exception)
 
-        # Start worker
-        self.worker.start()
+            # Display error message on GUI
+            info_str = f"The input file could not be rendered." \
+                       f"\n\nError: {exception}"
+            self.show_error("Input file error", info_text=info_str)
 
-    def on_render_start(self):
-        self.render_progress_bar.show()
-        self.render_progress_bar.set_busy()
 
-    def on_render_finish(self):
-        # Set to unbusy
-        self.render_progress_bar.set_idle()
-        self.render_progress_bar.hide()
-
-    @pyqtSlot(Exception)
-    def render_failed(self, exception):
-        # Print error message to console
-        print(exception)
-
-        # Display error message on GUI
-        info_str = f"The input file could not be rendered." \
-                   f"\n\nError: {exception}"
-        self.show_error("Input file error", info_text=info_str)
-
-        # Stop the progress bar
-        self.on_render_finish()
-
-    @pyqtSlot(object)
-    def render_finished(self, scene):
-        self.on_render_finish()
-
-        # Update the GUI
-        self.scene = scene
         self.anims = self.scene.metadata_blocks
 
         # Add animation boxes to scrollbar
@@ -425,6 +401,7 @@ class GuiWindow(QMainWindow):
 
         # Display button
         self.show_video_button.show()
+
 
     # =========================
     #     Animation timeline
