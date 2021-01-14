@@ -377,6 +377,20 @@ class GuiWindow(QMainWindow):
 
             # Update the GUI
             self.scene = scene
+            self.anims = self.scene.metadata_blocks
+
+            # Add animation boxes to scrollbar
+            self.animation_bar.fill_bar(self.anims)
+
+            # Add preconfig settings to panel
+            self.preconfig_panel.load_settings(self.scene.settings)
+
+            # Display video
+            video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
+            self.video_player.open_video(video_fp=video_fp)
+
+            # Display button
+            self.show_video_button.show()
         except Exception as exception:
             # Print error message to console
             print(exception)
@@ -385,22 +399,6 @@ class GuiWindow(QMainWindow):
             info_str = f"The input file could not be rendered." \
                        f"\n\nError: {exception}"
             self.show_error("Input file error", info_text=info_str)
-
-
-        self.anims = self.scene.metadata_blocks
-
-        # Add animation boxes to scrollbar
-        self.animation_bar.fill_bar(self.anims)
-
-        # Add preconfig settings to panel
-        self.preconfig_panel.load_settings(self.scene.settings)
-
-        # Display video
-        video_fp = WORKING_DIR / f'media/algomanim/videos/{self.scene_name}.mp4'
-        self.video_player.open_video(video_fp=video_fp)
-
-        # Display button
-        self.show_video_button.show()
 
 
     # =========================
