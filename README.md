@@ -1,5 +1,8 @@
 # Introduction to AlgoManim
 
+## What is AlgoManim?
+A Python GUI-based application to create beautiful Manim animations for algorithms and data structures.
+
 ## Installation
 Assumes setup on Ubuntu Linux.
 
